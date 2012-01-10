@@ -9,7 +9,7 @@ my ($dsn, $username, $password) = getConfig();
 __PACKAGE__->connection( $dsn, $username, $password );
 
 sub getConfig {
-    return ('dbi:mysql:MTGCommunityAnnot:mysql51-lan-pro','vkrishna', 'L0g!n2db');
+  return ('dbi:mysql:MTGCommunityAnnot:mysql-lan-pro','vkrishna', 'L0g!n2db');
 }
 
 1;
