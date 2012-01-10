@@ -1,0 +1,53 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN"
+"http://www.w3.org/TR/html4/strict.dtd">
+<!-- $Id: review_annotation.tmpl 538 2007-07-24 00:19:51Z hamilton $ -->
+<html>
+<head>
+<title>Review Annotation</title>
+<link href="/css/eucap.css" rel="stylesheet" type="text/css">
+</head>
+
+<body>
+  <form name="back_to_annotation" method="post" action="/cgi-bin/eucap.pl">
+    <input type="hidden" name="action" value="annotate">
+    <input type="submit" name="back" value="Back to Main Annotation Page">
+  </form>
+<h2>Review of Community Annotation For: <TMPL_VAR NAME="family_name"> Gene Family</h2>
+
+
+<table class="data" cellspacing="0" cellpadding="5px" width="100%">
+<tr>
+<th>Locus</th>
+<th>Orig Annotation</th>
+<th>Gene Name</th>
+<th>Alt Gene Name</th>
+<th>Gene Desc</th>
+<th>Genomic GB Acc</th>
+<th>cDNA GB Acc</th>
+<th>Protein GB Acc</th>
+<th>Mutant Info</th>
+<th>Comment</th>
+<th>Has Struct Anno?</th>
+</tr>
+<TMPL_LOOP NAME="review_loop">
+
+<tr>
+<td><TMPL_VAR NAME="locus_name"></td>
+<td><TMPL_VAR NAME="original_annotation"></td>
+<td><TMPL_VAR NAME="gene_name"></td>
+<td><TMPL_VAR NAME="alt_gene_name"></td>
+<td><TMPL_VAR NAME="gene_description"></td>
+<td><TMPL_VAR NAME="genbank_genomic_acc"></td>
+<td><TMPL_VAR NAME="genbank_cdna_acc"></td>
+<td><TMPL_VAR NAME="genbank_protein_acc"></td>
+<td><TMPL_VAR NAME="mutant_info"></td>
+<td><TMPL_VAR NAME="comment"></td>
+<td align="center"><TMPL_IF NAME="has_structural_annotation">Yes<TMPL_ELSE>No</TMPL_IF></td>
+</tr>
+
+</TMPL_LOOP>
+</table>
+
+
+</body>
+</html>

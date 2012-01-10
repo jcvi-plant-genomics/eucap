@@ -1,0 +1,33 @@
+EuCAP - Eukaryotic Community Annotation Package - INSTALL
+$Id: INSTALL 546 2007-08-01 00:00:34Z hamilton $
+Rice Genome Annotation Project - http://rice.tigr.org Email: rice@tigr.org
+
+For more information about EuCAP, see the README and LICENSE file in the package.
+PREREQUISITES
+* Perl (version >= 5.8.8,  http://www,cpan.org) 
+* Apache (http://www.apache.org)
+* MySQL (http://www.mysql.com)
+* BioPerl (version >= 1.5.1, http://www.bioperl.org )
+* GMAP (needed for off-line submissions, http://www.gene.com/share/gmap/ )
+* The following perl modules must be installed (available from CPAN - http://www,cpan.org):
+
+  CGI::Session
+  Authen::Passphrase::MD5Crypt
+  HTML::Template
+  DBI
+  DBD::mysql
+  Class::DBI
+  IO::String
+  JSON
+
+* The file json.js needs to be present in the javascript directory in the webserver document root, it can be downloaded here: http://www.json.org/json.js
+
+INSTALLATION
+
+Open the package archive in the cgi-bin directory of your web server. Make a js and css directory in the document root if you do not already have ones present and copy the files in the css and js directories of the package into them.
+
+The main cgi script (eucap.pl) and the pipeline scripts in the bin directory may need configuring of database connection parameters, web server paths, etc, to workl correctly. These parameters are at the top of the scripts and have upper case variable names.
+
+The main community annotation database schema is in the schema directory and should be installed on a MySQL database.
+
+For more information about the use of EuCAP, see the README file.

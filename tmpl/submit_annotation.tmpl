@@ -1,0 +1,41 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN"
+"http://www.w3.org/TR/html4/strict.dtd">
+<!-- $Id: submit_annotation.tmpl 538 2007-07-24 00:19:51Z hamilton $ -->
+<html>
+<head>
+<title>Submit Annotation</title>
+</style>
+<script src="/js/eucap.js" type="text/javascript"></script>
+<link href="/css/eucap.css" rel="stylesheet" type="text/css">
+</head>
+
+<body>
+  <form name="back_to_annotation" method="post" action="/cgi-bin/eucap.pl">
+    <input type="hidden" name="action" value="annotate">
+    <input type="submit" name="back" value="Back to Main Annotation Page">
+  </form>
+<h2>Submit Annotation for <TMPL_VAR NAME="family_name"></h2>
+
+<div class="panel_background">
+<p>Do you want to submit your community annotation for this gene
+  family to the community annotation curators and make you annotation
+  public on our website and databases?</p>
+
+<form name="logout" action="/cgi-bin/eucap.pl" method="post" >
+<input type="hidden" name="action" value="final_submit">
+<table border="0" cellpadding="5px" cellspacing="0">
+<tr>
+  <td>Yes: </td>
+  <td><input type="radio" name="submit_query" value="yes"> </td>
+  <td>No: </td>
+  <td><input type="radio" name="submit_query" value="no" checked="checked"></td>
+</tr>
+<tr>
+  <td colspan="4"><input type="submit" name="submit" value="Submit Final Annotation?"></td>
+</tr>
+</table>
+</form>
+</div>
+
+</body>
+</html>

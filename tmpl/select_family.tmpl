@@ -1,0 +1,76 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<!-- $Id: select_family.tmpl 538 2007-07-24 00:19:51Z hamilton $ -->
+<html>
+<head>
+	<title>
+		EuCAP - Select Gene Family
+	</title>
+<link href="/css/eucap.css" rel="stylesheet" type="text/css">
+</head>
+<body>  
+<div style="text-align:right;">
+  <form name="logout" action="/cgi-bin/eucap.pl" method="post" >
+		<input type="hidden" name="action" value="logout">
+		<input type="submit" value="Logout">
+                </form>
+   
+           </div>
+
+<h2>Select a Gene Family to Annotate</h2>
+
+<div class="panel_background">
+
+<p class="big_bold">Welcome <TMPL_VAR NAME="name"></p>
+
+<hr />
+
+<p class="big_bold">User Details:</p>
+<ul>
+  <TMPL_IF NAME="organization">
+     <li>Organization: <TMPL_VAR NAME="organization"></li>
+  </TMPL_IF>
+  <TMPL_IF NAME="email">
+    <li>Email: <TMPL_VAR NAME="email"></li>
+  </TMPL_IF>
+  <TMPL_IF NAME="url">
+    <li>Website: <TMPL_VAR NAME="url"></li>
+  </TMPL_IF>
+</ul>
+
+<hr />
+<form name="select_annotation" action="/cgi-bin/eucap.pl" method="post">
+<input type="hidden" name="action" value="annotate">
+<p class="big_bold">Gene Families</p>
+<p>Please select the gene family you wish to annotate:</p>
+<table cellspacing="0" cellpadding="5px" border="0">
+  <tr>
+    <th>&nbsp;</th>
+    <th>Gene Family</th>
+    <th>Description</th>
+  </tr>
+<TMPL_LOOP NAME="gene_family_radio">
+  <tr>
+    <td><input type="radio" name="family_id"
+    value="<TMPL_VAR NAME="family_id">"></td>
+    <td><TMPL_VAR NAME="name"></td>
+    <td><TMPL_VAR NAME="description"></td>
+  </tr>
+</TMPL_LOOP>
+</table>
+<hr />
+<table cellspacing="0" cellpadding="5px" border="0" >
+<tr>
+<td>
+<input type="submit" name="annotate" value="Annotate Gene Family">
+</td>
+<td>
+<input type="reset">
+</td>
+</tr>
+</table>
+</form>
+
+</div>
+
+</body>
+</html>

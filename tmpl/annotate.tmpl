@@ -1,0 +1,215 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<!-- $Id: annotate.tmpl 538 2007-07-24 00:19:51Z hamilton $ -->
+<html>
+<head>
+	<title>
+		EuCAP - Annotate Gene Family
+	</title>
+<script src="/js/eucap.js" type="text/javascript"></script>
+<link href="/css/eucap.css" rel="stylesheet" type="text/css">
+</head>
+<body>
+<div align="right">
+  <form name="logout" action="/cgi-bin/eucap.pl" method="post" >
+		<input type="hidden" name="action" value="logout">
+               
+		<input type="submit" value="Logout">
+                </form>
+              </div>
+<h1>Community Annotation for
+  the <TMPL_VAR NAME="name"> Gene Family</h1>
+<h2>Description: <TMPL_VAR NAME="description"></h2>
+
+<div class="large_margin">
+  <input type="button" name="hide_panel" value="Hide Add Gene Family Panel" onclick="hide_panel(this)">
+</div>
+<div class="panel_background large_margin" style="display:block;" id="add_panel"> 
+
+<h3>Add gene family members:</h3>
+<form name="annotate" action="/cgi-bin/eucap.pl"
+      method="post">
+<input type="hidden" name="action" value="" id="action">
+<input type="hidden" name="locus" value="" id="locus">
+<p class="big">Please input locus identifiers:</p>
+
+<table cellspacing="0" cellpadding="2" border="0">
+  <tr>
+    <td rowspan="2">
+      <textarea cols="14" rows="5" name="locus_list"
+      id="locus_list"></textarea>
+    </td>
+    <td>
+      <input type="submit" value="Add Loci" onclick="set_action(this)">
+  </td>
+  </tr>
+  <tr>
+    <td>
+      <input type="button" value="Reset" onclick="clear_textarea('locus_list')">
+    </td>
+  </tr>
+</table>
+<p class="big">Alternatively, please input protein OR nucleotide sequences
+(in FASTA format) or locus identifiers to identify rice homologs:</p>
+<p>Please select the type of sequences entered:</p>
+<table>
+  <tr>
+    <td>Protein: </td>
+    <td><input type="radio" name="seqtype" value="protein" checked="checked"></td>
+    <td>Nucleotide</td>
+    <td><input type="radio" name="seqtype" value="dna"></td>
+  </tr>
+</table>
+<textarea cols="60" rows="5" id="fasta" name="fasta"></textarea>
+<p>E value: <select name="evalue">
+    <option value="1e-50">1e-50</option>
+    <option selected="selected" value="1e-20">1e-20</option>
+    <option value="1e-10">1e-10</option>
+    <option value="1e-5">1e-5</option>
+    </select>
+  </p>
+
+<input type="submit" value="Find Homologs" onclick="set_action(this)">
+<input type="button" value="Reset" onclick="clear_textarea('fasta')">
+
+</div>
+
+<hr class="large_margin">
+
+<div id="blast_results">
+  <TMPL_IF NAME="blast_results">
+    <p class="big"><TMPL_VAR NAME="total_hits"> hits for query: <TMPL_VAR NAME="query_name"> </p>
+    <table class="data large_margin" cellspacing="0" cellpadding="5px">
+      <tr>
+        <th>Add</th>
+        <th>Locus Hit</th>
+        <th>Length</th>
+        <th>Score</th>
+        <th>E-value</th>
+        <th>Description</th>
+      </tr>
+      <TMPL_LOOP NAME="blast_loop">
+        <tr>
+          <td><input type="checkbox" name="add" value="<TMPL_VAR NAME="locus">"></td>
+          <td><TMPL_VAR NAME="locus"></td>
+          <td><TMPL_VAR NAME="locus"></td>
+          <td><TMPL_VAR NAME="length"></td>
+          <td><TMPL_VAR NAME="score"></td>
+          <td><TMPL_VAR NAME="e_value"></td>
+          <td><TMPL_VAR NAME="description"></td>
+        </tr>
+        </TMPL_LOOP>
+    </table>
+<table border="0" cellspacing="0" cellpadding="5px" class="large_margin">
+  <tr>  
+  <td><input type="button" name="add_loci_button" value="Add Selected Loci" onclick="add_blast_loci()"> </td> 
+    <td><input type="button" name="select_all_hits" value="Select All Blast Hits" onclick="select_all_blast_hits()"></td>
+    <td><input type="button" name="clear_all_hits" value="Clear Selected Blast Hits" onclick="clear_all_blast_hits()"></td>
+     <td><input type="button" name="remove_blast_results" value="Remove Blast Results Panel" onclick="remove_blast_div()"></td>
+</table>
+<hr>
+  </TMPL_IF>
+</div>
+
+<h2>Gene Family Members and Annotation:</h2>
+
+<table border="0" cellspacing="0" cellpadding="5px">
+<tr>
+<td><input type="button" value="Select All" onclick=""><td>
+<td><input type="button" value="Unselect All" onclick=""></td>
+<td><input type="submit" value="Delete Checked" onclick="set_action(this)"></td>
+<td><input type="submit" value="Save Functional Annotation to Database" onclick="set_action(this)"></td>
+<td><input type="submit" value="Review All Annotation" onclick="set_action(this)"></td>
+<td><input type="submit" value="Submit Annotation" onclick="set_action(this)"></td>
+</tr>
+<table>
+
+<TMPL_IF NAME="annotation_loop">
+
+
+
+<TMPL_LOOP NAME="annotation_loop">
+<table width="100%" class="data" style="margin-top:15px;margin-bottom:15px;" cellspacing="0" cellpadding="3px">
+<tr>
+  <td class="bold">Delete?</td>
+  <td class="bold">Locus</td>
+  <td class="bold">Current Annotation</td>
+  <td class="bold">Gene Name</td>
+  <td class="bold">Alt Gene Name</td>
+  <td colspan="2" class="bold">Gene Description</td>
+</tr>
+<tr>
+  <td>
+    <input type="checkbox" name="delete" value="<TMPL_VAR NAME="locus_id">">
+   </td>
+  <td class="bold">
+   <TMPL_VAR NAME="locus_name"><input type="hidden" name="locus_id"
+   value="<TMPL_VAR NAME="locus_id">">
+  </td>
+  <td>
+    <TMPL_VAR NAME="original_annotation">
+</td>
+<td>
+  <input type="text" name="gene_name_<TMPL_VAR NAME="locus_id">" value="<TMPL_IF NAME="gene_name"><TMPL_VAR NAME="gene_name"></TMPL_IF>">
+</td>
+<td>
+  <input type="text" name="alt_gene_name_<TMPL_VAR NAME="locus_id">" value="<TMPL_IF NAME="alt_gene_name"><TMPL_VAR NAME="alt_gene_name"></TMPL_IF>">
+</td>
+<td colspan="2">
+  <input type="text" name="gene_description_<TMPL_VAR NAME="locus_id">" value="<TMPL_IF NAME="gene_description"><TMPL_VAR NAME="gene_description"></TMPL_IF>">
+</td>
+</tr>
+
+<tr>
+  <td class="data">Genomic Acc</td>
+  <td class="data">cDNA Acc</td>
+  <td class="data">Protein Acc</td>
+  <td class="data">Mutant Info</td>
+  <td class="data">Comment</td>
+  <td class="data">Struct Anno?</td>
+  <td class="data">Open Struct<br>Anno Page</td>
+</tr>
+
+<tr>
+<td>
+  <input type="text" name="genbank_genomic_acc_<TMPL_VAR NAME="locus_id">" value="<TMPL_IF NAME="genbank_genomic_acc"><TMPL_VAR NAME="genbank_genomic_acc"></TMPL_IF>">
+</td>
+<td>
+  <input type="text" name="genbank_cdna_acc_<TMPL_VAR NAME="locus_id">" value="<TMPL_IF NAME="genbank_cdna_acc"><TMPL_VAR NAME="genbank_cdna_acc"></TMPL_IF>">
+</td>
+<td>
+  <input type="text" name="genbank_protein_acc_<TMPL_VAR NAME="locus_id">" value="<TMPL_IF NAME="genbank_protein_acc"><TMPL_VAR NAME="genbank_protein_acc"></TMPL_IF>">
+</td>
+<td>
+  <input type="text" name="mutant_info_<TMPL_VAR NAME="locus_id">" value="<TMPL_IF NAME="mutant_info"><TMPL_VAR NAME="mutant_info"></TMPL_IF>">
+</td>
+<td>
+  <input type="text" name="comment_<TMPL_VAR NAME="locus_id">" value="<TMPL_IF NAME="comment"><TMPL_VAR NAME="comment"></TMPL_IF>">
+</td>
+<td align="center"><TMPL_IF NAME="has_structural_annotation">Yes<TMPL_ELSE>No</TMPL_IF></td>
+<td align="center"><input type="submit" name="" value="Go" onclick="set_action(this, '<TMPL_VAR NAME="locus_name">')"></td>
+</tr>
+</table>
+</TMPL_LOOP>
+<TMPL_ELSE>
+<br><br>
+<h2>No loci selected for this gene family.</h2>
+</TMPL_IF>
+
+<hr>
+
+<table border="0" cellspacing="0" cellpadding="5px">
+<tr>
+<td><input type="button" value="Select All" onclick=""><td>
+<td><input type="button" value="Unselect All" onclick=""></td>
+<td><input type="submit" value="Delete Checked" onclick="set_action(this)"></td>
+<td><input type="submit" value="Save Functional Annotation to Database" onclick="set_action(this)"></td>
+<td><input type="submit" value="Review All Annotation" onclick="set_action(this)"></td>
+<td><input type="submit" value="Submit Annotation" onclick="set_action(this)"></td>
+</tr>
+<table>
+
+</hr>
+</form>
+
+</body>
+</html>

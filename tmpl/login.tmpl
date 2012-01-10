@@ -1,0 +1,46 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<!-- $Id: login.tmpl 538 2007-07-24 00:19:51Z hamilton $ -->
+<html>
+<head>
+	<title>
+		EuCAP - Login
+	</title>
+<link href="/css/eucap.css" rel="stylesheet" type="text/css">
+</head>
+<body>
+	<h1>Eucaryotic Community Annotation Package (EuCAP)</h1>
+        <h2>Community Annotation Web Tool</h2>
+<div class="panel_background">
+	<p class="big_bold">Please log in:</p>
+	<TMPL_IF NAME="error">
+		<h3><TMPL_VAR NAME="error_string"></h3> 
+	</TMPL_IF>
+	
+	<table border="0" cellspacing="0" cellpadding="5px">
+	<form action="/cgi-bin/eucap.pl" method="post" >
+	<input type="hidden" name="action" value="select_family">
+          <tr>
+			<td>Username: </td>
+			<td><input type="text" name="username"></td>
+		</tr>
+		<tr>
+			<td>Password: </td>
+			<td><input type="password" name="password"></td>
+		</tr>
+		<!-- spacing -->
+		<tr>
+			<td colspan="2">&nbsp;</td>		
+		</tr>
+		<tr>
+			<td>
+				<input type="submit" value="Log in">
+			</td>
+			<td>
+				<input type="reset">
+			</td>
+		</tr>
+	</form>
+	</table>
+      </div>
+</body>
+</html>

@@ -1,0 +1,24 @@
+EuCAP - Eukaryotic Community Annotation Package - README
+$Id: README 546 2007-08-01 00:00:34Z hamilton $
+Rice Genome Annotation Project - http://rice.tigr.org Email: rice@tigr.org
+
+INTRODUCTION
+The Eukaryotic Community Annotation Package (EuCAP) is a web tool and pipeline to that facilitates that submission of community annotation to a genome annotation project. It was developed for the community annotation submissions for the Rice Genome Annotation Project (http://rice.tigr.org).
+
+INSTALLATION
+See the file INSTALL in the package distribution.
+
+LICENSE
+See the file LICENSE in the package distribution.
+
+DESCRIPTION
+
+The handling of the community annotation data has two distinct phase. First is entry of the community annotation data by the web tool or by email submission. The email submission of functional annotation data must be parsed and loaded into the community annotation database (see bin/load_ca_db_from_excel.pl). For details of what data is captured in the database, please reference the community annotation database schema (see schema/eucap_schema.sql)
+
+If cDNA sequences are submitted as structural annotation, they must be aligned to the reference genome using GMAP. The GMAP output is parsed and GFF2 of the community annotation gene models is created and loaded into a GFF database of the existing genome annotation (see bin/gmap_output_to_model_gff.pl)
+
+Now that the community annotation database contains the submitted data, the ca_pic_generator.pl script is run to produce pictures of the region around annotated locus showing the existing genome annotation and the newly submitted community annotation. The script create_gene_family_page.pl generates a web page that displays the picture created with the previous script along with the submitted functional annotation. This page can be used to curate the submission, and in the case of the Rice Genome Annotation Project, modified to serve as the web display of submitted community annotation.
+
+The web tool templates and cascading style sheet (CSS) and very basic and general and can be customized for the layout and style of your website.
+
+END
