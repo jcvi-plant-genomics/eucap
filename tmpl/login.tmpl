@@ -1,46 +1,39 @@
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
-<!-- $Id: login.tmpl 538 2007-07-24 00:19:51Z hamilton $ -->
-<html>
-<head>
-	<title>
-		EuCAP - Login
-	</title>
-<link href="/css/eucap.css" rel="stylesheet" type="text/css">
-</head>
-<body>
-	<h1>Eucaryotic Community Annotation Package (EuCAP)</h1>
-        <h2>Community Annotation Web Tool</h2>
+	<p class="header1">Eucaryotic Community Annotation Package (EuCAP)</p>
+	  <p class="header2"><em>Medicago truncatula</em> Community Annotation Portal</p>
 <div class="panel_background">
-	<p class="big_bold">Please log in:</p>
+	<p class="header3">Please log in:</p>
 	<TMPL_IF NAME="error">
-		<h3><TMPL_VAR NAME="error_string"></h3> 
+		<p style="color:red"><TMPL_VAR NAME="error_string"></p> 
 	</TMPL_IF>
 	
-	<table border="0" cellspacing="0" cellpadding="5px">
-	<form action="/cgi-bin/eucap.pl" method="post" >
+	<table>
+	<tbody>
+	<form action="/cgi-bin/medicago/eucap/eucap.pl" method="post" >
 	<input type="hidden" name="action" value="select_family">
           <tr>
-			<td>Username: </td>
-			<td><input type="text" name="username"></td>
+			<td><p>Username: </p></td>
+			<td><p><input type="text" name="username" id="username"></p></td>
 		</tr>
 		<tr>
-			<td>Password: </td>
-			<td><input type="password" name="password"></td>
+			<td><p>Password: </p></td>
+			<td><p><input type="password" name="password" is="password"></p></td>
 		</tr>
 		<!-- spacing -->
 		<tr>
-			<td colspan="2">&nbsp;</td>		
+			<td colspan="2">&nbsp;</p></td>		
 		</tr>
 		<tr>
-			<td>
+			<td><p>
 				<input type="submit" value="Log in">
-			</td>
-			<td>
+			</p></td>
+			<td><p>
 				<input type="reset">
-			</td>
+			</p></td>
 		</tr>
 	</form>
+	</tbody>
 	</table>
-      </div>
-</body>
-</html>
+</div>
+<script type="text/javascript">
+  document.getElementById('username').focus();
+</script>

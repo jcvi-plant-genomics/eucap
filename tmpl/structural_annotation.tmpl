@@ -1,48 +1,51 @@
+<!--
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN"
 "http://www.w3.org/TR/html4/strict.dtd">
-<!-- $Id: structural_annotation.tmpl 538 2007-07-24 00:19:51Z hamilton $ -->
 <html>
 <head>
 <title>Strucutral Annotation</title>
-<script src="/js/json.js"  type="text/javascript"></script>
-<script src="/js/eucap.js" type="text/javascript"></script>
-<link href="/css/eucap.css" rel="stylesheet" type="text/css">
+<script src="/medicago/js/json.js"  type="text/javascript"></script>
+<script src="/medicago/js/eucap.js" type="text/javascript"></script>
+<link href="/medicago/css/eucap.css" rel="stylesheet" type="text/css">
 <style type="text/css">
 .feature { text-align:center; }
 </style>
 </head>
 
 <body>
-<form name="back_to_annotation" method="post" action="/cgi-bin/eucap.pl">
+-->
+<form name="back_to_annotation" method="post" action="/cgi-bin/medicago/eucap/eucap.pl">
 <input type="hidden" name="action" value="annotate">
-<input type="submit" name="back" value="Back to Main Annotation Page">
+<p><input type="submit" name="back" value="Back to Main Annotation Page"></p>
 </form>
-<h2>Structural Annotation for Locus: <TMPL_VAR NAME="locus"></h2>
 
-<p style="width:640px;background-color:#F4FFE3;padding:10px;">Useful links for structural annotation - <br>
-<a href="http://deepc2.psi.iastate.edu/aat/align/align.html">Iowa
-  State AAT server</a>
-<p>
+<p class="header1">Structural Annotation for Locus: <TMPL_VAR NAME="locus"></p>
 
 <img id="ca_image" border="0" src="<TMPL_VAR NAME="img_path">" usemap="#<TMPL_VAR NAME="map_name">">
 
-<p class="small">Exon Coordinate info - Roll the mouse cursor over the
+<p>Exon Coordinate info - Roll the mouse cursor over the
   exon features above to display their coordinates:</p>
 <p>
 <form name="subfeature_coords">
-  <td>Rel Start:</td>
-  <td><input type="text" name="rel_end5" value="" size="6"></td>
-  <td>Rel End:</td>
-  <td><input type="text" name="rel_end3" value="" size="6"></td>
+<table>
+<tbody>
+<tr>
+  <td><p>Rel Start:</p></td>
+  <td><p><input type="text" name="rel_end5" value="" size="6"></p></td>
+  <td><p>Rel End:</p></td>
+  <td><p><input type="text" name="rel_end3" value="" size="6"></p></td>
 
-  <td>Abs Start:</td>
-  <td><input type="text" name="abs_end5" value="" size="10"></td>
-  <td>Abs End:</td>
-  <td><input type="text" name="abs_end3" value="" size="10"></td>
+  <td><p>Abs Start:</p></td>
+  <td><p><input type="text" name="abs_end5" value="" size="10"></p></td>
+  <td><p>Abs End:</p></td>
+  <td><p><input type="text" name="abs_end3" value="" size="10"></p></td>
+</tr>
+</tbody>
+</table>
 </form>
 <p>
 
-<form action="/cgi-bin/eucap.pl" method="post"
+<form action="/cgi-bin/medicago/eucap/eucap.pl" method="post"
       name="struct_anno"> 
 
 <input type="hidden" name="action" id="action" value="struct_anno">
@@ -56,62 +59,56 @@
 <input type="hidden" name="locus_strand"
       value="<TMPL_VAR NAME="locus_strand">">
 <!-- end hidden inputs -->
-<p class="small" style="width:600px;">
+<p style="width:600px;">
 Modify the gene structure using the table below and press "View
 Annotation" to view the community annotation model above. The coding
 and translated sequence will be displayed below. Press "Submit
 Annotation" to save the gene model to the database.
 </p>
-<table id="ca" border="1" width="640px" cellspacing="0"
-       cellpadding="5px" class="data">
+<table id="ca" width="640px" class="contenttable">
 <thead>
-<tr>
-  <th>Delete Feature</th>
-  <th>Feat Type</th>
-<th>Start</th>
-<th>Stop</th>
-</tr>
+  <tr class="tableHeader">
+    <td><p>Delete Feature</p></td>
+    <td><p>Feat Type</p></td>
+    <td><p>Start</p></td>
+    <td><p>Stop</p></td>
+  </tr>
 </thead>
 <tbody id="ca_table_body">
   <TMPL_LOOP NAME="ca_anno_loop">
-    <tr class="add"><td colspan="4" align="right"><input type="button" name="add_feature"
-    value="Add Feature" onclick="addFeature(this)"></td></tr>
+    <tr class="add tableRowEven"><td colspan="4" align="right"><p><input type="button" name="add_feature" value="Add Feature" onclick="addFeature(this)"></p></td></tr>
     <tr class="feature">
-      <td><input type="button" name="delete" value="Delete" onclick="deleteFeature(this)"></td>
-      <td>
-        <select name="type">
-         
-            <option
-            value="CDS" <TMPL_IF
-            NAME="CDS">selected="selected"</TMPL_IF> >CDS</option>
-           
-          <option value="UTR" <TMPL_UNLESS NAME="CDS">selected="selected"</TMPL_UNLESS>>UTR</option>
-        </select>
-      </td>
-      <td><input type="text" name="start" size="10" value="<TMPL_VAR NAME="start">"></td>
-      <td><input type="text" name="stop" size="10" value="<TMPL_VAR NAME="stop">"></td>
+      <td><p><input type="button" name="delete" value="Delete" onclick="deleteFeature(this)"></p></td>
+      <td><p><select name="type">
+      <option value="CDS" <TMPL_IF NAME="CDS">selected="selected"</TMPL_IF> >CDS</option>
+      <option value="UTR" <TMPL_UNLESS NAME="CDS">selected="selected"</TMPL_UNLESS>>UTR</option>
+      </select></p></td>
+      <td><p><input type="text" name="start" size="10" value="<TMPL_VAR NAME="start">"></p></td>
+      <td><p><input type="text" name="stop" size="10" value="<TMPL_VAR NAME="stop">"></p></td>
     </tr>
   </TMPL_LOOP>
-  <tr class="add"><td colspan="4" align="right"><input type="button" name="add_feature"
-    value="Add Feature" onclick="addFeature(this)"></td></tr>
+  <tr class="add tableRowEven"><td colspan="4" align="right"><p><input type="button" name="add_feature" value="Add Feature" onclick="addFeature(this)"></p></td></tr>
 </tbody>
 <table>
 
-<table border="0" cellspacing="0" cellpadding="5px" width="640px">
+<table width="640px">
+<tbody>
 <tr>
-<td align="center">
-<input type="button" name="view_annotation" value="View Annotation"
-    onclick="viewAnnotation()">
-</td>
-<td>
-<input type="button" name="submit_annotation"
- value="Submit Annotation To Database" onclick="submitAnnotation()">
-</td align="center">
+<td align="center"><p>
+<input type="button" name="view_annotation" value="View Annotation" onclick="viewAnnotation()">
+</p></td>
+<td><p>
+<input type="button" name="submit_annotation" value="Submit Annotation To Database" onclick="submitAnnotation()">
+</p></td>
+</tr>
+</tbody>
 </table>
-<input type="hidden" name="model_json" value="" id="model_json">
+<input type="hidden" name="model_json" value="<TMPL_VAR NAME="model_json">" id="model_json">
 
 </form>
 
 <TMPL_VAR NAME="map">
+<!--
 </body>
 </html>
+-->

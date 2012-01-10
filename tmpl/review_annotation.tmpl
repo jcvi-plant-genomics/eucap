@@ -1,53 +1,57 @@
+<!--
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN"
 "http://www.w3.org/TR/html4/strict.dtd">
-<!-- $Id: review_annotation.tmpl 538 2007-07-24 00:19:51Z hamilton $ -->
 <html>
 <head>
 <title>Review Annotation</title>
-<link href="/css/eucap.css" rel="stylesheet" type="text/css">
+<link href="/medicago/css/eucap.css" rel="stylesheet" type="text/css">
 </head>
 
 <body>
-  <form name="back_to_annotation" method="post" action="/cgi-bin/eucap.pl">
+-->
+  <form name="back_to_annotation" method="post" action="/cgi-bin/medicago/eucap/eucap.pl">
     <input type="hidden" name="action" value="annotate">
-    <input type="submit" name="back" value="Back to Main Annotation Page">
+    <p><input type="submit" name="back" value="Back to Main Annotation Page"></p>
   </form>
-<h2>Review of Community Annotation For: <TMPL_VAR NAME="family_name"> Gene Family</h2>
+<p class="header1">Review of Community Annotation For: <TMPL_VAR NAME="family_name"> Gene Family</p>
 
 
-<table class="data" cellspacing="0" cellpadding="5px" width="100%">
-<tr>
-<th>Locus</th>
-<th>Orig Annotation</th>
-<th>Gene Name</th>
-<th>Alt Gene Name</th>
-<th>Gene Desc</th>
-<th>Genomic GB Acc</th>
-<th>cDNA GB Acc</th>
-<th>Protein GB Acc</th>
-<th>Mutant Info</th>
-<th>Comment</th>
-<th>Has Struct Anno?</th>
+<table class="contenttable" width="100%">
+<tbody>
+<tr class="tableHeader">
+<td><p>Locus</p></td>
+<td><p>Orig Annotation</p></td>
+<td><p>Gene Name</p></td>
+<td><p>Alt Gene Name</p></td>
+<td><p>Gene Desc</p></td>
+<td><p>Genomic GB Acc</p></td>
+<td><p>cDNA GB Acc</p></td>
+<td><p>Protein GB Acc</p></td>
+<td><p>Mutant Info</p></td>
+<td><p>Comment</p></td>
+<td><p>Has Struct Anno?</p></td>
 </tr>
 <TMPL_LOOP NAME="review_loop">
 
-<tr>
-<td><TMPL_VAR NAME="locus_name"></td>
-<td><TMPL_VAR NAME="original_annotation"></td>
-<td><TMPL_VAR NAME="gene_name"></td>
-<td><TMPL_VAR NAME="alt_gene_name"></td>
-<td><TMPL_VAR NAME="gene_description"></td>
-<td><TMPL_VAR NAME="genbank_genomic_acc"></td>
-<td><TMPL_VAR NAME="genbank_cdna_acc"></td>
-<td><TMPL_VAR NAME="genbank_protein_acc"></td>
-<td><TMPL_VAR NAME="mutant_info"></td>
-<td><TMPL_VAR NAME="comment"></td>
-<td align="center"><TMPL_IF NAME="has_structural_annotation">Yes<TMPL_ELSE>No</TMPL_IF></td>
+<tr class="tableRowEven">
+<td><p><TMPL_VAR NAME="locus_name"></p></td>
+<td><p><TMPL_VAR NAME="original_annotation"></p></td>
+<td><p><TMPL_VAR NAME="gene_name"></p></td>
+<td><p><TMPL_VAR NAME="alt_gene_name"></p></td>
+<td><p><TMPL_VAR NAME="gene_description"></p></td>
+<td><p><TMPL_VAR NAME="genbank_genomic_acc"></p></td>
+<td><p><TMPL_VAR NAME="genbank_cdna_acc"></p></td>
+<td><p><TMPL_VAR NAME="genbank_protein_acc"></p></td>
+<td><p><TMPL_VAR NAME="mutant_info"></p></td>
+<td><p><TMPL_VAR NAME="comment"></p></td>
+<td align="center"><p><TMPL_IF NAME="has_structural_annotation">Yes<TMPL_ELSE>No</TMPL_IF></p></td>
 </tr>
 
 </TMPL_LOOP>
+</tbody>
 </table>
 
-
+<!--
 </body>
 </html>
+-->

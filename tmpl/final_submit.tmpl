@@ -1,12 +1,13 @@
+<!--
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN"
 "http://www.w3.org/TR/html4/strict.dtd">
-<!-- $Id: final_submit.tmpl 538 2007-07-24 00:19:51Z hamilton $ -->
 <html>
 <head>
 <title>Submit Annotation</title>
-<link href="/css/eucap.css" rel="stylesheet" type="text/css">
+<link href="/medicago/css/eucap.css" rel="stylesheet" type="text/css">
 </head>
 <body>
+-->
 
 <h2>Submit Annotation for <TMPL_VAR NAME="family_name"></h2>
 
@@ -15,11 +16,13 @@
   Annotation Curators. Please log out and a member Community
   Annotation team will contact you and keep you informed of the
   progress of you submission.</p>
-<form name="logout" action="/cgi-bin/eucap.pl" method="post" >
+<form name="logout" action="/cgi-bin/medicago/eucap/eucap.pl" method="post" >
 <input type="hidden" name="action" value="logout">
 <input type="submit" name="logout" value="Logout From EuCAP">
 </form>
 </div>
 
+<!--
 </body>
 </html>
+-->
