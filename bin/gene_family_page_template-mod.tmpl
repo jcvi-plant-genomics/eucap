@@ -1,0 +1,126 @@
+	<table class="contenttable">
+	  <tr>
+	<td width="150">&nbsp;</td>
+	<td width="425">&nbsp;</td>
+	  </tr>
+	<tr class="tableHeader">
+		  <td align="right" valign="top"><p>Gene Family:</p></td>
+		  <td><p> <TMPL_VAR NAME="gene_family"></p></td>
+	</tr>
+	  <TMPL_IF NAME="superfamily">
+	<tr class="tableRowOdd">
+		  <td align="right" valign="top"><p>Superfamily:</p></td>
+		  <td><p> <TMPL_VAR NAME="superfamily"></p></td>
+	</tr>
+	  </TMPL_IF>
+	  <tr class="tableRowEven">
+		<td align="right" valign="top"><p>Contact:</p></td>
+		<td><p> <a href="mailto:<TMPL_VAR NAME="email">" > <TMPL_VAR NAME="first_name">  <TMPL_VAR NAME="last_name"></a></p></td>
+	  </tr>
+	  <TMPL_IF NAME="org">
+	<tr class="tableRowOdd">
+		  <td align="right" valign="top"><p>Organization:</p></td>
+	  <td><p> <TMPL_VAR NAME="org"></p></td>
+	</tr>
+	  </TMPL_IF>
+	  <TMPL_IF NAME="url">
+	<tr class="tableRowEven">
+		  <td align="right" valign="top"><p>Website:</p></td>
+	  <td><p> <a href="<TMPL_VAR NAME="url">"><TMPL_VAR NAME="url"></a></p></td>
+	</tr>
+	  </TMPL_IF>
+	  <tr class="tableRowOdd">
+		<td align="right" valign="top"><p>Source:</p></td>
+		<td><p> <TMPL_VAR NAME="source"></p></td>
+	  </tr>
+	  <tr class="tableRowEven">
+		<td align="right" valign="top"><p>Criteria:</p></td>
+		<td><p> <TMPL_VAR NAME="crit"></p></td>
+	  </tr>
+	  <TMPL_LOOP NAME="family_members">
+	<tr>
+	  <td>&nbsp;</td>
+	  <td>&nbsp;</td>
+	  <td>&nbsp;</td>
+	  <td>&nbsp;</td>
+	</tr>
+	<tr class="tableHeader">
+	  <td align="right" valign="top"><p>Gene Name: </p></td>
+	  <td><p><TMPL_VAR NAME="gene_name"></p></td>
+	</tr>
+	<TMPL_IF NAME="alt_gene_name">
+	  <tr class="tableRowEven">
+		<td align="right" valign="top"><p>Alternate Gene Name:</p></td>
+		<td><p><TMPL_VAR NAME="alt_gene_name"><br></p></td>
+	  </tr>
+	</TMPL_IF>
+	<TMPL_IF NAME="gene_des">
+	  <tr class="tableRowEven">
+		<td align="right" valign="top"><p>Gene Description:</p></td>
+		<td><p><TMPL_VAR NAME="gene_des"><br></p></td>
+	  </tr>
+	</TMPL_IF>
+	<TMPL_IF NAME="tigr_annot">
+	  <tr class="tableRowEven">
+		<td align="right" valign="top"><p>IMGAG Annotation:</p></td>
+		<td><p><TMPL_VAR NAME="tigr_annot"></p></td>
+	  </tr>
+	</TMPL_IF>
+	<TMPL_IF NAME="genomic_acc">
+	  <tr class="tableRowEven">
+		<td align="right" valign="top"><p>GenBank Genomic Acc:</p></td>
+		<td><p><TMPL_VAR NAME="genomic_acc"></p></td>
+	  </tr>
+	</TMPL_IF>
+	<TMPL_IF NAME="cdna_acc">
+	  <tr class="tableRowEven">
+		<td align="right" valign="top"><p>GenBank cDNA Acc:</p></td>
+		<td><p><TMPL_VAR NAME="cdna_acc"></p></td>
+	  </tr>
+	</TMPL_IF>
+	<TMPL_IF NAME="prot_acc">
+	  <tr class="tableRowEven">
+		<td align="right" valign="top"><p>GenBank Protein Acc:</p></td>
+		<td><p><TMPL_VAR NAME="prot_acc"></p></td>
+	  </tr>
+	</TMPL_IF>
+	<TMPL_IF NAME="mutant">
+	  <tr class="tableRowEven">
+		<td align="right" valign="top"><p>Mutant Line/Info:</p></td>
+		<td><p><TMPL_VAR NAME="mutant"></p></td>
+	  </tr>
+	</TMPL_IF>
+	<TMPL_IF NAME="comment">
+	  <tr class="tableRowEven">
+		<td align="right" valign="top"><p>Comment:</p></td>
+		<td><p><TMPL_VAR NAME="comment"></p></td>
+	  </tr>
+	</TMPL_IF>
+	<TMPL_IF NAME="struct_anno">
+	  <tr class="tableRowEven">
+		<td align="right" valign="top"><p>Structural Annotation: </p></td>
+		<td style="background-color:white;" align="center"><p>
+	  <p><img src="./imgs/<TMPL_VAR NAME="image_file">" ></p></td>
+	  </tr>
+	</TMPL_IF>
+	<tr class="tableRowOdd" align="left" id="<TMPL_VAR NAME="gene_name">">
+	  <td colspan="2" align="right" valign="top"><p><a target="_blank" href="http://gbrowse-dev.jcvi.org/cgi-bin/gbrowse/medicago?name=<TMPL_VAR NAME="locus">&label=Gene_Loci-Gene_Models-FGENESH_Predictions-Community_Annotation"><TMPL_VAR NAME="locus"></a></p> </td>
+	</tr>
+	  </TMPL_LOOP>
+
+	  <TMPL_IF NAME="footer">
+	<tr>
+	  <td colspan="2"><p>&nbsp;</p></td>
+	</tr>
+	<tr class="summary">
+	  <td colspan="2"><p>
+		<TMPL_VAR NAME="footer">
+	  </p></td>
+		</tr>
+		<TMPL_ELSE>
+	  <tr>
+			<td colspan="2"><p>&nbsp;</p></td>
+	  </tr>
+	  </TMPL_IF>
+	  
+	</table>

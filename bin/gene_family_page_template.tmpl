@@ -3,12 +3,12 @@
 <!-- HTML::Template Template for the EuCAP script - create_gene_family_page.pl -->
 <html>
   <head>
-    <title>TIGR Rice Community Annotation - <TMPL_VAR NAME="gene_family"></title>
+    <title>IMGAG Medicago truncatula Community Annotation - <TMPL_VAR NAME="gene_family"></title>
   </head>
   <body>
 
     <p><TMPL_VAR NAME="gene_family"></p>
-    
+
     <div id="frame" align="center">
       <table  border="0" cellspacing="0" cellpadding="2">
         <tr>
@@ -51,7 +51,7 @@
 	    <td>&nbsp;</td>
 	  </tr>
 	  <tr align="left" class="family" id="<TMPL_VAR NAME="gene_name">">
-	    <td colspan="2" align="right" valign="top" class="ca_bold"><p class="bold_rust_label"><a target="_blank" href="http://www.tigr.org/tigr-scripts/osa1_web/gbrowse/rice?name=<TMPL_VAR NAME="locus">&label=Contig-Genes-Rice_Annotation-Community_Annotation"><TMPL_VAR NAME="locus"></a></p> </td>
+	    <td colspan="2" align="right" valign="top" class="ca_bold"><p class="bold_rust_label"><a target="_blank" href="http://gbrowse-dev.jcvi.org/cgi-bin/gbrowse/medicago?name=<TMPL_VAR NAME="locus">&label=Contig-Genes-Medicago_Annotation-Community_Annotation"><TMPL_VAR NAME="locus"></a></p> </td>
 	  </tr>
 	  <tr class="family">
 	    <td align="right" valign="top" class="ca_bold">Gene Name: </td>
@@ -131,7 +131,7 @@
     	      <td colspan="2">&nbsp;</td>
   	    </tr>
         </TMPL_IF>
-        
+
       </table>
     </div>
   </body>
