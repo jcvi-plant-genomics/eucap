@@ -4,11 +4,12 @@ use warnings;
 use strict;
 use base 'Class::DBI::mysql';
 
-my $database = 'community_annotation';
-my $host = 'hamilton-lx';
-my $user = 'access';
-my $password = 'access';
+my ($dsn, $username, $password) = getConfig();
 
-__PACKAGE__->connection( "dbi:mysql:$database:$host", $user , $password );
+__PACKAGE__->connection( $dsn, $username, $password );
+
+sub getConfig {
+    return ('dbi:mysql:MTGCommunityAnnot:mysql51-lan-pro','vkrishna', 'L0g!n2db');
+}
 
 1;
