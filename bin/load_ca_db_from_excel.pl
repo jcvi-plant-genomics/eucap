@@ -15,14 +15,18 @@ use lib '../lib/';
 use CA::CDBI;
 use CA::loci;
 use Bio::DB::SeqFeature::Store;
+
 my ($user_id, $family_id, $family_name, $excel_tab_file, $is_public) = (0, 0, "", "", 0);
+my $help;
+
 GetOptions(
     "user_id=i"        => \$user_id,
     "family_id=i"      => \$family_id,
     "excel_tab_file=s" => \$excel_tab_file,
+    "help"             => \$help
 );
 
-unless ($user_id && $family_id && $excel_tab_file) {
+unless (($user_id && $family_id && $excel_tab_file) || !$help) {
     die
 "Usage: load_ca_db_from excel.pl --user_id=<num> --family_id=<num> --excel_tab_file=<filename>\n";
 }
