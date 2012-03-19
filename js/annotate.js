@@ -164,10 +164,36 @@ function save_locus(locus_id) {
                 type: 'POST',
                 url: url,
                 data: params,
+                dataType: 'json',
                 success: function(data, textStatus, XMLHttpRequest) {
-                    $('#' + status_span).html(data);
+                    if(data.updated === 1) {
+                        $('#mod_date').val(data.mod_date);
+                        $('#locus_mod_date').html('Last Modified date: <b>' + data.mod_date + '</b>');
+
+                        if(data.updated_mutant === 1) {
+                            $('#mutant_id').val(data.mutant_id);
+                            $('#mutant_mod_date').val(data.mutant_mod_date);
+
+                            var button_label = (data.has_alleles > 0) ? "Edit" : "Add";
+                            $('#disp_get_alleles').html(
+                                '<input type="button" id="get_alleles" name="get_alleles"'
+                                + ' value="' + button_label
+                                + '" onclick="perform_action(\'annotate_alleles\', \'mutant_id\', '
+                                + data.mutant_id + ')" />'
+                            );
+                        }
+
+                        if(data.updated_mutant_class === 1) {
+                            $('mutant_class_id').val(data.mutant_class_id);
+                        }
+
+                        $('#' + status_span).html('Update success! Changes submitted for admin approval');
+                        update_locus_table(locus_id);
+                    } else {
+                        $('#' + status_span).html('No changes to update.');
+                    }
+
                     $('#get_alleles').prop('disabled', false);
-                    update_locus_table(locus_id);
                 },
                 error: function(XMLHttpRequest, textStatus, errorThrown) {
                     $('#' + status_span).html('Error in XMLHttpRequest: <a href="' + query + '">' + query + '</a>');
@@ -176,7 +202,7 @@ function save_locus(locus_id) {
         } else {
              $('#' + status_span).removeClass('success');
              $('#' + status_span).addClass('error');
-             $('#' + status_span).html('Mutant Symbol, Class Symbol, Expansion, Phenotype and Publication  are mandatory! Please fill out these fields.');
+             $('#' + status_span).html('Mutant Symbol, Class Symbol, Expansion, Phenotype and Publication are mandatory! Please fill out these fields.');
 
              $('#mutant_symbol').addClass('error');
              $('#mutant_class_symbol').addClass('error');

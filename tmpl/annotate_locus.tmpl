@@ -7,9 +7,9 @@
       <tr>
           <input type="hidden" id="locus_id" name="locus_id" value="<TMPL_VAR NAME="locus_id">">
           <td align="right" colspan="3">
-            <p>Last Modified date: <b><TMPL_VAR NAME="mod_date"></b>
+            <p id="locus_mod_date" name="locus_mod_date">Last Modified date: <b><TMPL_VAR NAME="mod_date"></b></p>
             <input type="hidden" id="mod_date" name="mod_date" value="<TMPL_VAR NAME="mod_date">">
-          </p></td>
+          </td>
       </tr>
 
       <tr class="tableRowOdd">
@@ -105,6 +105,8 @@
                             delay: 200,
                             minLength: 2,
                             search: function(event, ui) {
+                                clear_div('annotate_alleles');
+
                                 if ($(this).val().length < 3) {
                                     $('#mutant_id').val("");
                                     $('#mutant_class_id').val("");
@@ -115,7 +117,6 @@
                                     $('#mutant_class_symbol').val("");
                                     $('#mutant_class_name').val("");
 
-                                    $('#get_alleles').val("Add");
                                     $('#get_alleles').prop('disabled', true);
                                 }
                                 $(this).val( $(this).val().toUpperCase() );
@@ -133,12 +134,19 @@
                                 $('#mutant_class_id').val(ui.item.mutant_class_id);
                                 $('#mutant_class_symbol').val(ui.item.mutant_class_symbol);
                                 $('#mutant_class_name').val(ui.item.mutant_class_name);
+                                $('#has_alleles').val(ui.item.has_alleles);
 
                                 var has_alleles_val = "Edit";
                                 if(ui.item.has_alleles == 0) {
-                                    has_alleles_val = "Add"
+                                    has_alleles_val = "Add";
                                 }
-                                $('#get_alleles').val(has_alleles_val);
+
+                                $('#disp_get_alleles').html(
+                                    '<input type="button" id="get_alleles" name="get_alleles"'
+                                    + ' value="' + has_alleles_val
+                                    + '" onclick="perform_action(\'annotate_alleles\', \'mutant_id\', '
+                                    + ui.item.id + ')" />'
+                                );
                                 $('#get_alleles').prop('disabled', true);
                             },
                             change: function(event, ui) {
@@ -146,17 +154,42 @@
                                 if($('#mutant_class_symbol').val().length === 0 && $(this).val().length >= 3 && $(this).val() !== 'Search mutants...') {
                                     var class_symbol = $(this).val();
                                     class_symbol = class_symbol.replace(/\d+$/g, '');
-
                                     $('#mutant_class_symbol').val(class_symbol);
+
                                     $('#mutant_id').val("");
+                                    $('#mapping_data').val("")
+                                    $('#mutant_reference_lab').val("");
+                                    $('#mutant_reference_pub').val("");
+
                                     $('#mutant_class_id').val("");
+                                    $('#mutant_class_name').val("");
+                                    $('#has_alleles').val("");
+
+                                    $('#get_alleles').prop('disabled', true);
                                 }
-                                $('#get_alleles').prop('disabled', true);
                             },
                             close: function(event, ui) {
                                 $('#mutant_autocmp_status').html("");
                             }
                         });
+                    });
+
+                    $('#mutant_symbol').keyup(function() {
+                        if($(this).val().length == 0 && $(this).val() !== 'Search mutants...') {
+                            clear_div('annotate_alleles');
+
+                            $('#mutant_autocmp_status').html("");
+                            $('#mutant_id').val("");
+                            $('#mutant_class_id').val("");
+                            $('#mutant_phenotype').val("");
+                            $('#mapping_data').val("");
+                            $('#mutant_reference_lab').val("");
+                            $('#mutant_reference_pub').val("");
+                            $('#mutant_class_symbol').val("");
+                            $('#mutant_class_name').val("");
+
+                            $('#disp_get_alleles').html("No");
+                        }
                     });
             </script>
 
@@ -175,7 +208,15 @@
                 <td><p>
                 <label for="alleles">Has Alleles?</label>
                 <input type="hidden" id="has_alleles" name="has_alleles" value="<TMPL_VAR NAME="has_alleles">">
-                <TMPL_IF NAME="mutant_id"><input type="button" id="get_alleles" name="get_alleles" value="<TMPL_IF NAME="has_alleles">Edit<TMPL_ELSE>Add</TMPL_IF>" onclick="perform_action('annotate_alleles', 'mutant_id', <TMPL_VAR NAME="mutant_id">);"><TMPL_ELSE>No</TMPL_IF>
+                <span id="disp_get_alleles" name="disp_get_alleles">
+                    <TMPL_IF NAME="mutant_id">
+                    <input type="button" id="get_alleles" name="get_alleles"
+                    value="<TMPL_IF NAME="has_alleles">Edit<TMPL_ELSE>Add</TMPL_IF>"
+                    onclick="perform_action('annotate_alleles', 'mutant_id', <TMPL_VAR NAME="mutant_id">);">
+                    <TMPL_ELSE>
+                    No
+                    </TMPL_IF>
+                </span>
                 </p></td>
               </tr>
 
