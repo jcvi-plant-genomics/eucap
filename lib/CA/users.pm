@@ -5,4 +5,3 @@ use base 'CA::CDBI';
 __PACKAGE__->set_up_table( 'v2_users' );
 
 1;
-

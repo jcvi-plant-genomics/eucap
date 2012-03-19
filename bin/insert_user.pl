@@ -40,6 +40,7 @@ my $crypt_obj = Authen::Passphrase::MD5Crypt->new(salt_random => 1, passphrase =
 my $salt      = $crypt_obj->salt;
 my $hash      = $crypt_obj->hash_base64;
 
+=comment
 eval {
     my $new_user_row = CA::users->insert(
         {
@@ -55,7 +56,9 @@ eval {
 if ($@) {
     die "Error loading user into database: $@\n\n";
 }
+=cut
 
+print "$username, $salt, $hash\n";
 =comment
 my $dbh = DBI->connect($CA_DB_DSN, $CA_DB_USERNAME, $CA_DB_PASSWORD) or die;
 my $sth       = $dbh->prepare(

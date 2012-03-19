@@ -1,0 +1,33 @@
+<TMPL_IF NAME="blast_results">
+<p><TMPL_VAR NAME="total_hits"> hits for query: <TMPL_VAR NAME="query_name"> </p>
+<table class="contenttable">
+  <thead>
+    <tr class="tableHeader">
+      <td><p><input type="checkbox" name="checkAll_blast" id="checkAll_blast" onclick="check_all( this.id, 'hit' )"/></p></td>
+      <td><p>Locus Hit</p></td>
+      <td><p>Length</p></td>
+      <td><p>Score</p></td>
+      <td><p>E-value</p></td>
+      <td><p>Description</p></td>
+    </tr>
+  </thead>
+  <tbody>
+  <TMPL_LOOP NAME="blast_loop">
+    <tr class="tableRowEven">
+      <td><p><input type="checkbox" class="hit" value="<TMPL_VAR NAME="locus">"></p></td>
+      <td><p><TMPL_VAR NAME="locus"></p></td><p>
+      <td><p><TMPL_VAR NAME="length"></p></td><p>
+      <td><p><TMPL_VAR NAME="score"></p></td><p>
+      <td><p><TMPL_VAR NAME="e_value"></p></td><p>
+      <td><p><TMPL_VAR NAME="description"></p></td><p>
+    </tr>
+    </TMPL_LOOP>
+  </tbody>
+</table>
+<table border="0" cellspacing="10px" cellpadding="5px" class="large_margin">
+  <tr>
+  <td><p><input type="button" name="add_loci_button" value="Add Selected Loci" onclick="add_blast_loci( 'hit' )"> </p></td>
+  <td><p><input type="button" name="remove_blast_results" value="Clear Blast Results Panel" onclick="close_panel_and_scroll( 'run_blast', 'add_by_blast' )"></p></td>
+</table>
+<hr />
+</TMPL_IF>

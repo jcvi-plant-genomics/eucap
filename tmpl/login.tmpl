@@ -3,12 +3,12 @@
 <div class="panel_background">
 	<p class="header3">Please log in:</p>
 	<TMPL_IF NAME="error">
-		<p style="color:red"><TMPL_VAR NAME="error_string"></p> 
+		<p style="color:red"><TMPL_VAR NAME="error_string"></p>
 	</TMPL_IF>
-	
+
 	<table>
 	<tbody>
-	<form action="/cgi-bin/medicago/eucap/eucap.pl" method="post" >
+	<form action="/cgi-bin/medicago/eucap2/eucap.pl" method="post" >
 	<input type="hidden" name="action" value="select_family">
           <tr>
 			<td><p>Username: </p></td>
@@ -20,7 +20,7 @@
 		</tr>
 		<!-- spacing -->
 		<tr>
-			<td colspan="2">&nbsp;</p></td>		
+			<td colspan="2">&nbsp;</p></td>
 		</tr>
 		<tr>
 			<td><p>
