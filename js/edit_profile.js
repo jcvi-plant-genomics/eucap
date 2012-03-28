@@ -60,7 +60,7 @@ $(function() {
 });
 
 function validate_username(user_id, username) {
-    var url = '/cgi-bin/medicago/eucap2/eucap.pl?action=check_username';
+    var url = '/cgi-bin/medicago/eucap/eucap.pl?action=check_username';
     var params = 'user_id=' + user_id + '&username=' + username;
     var query = url + '&' + params;
 

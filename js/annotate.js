@@ -17,7 +17,7 @@ $(function(){
 // element  : id:'loci_list', id:'alleles_list'
 function add_from_list(datatype, element, elemtype) {
     var action = 'add_' + datatype;
-    var url = '/cgi-bin/medicago/eucap2/eucap.pl?action=' + action;
+    var url = '/cgi-bin/medicago/eucap/eucap.pl?action=' + action;
     var params = '';
     if(elemtype === 'id') {
         params = datatype + '_list=' + $('#' + element).val();
@@ -44,7 +44,7 @@ function add_from_list(datatype, element, elemtype) {
             $('#' + status_span).html(data);
 
             if (datatype === 'loci') {
-                window.location = '/cgi-bin/medicago/eucap2/eucap.pl?action=annotate';
+                window.location = '/cgi-bin/medicago/eucap/eucap.pl?action=annotate';
             } else if(datatype === 'alleles') {
                 $('#get_alleles').delay(1000).queue(function(){
                     $('#annotate_alleles').dialog('close');
@@ -81,7 +81,7 @@ function add_blast_loci( checkBoxClass ) {
 // feature_id  : '1', '2'
 // feature_name: gene_symbol or allele_name
 function delete_feature(feature, feature_id, feature_name) {
-    var url = '/cgi-bin/medicago/eucap2/eucap.pl?action=delete_' + feature;
+    var url = '/cgi-bin/medicago/eucap/eucap.pl?action=delete_' + feature;
     var params = feature + '_id=' + feature_id;
 
     if(feature === 'allele') {
@@ -122,7 +122,7 @@ function delete_feature(feature, feature_id, feature_name) {
 // locus. If mutant info is provided, make sure that mutant_symbol,
 // phenotype, mutant_class_symbol and class_name are provided
 function save_locus(locus_id) {
-    var url = '/cgi-bin/medicago/eucap2/eucap.pl?action=save_locus';
+    var url = '/cgi-bin/medicago/eucap/eucap.pl?action=save_locus';
     if ( $('#mutant_symbol').val() === 'Search mutants...') {
         $('#mutant_symbol').val("");
     }
@@ -239,7 +239,7 @@ function save_locus(locus_id) {
 
 // save all the alleles from the form
 function save_alleles(mutant_id) {
-    var url = '/cgi-bin/medicago/eucap2/eucap.pl?action=save_alleles';
+    var url = '/cgi-bin/medicago/eucap/eucap.pl?action=save_alleles';
 
     var status_span = "alleles_save_status";
     var params = $('#alleles_annotate').serialize();
@@ -283,7 +283,7 @@ function perform_action(action, param_name, param) {
         param  = action;
         action = $('#'+ action + '_form input[name=action]').val();
     }
-    var url = '/cgi-bin/medicago/eucap2/eucap.pl?action=' + action;
+    var url = '/cgi-bin/medicago/eucap/eucap.pl?action=' + action;
 
     var type = '';
     var params = '';
@@ -385,5 +385,5 @@ function check_all( id, checkbox_class ) {
 
 // perform a redirect based on a specific 'action'
 function redirect(action) {
-    window.location = '/cgi-bin/medicago/eucap2/eucap.pl?action=' + action;
+    window.location = '/cgi-bin/medicago/eucap/eucap.pl?action=' + action;
 }

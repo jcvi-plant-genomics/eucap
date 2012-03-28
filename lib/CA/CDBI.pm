@@ -1,5 +1,4 @@
 package CA::CDBI;
-# $Id: CDBI.pm 538 2007-07-24 00:19:51Z hamilton $
 use warnings;
 use strict;
 use base 'Class::DBI::mysql';

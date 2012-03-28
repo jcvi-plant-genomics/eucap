@@ -54,7 +54,7 @@ if ($@) {
 =comment
 my $dbh = DBI->connect($CA_DB_DSN, $CA_DB_USERNAME, $CA_DB_PASSWORD) or die;
 my $sth = $dbh->prepare(
-"INSERT INTO v2_family (user_id, family_name, gene_class_symbol, description) VALUES (?, ?, ?, ?)"
+"INSERT INTO family (user_id, family_name, gene_class_symbol, description) VALUES (?, ?, ?, ?)"
 ) or die;
 $sth->execute($user_id, $family_name, $gene_class_symbol, $description) or die;
 $sth->finish;

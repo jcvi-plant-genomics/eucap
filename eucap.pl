@@ -383,7 +383,7 @@ sub dashboard {
     $jcvi_vars->{page_header} = "Annotator Dashboard";
     $jcvi_vars->{top_menu}    = [
         {
-            'link'      => '/cgi-bin/medicago/eucap2/eucap.pl?action=logout',
+            'link'      => '/cgi-bin/medicago/eucap/eucap.pl?action=logout',
             'menu_name' => 'Logout (<em>' . $username . '</em>)'
         }
     ];
@@ -504,7 +504,7 @@ sub edit_profile {
     push @breadcrumb,
       (
         {
-            'link'      => '/cgi-bin/medicago/eucap2/eucap.pl?action=dashboard',
+            'link'      => '/cgi-bin/medicago/eucap/eucap.pl?action=dashboard',
             'menu_name' => 'Dashboard'
         },
         { 'link' => '#', 'menu_name' => $title }
@@ -512,11 +512,11 @@ sub edit_profile {
     $jcvi_vars->{title}    = "Medicago truncatula Genome Project :: EuCAP :: $title";
     $jcvi_vars->{top_menu} = [
         {
-            'link'      => '/cgi-bin/medicago/eucap2/eucap.pl?action=dashboard',
+            'link'      => '/cgi-bin/medicago/eucap/eucap.pl?action=dashboard',
             'menu_name' => 'Dashboard'
         },
         {
-            'link'      => '/cgi-bin/medicago/eucap2/eucap.pl?action=logout',
+            'link'      => '/cgi-bin/medicago/eucap/eucap.pl?action=logout',
             'menu_name' => 'Logout (<em>' . $anno_ref->{user}->{$user_id}->{username} . '</em>)'
         }
     ];
@@ -737,7 +737,7 @@ sub annotate {
     push @breadcrumb,
       (
         {
-            'link'      => '/cgi-bin/medicago/eucap2/eucap.pl?action=dashboard',
+            'link'      => '/cgi-bin/medicago/eucap/eucap.pl?action=dashboard',
             'menu_name' => 'Dashboard'
         },
         { 'link' => '#', 'menu_name' => $title }
@@ -746,11 +746,11 @@ sub annotate {
     $jcvi_vars->{page_header} = 'Community Annotation for ' . $family->family_name . ' Gene Family';
     $jcvi_vars->{top_menu}    = [
         {
-            'link'      => '/cgi-bin/medicago/eucap2/eucap.pl?action=dashboard',
+            'link'      => '/cgi-bin/medicago/eucap/eucap.pl?action=dashboard',
             'menu_name' => 'Dashboard'
         },
         {
-            'link'      => '/cgi-bin/medicago/eucap2/eucap.pl?action=logout',
+            'link'      => '/cgi-bin/medicago/eucap/eucap.pl?action=logout',
             'menu_name' => 'Logout (<em>' . $username . '</em>)'
         }
     ];
@@ -809,12 +809,12 @@ sub add_loci {
             $locus_id += 1;
         }
         else {
-            my $max_locus_id = &get_max_id('locus_id', 'v2_loci');
+            my $max_locus_id = &get_max_id('locus_id', 'loci');
             $locus_id = $max_locus_id + 1;
 
             my $check = CA::loci_edits->retrieve($locus_id);
             until (not defined $check) {
-                my $edits_max_locus_id = &get_max_id('locus_id', 'v2_loci_edits');
+                my $edits_max_locus_id = &get_max_id('locus_id', 'loci_edits');
                 $locus_id = $edits_max_locus_id + 1
                   if ($locus_id <= $edits_max_locus_id);
 
@@ -970,12 +970,12 @@ sub annotate_locus {
                 }
             }
             else {    # new mutant, instantiate into mutant_info_edits
-                my $max_mutant_id = &get_max_id('mutant_id', 'v2_mutant_info');
+                my $max_mutant_id = &get_max_id('mutant_id', 'mutant_info');
                 $mutant_id = $max_mutant_id + 1;
 
                 my $check = CA::mutant_info_edits->retrieve($mutant_id);
                 until (not defined $check) {
-                    my $edits_max_mutant_id = &get_max_id('mutant_id', 'v2_mutant_info_edits');
+                    my $edits_max_mutant_id = &get_max_id('mutant_id', 'mutant_info_edits');
                     $mutant_id = $edits_max_mutant_id + 1
                       if ($mutant_id <= $edits_max_mutant_id);
 
@@ -1037,13 +1037,13 @@ sub annotate_locus {
                   if (defined $mutant_class_hashref);
 
                 if (!$mutant_class_id) {
-                    my $max_mutant_class_id = &get_max_id('mutant_class_id', 'v2_mutant_class');
+                    my $max_mutant_class_id = &get_max_id('mutant_class_id', 'mutant_class');
                     $mutant_class_id = $max_mutant_class_id + 1;
 
                     my $check = CA::mutant_class_edits->retrieve($mutant_class_id);
                     until (not defined $check) {
                         my $edits_max_mutant_class_id =
-                          &get_max_id('mutant_class_id', 'v2_mutant_class_edits');
+                          &get_max_id('mutant_class_id', 'mutant_class_edits');
                         $mutant_class_id = $edits_max_mutant_class_id + 1;
 
                         $check = CA::mutant_class_edits->retrieve($mutant_class_id);
@@ -1373,14 +1373,14 @@ sub add_alleles {
             $allele_id += 1;
         }
         else {
-            my $max_allele_id = &get_max_id('allele_id', 'v2_alleles');
+            my $max_allele_id = &get_max_id('allele_id', 'alleles');
             $allele_id = $max_allele_id + 1;
 
             my $check = CA::alleles_edits->retrieve(
                 allele_id => $allele_id,
             );
             until (not defined $check) {
-                my $edits_max_allele_id = &get_max_id('allele_id', 'v2_alleles_edits');
+                my $edits_max_allele_id = &get_max_id('allele_id', 'alleles_edits');
                 $allele_id = $edits_max_allele_id + 1
                   if ($allele_id <= $edits_max_allele_id);
 
@@ -1795,7 +1795,7 @@ sub review_annotation {
     #print $tmpl->output;
     $jcvi_vars->{top_menu} = [
         {
-            'link'      => '/cgi-bin/medicago/eucap2/eucap.pl?action=logout',
+            'link'      => '/cgi-bin/medicago/eucap/eucap.pl?action=logout',
             'menu_name' => 'Logout (<em>' . $user->username . '</em>)'
         }
     ];
@@ -1817,7 +1817,7 @@ sub submit_annotation {
     #print $tmpl->output;
     $jcvi_vars->{top_menu} = [
         {
-            'link'      => '/cgi-bin/medicago/eucap2/eucap.pl?action=logout',
+            'link'      => '/cgi-bin/medicago/eucap/eucap.pl?action=logout',
             'menu_name' => 'Logout (<em>' . $user->username . '</em>)'
         }
     ];
@@ -1840,7 +1840,7 @@ sub final_submit {
     #print $tmpl->output;
     $jcvi_vars->{top_menu} = [
         {
-            'link'      => '/cgi-bin/medicago/eucap2/eucap.pl?action=logout',
+            'link'      => '/cgi-bin/medicago/eucap/eucap.pl?action=logout',
             'menu_name' => 'Logout (<em>' . $user->username . '</em>)'
         }
     ];
@@ -2685,7 +2685,7 @@ sub annotate_mutants {
     push @breadcrumb,
       (
         {
-            'link'      => '/cgi-bin/medicago/eucap2/eucap.pl?action=dashboard',
+            'link'      => '/cgi-bin/medicago/eucap/eucap.pl?action=dashboard',
             'menu_name' => 'Dashboard'
         },
         { 'link' => '#', 'menu_name' => $title }
@@ -2694,11 +2694,11 @@ sub annotate_mutants {
     $jcvi_vars->{page_header} = $family->family_name . ' Gene Family';
     $jcvi_vars->{top_menu} = [
         {
-            'link'      => '/cgi-bin/medicago/eucap2/eucap.pl?action=dashboard',
+            'link'      => '/cgi-bin/medicago/eucap/eucap.pl?action=dashboard',
             'menu_name' => 'Dashboard'
         },
         {
-            'link'      => '/cgi-bin/medicago/eucap2/eucap.pl?action=logout',
+            'link'      => '/cgi-bin/medicago/eucap/eucap.pl?action=logout',
             'menu_name' => 'Logout (<em>' . $user->username . '</em>)'
         }
     ];

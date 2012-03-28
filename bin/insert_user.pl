@@ -62,7 +62,7 @@ print "$username, $salt, $hash\n";
 =comment
 my $dbh = DBI->connect($CA_DB_DSN, $CA_DB_USERNAME, $CA_DB_PASSWORD) or die;
 my $sth       = $dbh->prepare(
-    "insert into v2_users (name, email, username, salt, hash) values ( ?, ?, ?, ?, ? ) ")
+    "insert into users (name, email, username, salt, hash) values ( ?, ?, ?, ?, ? ) ")
   or die;
 $sth->execute($name, $email, $username, $salt, $hash) or die;
 $sth->finish;
