@@ -145,8 +145,10 @@ function createSubFeatJSON() {
 }
 
 function update_model_json(action) {
-    var ca_model_json = createSubFeatJSON();
-    document.getElementById('model_json').value = ca_model_json;
+    if(action === 'struct_anno') {
+        var ca_model_json = createSubFeatJSON();
+        document.getElementById('model_json').value = ca_model_json;
+    }
     $('#struct_anno_form input[name=action]').val(action);
     //document.getElementById('action').value = 'struct_anno';
     return true;

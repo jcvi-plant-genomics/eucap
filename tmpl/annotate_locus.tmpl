@@ -1,5 +1,5 @@
 <TMPL_LOOP NAME="annotation_loop">
-<p class="section">Edit <TMPL_VAR NAME="gene_symbol"> Gene</p>
+<p class="section">Edit <TMPL_VAR NAME="gene_symbol"> Gene <img id="edit_gene_info" style="vertical-align: super;" src="/medicago/eucap/include/images/info.png" /></p>
 <form id="locus_annotate" name="locus_annotate" onsubmit="return save_locus(<TMPL_VAR NAME="locus_id">);">
     <input type="hidden" id="action" name="action" value="save_locus">
     <table width="100%" class="contenttable">
@@ -13,9 +13,9 @@
       </tr>
 
       <tr class="tableRowOdd">
-        <td colspan="2"><p><label for="gene_symbol">Gene Symbol: </label>
+        <td <TMPL_IF NAME="gene_symbol_edit">class="tableRowEdit"</TMPL_IF> colspan="2"><p><label for="gene_symbol">Gene Symbol: </label>
         <input type="text" id="gene_symbol" name="gene_symbol" value="<TMPL_IF NAME="gene_symbol"><TMPL_VAR NAME="gene_symbol"></TMPL_IF>"></p></td>
-        <td><p><label for="func_annotation">Proposed Functional Annotation:</label>
+        <td <TMPL_IF NAME="func_annotation_edit">class="tableRowEdit"</TMPL_IF>><p><label for="func_annotation">Proposed Functional Annotation:</label>
         <textarea id="func_annotation" name="func_annotation"><TMPL_IF NAME="func_annotation"><TMPL_VAR NAME="func_annotation"></TMPL_IF></textarea></p></td>
       </tr>
 
@@ -59,179 +59,35 @@
 
       <tr class="tableRowEven">
         <!--td rowspan="3" style="{vertical-align: center;}"><img src="/medicago/include/images/GenBank.png" /></td-->
-        <td rowspan="3" width="5%"><p><b>GenBank<br />Accessions</b></p></td>
-        <td><p><label for="gb_genomic_acc">Genomic: </label>
+        <td rowspan="3" width="5%"><p id="gb_acc"><b>GenBank<br />Accessions</b></p></td>
+        <td <TMPL_IF NAME="gb_genomic_acc_edit">class="tableRowEdit"</TMPL_IF>><p><label for="gb_genomic_acc">Genomic: </label>
         <input type="text" id="gb_genomic_acc" name="gb_genomic_acc" value="<TMPL_IF NAME="gb_genomic_acc"><TMPL_VAR NAME="gb_genomic_acc"></TMPL_IF>"></p></td>
-        <td><p><label for="reference_pub">Reference Publication: </label>
-        <textarea ROWS=1 id="reference_pub" name="reference_pub"><TMPL_IF NAME="reference_pub"><TMPL_VAR NAME="reference_pub"></TMPL_IF></textarea></p></td>
+        <td <TMPL_IF NAME="reference_pub_edit">class="tableRowEdit"</TMPL_IF>><p><label for="reference_pub">Reference Publication: </label>
+        <textarea ROWS=1 id="reference_pub" name="reference_pub"><TMPL_IF NAME="reference_pub"><TMPL_VAR NAME="reference_pub"></TMPL_IF></textarea>
+        </p></td>
       </tr>
 
       <tr class="tableRowEven">
-        <td><p><label for="gb_cdna_acc">cDNA: </label>
+        <td <TMPL_IF NAME="gb_cdna_acc_edit">class="tableRowEdit"</TMPL_IF>><p><label for="gb_cdna_acc">cDNA: </label>
         <input type="text" id="gb_cdna_acc" name="gb_cdna_acc" value="<TMPL_IF NAME="gb_cdna_acc"><TMPL_VAR NAME="gb_cdna_acc"></TMPL_IF>"></p></td>
-        <td><p><label for="comment">Comment: </label>
+        <td <TMPL_IF NAME="comment_edit">class="tableRowEdit"</TMPL_IF>><p><label for="comment">Comment: </label>
         <textarea ROWS=1 id="comment" name="comment"><TMPL_IF NAME="comment"><TMPL_VAR NAME="comment"></TMPL_IF></textarea></p></td>
       </tr>
 
       <tr class="tableRowEven">
-        <td><p><label for="gb_protein_acc">Protein: </label>
+        <td <TMPL_IF NAME="gb_protein_acc_edit">class="tableRowEdit"</TMPL_IF>><p><label for="gb_protein_acc">Protein: </label>
         <input type="text" id="gb_protein_acc" name="gb_protein_acc" value="<TMPL_IF NAME="gb_protein_acc"><TMPL_VAR NAME="gb_protein_acc"></TMPL_IF>"></p></td>
         <td><p><label for="structural_annot">Has Struct Annotation?</label>
         <input type="hidden" id="has_structural_annot" name="has_structural_annot" value="<TMPL_VAR NAME="has_structural_annot">">
-        <TMPL_IF NAME="has_structural_annot"><input type="button" id="structural_annot" name="structural_annot" value="Go" onclick="perform_action('struct_anno', 'locus_id', <TMPL_VAR NAME="locus_id">);"><TMPL_ELSE>No</TMPL_IF></p></td>
+        <TMPL_IF NAME="has_structural_annot"><input type="button" id="structural_annot" name="structural_annot" value="View/Edit" onclick="perform_action('struct_anno', 'locus_id', <TMPL_VAR NAME="locus_id">);"><TMPL_ELSE>No</TMPL_IF></p></td>
       </tr>
 
       <tr class="tableRowEven"><td colspan="3">
-      <p><input type="button" name="hide_panel" value="<TMPL_IF NAME="mutant_id">Hide<TMPL_ELSE>Add</TMPL_IF>" onclick="toggle_mutant_panel(this, <TMPL_IF NAME="mutant_id">1<TMPL_ELSE>0</TMPL_IF>);"> Mutant Information</p>
+      <p><input type="button" name="hide_panel" value="<TMPL_IF NAME="mutant_id">Hide<TMPL_ELSE>Add</TMPL_IF>"
+      onclick="toggle_mutant_panel(this, <TMPL_IF NAME="mutant_id">1<TMPL_ELSE>0</TMPL_IF>);">
+      Mutant Information <img id="edit_mutant_info" style="vertical-align: middle;" src="/medicago/eucap/include/images/info.png" /></p>
         <div class="panel_background large_margin" style="display:<TMPL_IF NAME="mutant_id">block<TMPL_ELSE>none</TMPL_IF>;" id="mutant_panel">
-          <table class="contenttable">
-              <tr class="tableRowEven">
-                <input type="hidden" id="mutant_id" name="mutant_id" value="<TMPL_VAR NAME="mutant_id">">
-                <input type="hidden" id="mutant_mod_date" name="mutant_mod_date" value="<TMPL_VAR NAME="mutant_mod_date">">
-                <td><p>
-                <label for="mutant_symbol">Mutant Symbol: </label>
-                <input type="text" id="mutant_symbol" name="mutant_symbol" value="<TMPL_IF NAME="mutant_symbol"><TMPL_VAR NAME="mutant_symbol"><TMPL_ELSE>Search mutants...</TMPL_IF>" onfocus="if(this.value == 'Search mutants...') this.value = '';" onblur="if(this.value == '') this.value = 'Search mutants...';">&nbsp;<span width="16px" id="mutant_autocmp_status" name="mutant_autocmp_status"></span><br /><br />
-
-                <input type="hidden" id="mutant_class_id" name="mutant_class_id" value="<TMPL_VAR NAME="mutant_class_id">">
-                <label for="mutant_class_symbol">Mutant Class Symbol &amp; Expansion: </label>
-                <input type="text" size="6" id="mutant_class_symbol" name="mutant_class_symbol" value="<TMPL_IF NAME="mutant_class_symbol"><TMPL_VAR NAME="mutant_class_symbol"></TMPL_IF>"><br />
-                <textarea ROWS=1 id="mutant_class_name" name="mutant_class_name"><TMPL_IF NAME="mutant_class_name"><TMPL_VAR NAME="mutant_class_name"></TMPL_IF></textarea>
-                </p></td>
-
-                <script type="text/javascript">
-                    $(function() {
-                        $("#mutant_symbol").autocomplete({
-                            source: "/cgi-bin/medicago/eucap2/eucap.pl?action=get_mutant_info",
-                            delay: 200,
-                            minLength: 2,
-                            search: function(event, ui) {
-                                clear_div('annotate_alleles');
-
-                                if ($(this).val().length < 3) {
-                                    $('#mutant_id').val("");
-                                    $('#mutant_class_id').val("");
-                                    $('#mutant_phenotype').val("");
-                                    $('#mapping_data').val("");
-                                    $('#mutant_reference_lab').val("");
-                                    $('#mutant_reference_pub').val("");
-                                    $('#mutant_class_symbol').val("");
-                                    $('#mutant_class_name').val("");
-
-                                    $('#get_alleles').prop('disabled', true);
-                                }
-                                $(this).val( $(this).val().toUpperCase() );
-                                $('#mutant_autocmp_status').html('<img src="/medicago/eucap/include/images/loading.gif" />');
-                            },
-                            focus: function(event, ui) {
-                                $('#mutant_phenotype').val(ui.item.phenotype);
-                            },
-                            select: function(event, ui) {
-                                $('#mutant_id').val(ui.item.id);
-                                $('#mapping_data').val(ui.item.mapping_data);
-                                $('#mutant_reference_lab').val(ui.item.reference_lab);
-                                $('#mutant_reference_pub').val(ui.item.reference_pub);
-
-                                $('#mutant_class_id').val(ui.item.mutant_class_id);
-                                $('#mutant_class_symbol').val(ui.item.mutant_class_symbol);
-                                $('#mutant_class_name').val(ui.item.mutant_class_name);
-                                $('#has_alleles').val(ui.item.has_alleles);
-
-                                var has_alleles_val = "Edit";
-                                if(ui.item.has_alleles == 0) {
-                                    has_alleles_val = "Add";
-                                }
-
-                                $('#disp_get_alleles').html(
-                                    '<input type="button" id="get_alleles" name="get_alleles"'
-                                    + ' value="' + has_alleles_val
-                                    + '" onclick="perform_action(\'annotate_alleles\', \'mutant_id\', '
-                                    + ui.item.id + ')" />'
-                                );
-                                $('#get_alleles').prop('disabled', true);
-                            },
-                            change: function(event, ui) {
-                                $('#mutant_autocmp_status').html("");
-                                if($('#mutant_class_symbol').val().length === 0 && $(this).val().length >= 3 && $(this).val() !== 'Search mutants...') {
-                                    var class_symbol = $(this).val();
-                                    class_symbol = class_symbol.replace(/\d+$/g, '');
-                                    $('#mutant_class_symbol').val(class_symbol);
-
-                                    $('#mutant_id').val("");
-                                    $('#mapping_data').val("")
-                                    $('#mutant_reference_lab').val("");
-                                    $('#mutant_reference_pub').val("");
-
-                                    $('#mutant_class_id').val("");
-                                    $('#mutant_class_name').val("");
-                                    $('#has_alleles').val("");
-
-                                    $('#get_alleles').prop('disabled', true);
-                                }
-                            },
-                            close: function(event, ui) {
-                                $('#mutant_autocmp_status').html("");
-                            }
-                        });
-                    });
-
-                    $('#mutant_symbol').keyup(function() {
-                        if($(this).val().length == 0 && $(this).val() !== 'Search mutants...') {
-                            clear_div('annotate_alleles');
-
-                            $('#mutant_autocmp_status').html("");
-                            $('#mutant_id').val("");
-                            $('#mutant_class_id').val("");
-                            $('#mutant_phenotype').val("");
-                            $('#mapping_data').val("");
-                            $('#mutant_reference_lab').val("");
-                            $('#mutant_reference_pub').val("");
-                            $('#mutant_class_symbol').val("");
-                            $('#mutant_class_name').val("");
-
-                            $('#disp_get_alleles').html("No");
-                        }
-                    });
-            </script>
-
-                <td><p>
-                <label for="mutant_phenotype">Mutant Phenotype: </label>
-                <textarea ROWS=4 id="mutant_phenotype" name="mutant_phenotype"><TMPL_IF NAME="mutant_phenotype"><TMPL_VAR NAME="mutant_phenotype"></TMPL_IF></textarea>
-                </p></td>
-              </tr>
-
-              <tr class="tableRowEven">
-                <td><p>
-                <label for="mapping_data">Mapping Data: </label>
-                <textarea id="mapping_data" name="mapping_data"><TMPL_IF NAME="mapping_data"><TMPL_VAR NAME="mapping_data"></TMPL_IF></textarea>
-                </p></td>
-
-                <td><p>
-                <label for="alleles">Has Alleles?</label>
-                <input type="hidden" id="has_alleles" name="has_alleles" value="<TMPL_VAR NAME="has_alleles">">
-                <span id="disp_get_alleles" name="disp_get_alleles">
-                    <TMPL_IF NAME="mutant_id">
-                    <input type="button" id="get_alleles" name="get_alleles"
-                    value="<TMPL_IF NAME="has_alleles">Edit<TMPL_ELSE>Add</TMPL_IF>"
-                    onclick="perform_action('annotate_alleles', 'mutant_id', <TMPL_VAR NAME="mutant_id">);">
-                    <TMPL_ELSE>
-                    No
-                    </TMPL_IF>
-                </span>
-                </p></td>
-              </tr>
-
-              <tr class="tableRowEven">
-                <td><p>
-                <label for="mutant_reference_lab">Reference Lab: </label>
-                <textarea ROWS=1 id="mutant_reference_lab" name="mutant_reference_lab"><TMPL_IF NAME="mutant_reference_lab"><TMPL_VAR NAME="mutant_reference_lab"></TMPL_IF></textarea>
-                </p></td>
-
-                <td><p>
-                <label for="mutant_reference_pub">Reference Publication: </label>
-                <textarea ROWS=1 id="mutant_reference_pub" name="mutant_reference_pub"><TMPL_IF NAME="mutant_reference_pub"><TMPL_VAR NAME="mutant_reference_pub"></TMPL_IF></textarea>
-                </p></td>
-              </tr>
-          </table>
+            <TMPL_INCLUDE NAME="annotate_mutants.tmpl">
         </div>
       </td></tr>
     </tbody>
@@ -246,9 +102,48 @@
     </tr>
     </table>
 </form>
+
 <hr />
 
-<div id="struct_anno" name="struct_anno"></div>
+<script type="text/javascript">
+    // Gene Info related tooltips
+    $('#edit_gene_info').qtip({
+        content: 'Required fields:<br />' +
+        '<ul>' + '<li>Gene Symbol</li>' + '<li>At least one GenBank Accession</li>' + '<li>Reference publication</li>' + '</ul>',
+        position: { my: 'top left', at: 'right center' }
+    });
+    $('#gene_symbol').qtip({
+        content: '<b style="color: red;">Required</b><br />Example: ZIP1, RopGEF3',
+        position: { my: 'bottom left', at: 'top center' }
+    });
+    $('#func_annotation').qtip({
+        content: '<b style="color: green;">Optional</b><br />Functional annotation, as suggested <br />by Community Annotator (<TMPL_VAR NAME="username">)',
+        position: { my: 'bottom left', at: 'top center' }
+    });
+    $('#gene_locus').qtip({
+        content: 'Official IMGAG Gene locus identifier',
+        position: { my: 'bottom left', at: 'top center' }
+    });
+    $('#orig_func_annotation').qtip({
+        content: 'Current functional annotation,<br /> as found in Mt3.5v5',
+        position: { my: 'bottom left', at: 'top center' }
+    });
+    $('#gb_genomic_acc, #gb_cdna_acc, #gb_protein_acc').qtip({
+        content: '<b style="color: red;">Required</b><br />Provide any one of the <br />3 GenBank accessions',
+        position: { my: 'top right', at: 'bottom center', target: $('#gb_acc') }
+    });
+    $('#comment').qtip({
+        content: '<b style="color: green;">Optional</b><br />User comments for current locus',
+        position: { my: 'bottom left', at: 'top center' }
+    });
+    $('#reference_pub').qtip({
+        content: '<b style="color: red;">Required</b><br />Please indicated any publications on web sites.<br />If work is not published yet, please input <br /> "In Progress" or "In Press"',
+        position: { my: 'bottom left', at: 'top center' }
+    });
+</script>
 
-<div id="annotate_alleles" name="annotate_alleles"></div>
+<div id="annotate_alleles" name="annotate_alleles" class="hide_panel" style="text-align: left;"></div>
+
+<div id="struct_anno" name="struct_anno" class="hide_panel" style="text-align: left;"></div>
+
 </TMPL_LOOP>

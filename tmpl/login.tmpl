@@ -1,5 +1,5 @@
 	<p class="header1">Eucaryotic Community Annotation Package (EuCAP)</p>
-	  <p class="header2"><em>Medicago truncatula</em> Community Annotation Portal</p>
+    <p class="header2"><em>Medicago truncatula</em> Community Annotation Portal</p>
 <div class="panel_background">
 	<p class="header3">Please log in:</p>
 	<TMPL_IF NAME="error">
@@ -8,8 +8,8 @@
 
 	<table>
 	<tbody>
-	<form action="/cgi-bin/medicago/eucap2/eucap.pl" method="post" >
-	<input type="hidden" name="action" value="select_family">
+	<form action="/cgi-bin/medicago/eucap2/eucap.pl" method="post">
+	<input type="hidden" id="action" name="action" value="dashboard">
           <tr>
 			<td><p>Username: </p></td>
 			<td><p><input type="text" name="username" id="username"></p></td>
@@ -34,6 +34,7 @@
 	</tbody>
 	</table>
 </div>
+
 <script type="text/javascript">
   document.getElementById('username').focus();
 </script>

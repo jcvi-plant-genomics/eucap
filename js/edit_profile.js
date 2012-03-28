@@ -68,14 +68,15 @@ function validate_username(user_id, username) {
         url: url,
         data: params,
         success: function(data, textStatus, XMLHttpRequest) {
-            if(data === 'Available!') {
+            if(data.available === 1) {
+                $('#username_err_msg').removeClass('error');
                 $('#username_err_msg').addClass('success');
-                $('#username_valid').val('1');
             } else {
+                $('#username_err_msg').removeClass('success');
                 $('#username_err_msg').addClass('error');
-                $('#username_valid').val('0');
             }
-            $('#username_err_msg').html(data);
+            $('#username_valid').val(data.available);
+            $('#username_err_msg').html(data.message);
         },
         error: function(XMLHttpRequest, textStatus, errorThrown) {
             $('#username_err_msg').removeClass('success error');

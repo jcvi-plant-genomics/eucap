@@ -1,0 +1,96 @@
+  <script type="text/javascript">
+  $(document).ready(function() {
+      $('.disabled-action').addClass('ui-state-disabled');
+
+      $('#actions').accordion({ collapsible: true, autoHeight: true });
+
+      var accordion = $('#actions').data('accordion');
+      accordion._std_clickHandler = accordion._clickHandler;
+      accordion._clickHandler = function( event, target ) {
+          var clicked = $( event.currentTarget || target );
+          if (! clicked.hasClass('ui-state-disabled'))
+            this._std_clickHandler(event, target);
+      };
+  });
+  </script>
+
+<table width=100% border=0>
+<tr class="tableRowEven">
+    <td width="70%">
+    <div id="actions">
+        <h3><a href="#">Annotate Gene Families</a></h3>
+        <div>
+            <form name="select_annotation" action="/cgi-bin/medicago/eucap2/eucap.pl" method="POST">
+            <input type="hidden" id="action" name="action" value="annotate">
+            <input type="hidden" id="user_id" name="user_id" value="">
+            <input type="hidden" id="family_id" name="family_id" value="">
+
+            <table width=100% class="contenttable" cellpadding="5px">
+            <tbody>
+              <tr class="tableHeader">
+                <td><p>&nbsp;</p></td>
+                <td><p>Gene Class Symbol</p></td>
+                <td><p>Family Name</p></td>
+                <TMPL_IF NAME="is_admin">
+                <td><p>Edits Pending Approval</p></td>
+                <TMPL_ELSE>
+                <td><p>Description</p></td>
+                </TMPL_IF>
+              </tr>
+            <TMPL_LOOP NAME="gene_family_radio">
+              <tr class="tableRowOdd">
+                <td align=center><input type="radio" name="gene_family" onclick="set_user_and_family(<TMPL_VAR NAME="user_id">, <TMPL_VAR NAME="family_id">);"></p></td>
+                <td><p><TMPL_VAR NAME="gene_class_symbol"></p></td>
+                <td><p><TMPL_VAR NAME="family_name"></p></td>
+                <TMPL_IF NAME="is_admin">
+                <td><p><TMPL_VAR NAME="pending_edits"></p></td>
+                <TMPL_ELSE>
+                <td><p><TMPL_VAR NAME="description"></p></td>
+                </TMPL_IF>
+              </tr>
+            </TMPL_LOOP>
+            </tbody>
+            </table>
+            <br />
+            <table border="0" cellspacing="5px">
+              <tr>
+                <td><p><input type="submit" value="Annotate Gene Family"></p></td>
+                <td><p><input type="reset"></p></td>
+              </tr>
+            </table>
+            </form>
+        </div>
+        <h3><a href="#">Annotate Mutants</a></h3>
+        <div>
+
+        </div>
+    </td>
+    <td width="30%">
+        <table width=100%>
+        <tr>
+            <td align=right><p><a href="/cgi-bin/medicago/eucap2/eucap.pl?action=edit_profile">Edit profile</a></p></td>
+        </tr>
+        <tr>
+            <td align=right>
+                <img class="rounded" src="/medicago/eucap/include/images/ca_users/<TMPL_VAR NAME="image_name">" /><br />
+            </td>
+        </tr>
+        <tr>
+            <td align=right><p>
+                  <b><TMPL_VAR NAME="name"></b><br />
+                  <TMPL_IF NAME="organization">
+                  <TMPL_VAR NAME="organization"><br />
+                  </TMPL_IF>
+                  <TMPL_IF NAME="email">
+                  <a href="mailto:<TMPL_VAR NAME="email">"><TMPL_VAR NAME="email"></a><br />
+                  </TMPL_IF>
+                  <TMPL_IF NAME="url">
+                  <a href="<TMPL_VAR NAME="url">" target="_blank"><TMPL_VAR NAME="url"></a> <br />
+                  </TMPL_IF>
+                </ul>
+            </p></td>
+        </tr>
+        </table>
+    </td>
+</tr>
+</table>

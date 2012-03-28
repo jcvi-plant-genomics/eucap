@@ -25,7 +25,7 @@
 </form>
 <p>
 
-<form id="struct_anno_form" name="struct_anno_form" onsubmit="return perform_action(undefined, undefined, 'struct_anno');">
+<form id="struct_anno_form" name="struct_anno_form" onsubmit="return perform_action('struct_anno', undefined, undefined);">
     <input type="hidden" name="action" id="action" value="struct_anno">
 
     <!-- hidden inputs for locus info -->
@@ -75,10 +75,10 @@
     <br />
     <table width="100%" border="0" cellpadding="20px">
     <tr height="10px">
-        <td width="20%" align="center"><p><input type="submit" name="view_annotation" value="View Annotation" onclick="update_model_json('struct_anno');"></p></td>
-        <td width="30%" align="center"><p><input type="submit" name="submit_annotation" value="Submit Annotation To Database" onclick="update_model_json('submit_struct_anno');"></p></td>
+        <td width="20%" align="center"><p><input type="submit" name="update_structure" value="Update Structure" onclick="update_model_json('struct_anno');"></p></td>
+        <td width="30%" align="center"><p><input type="submit" name="submit_structure" value="Submit Structure To Database" onclick="update_model_json('submit_struct_anno');"></p></td>
         <td width="40%" align="left"><span id="submit_struct_anno" name="submit_struct_anno"></span></td>
-        <td width="10%" align="right"><p><input type="button" value="Close" onclick="close_panel_and_scroll('struct_anno', 'annotate_locus');" /></p></td>
+        <td width="10%" align="right"><p><input type="button" value="Close" onclick="close_dialog_and_scroll('struct_anno', 'annotate_locus');" /></p></td>
     </tr>
     </table>
 </form>

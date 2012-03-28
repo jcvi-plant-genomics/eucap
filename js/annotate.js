@@ -1,3 +1,15 @@
+// set up page overlay with loading animation
+$(function(){
+    $('<div id="overlay" class="transparent" />').css({
+        position: 'fixed',
+        top: 0,
+        left: 0,
+        width: '100%',
+        height: '100%',
+        background: 'white url(/medicago/eucap/include/images/loading_overlay.gif) no-repeat center'
+    }).hide().appendTo('body');
+});
+
 // function that triggers the add_loci or add_alleles action with
 // the input locus_list or allele_list respectively. possible optiobns:
 // datatype: 'loci', 'alleles'
@@ -35,6 +47,7 @@ function add_from_list(datatype, element, elemtype) {
                 window.location = '/cgi-bin/medicago/eucap2/eucap.pl?action=annotate';
             } else if(datatype === 'alleles') {
                 $('#get_alleles').delay(1000).queue(function(){
+                    $('#annotate_alleles').dialog('close');
                     $(this).trigger("click");
                     $(this).dequeue();
                 });
@@ -119,7 +132,9 @@ function save_locus(locus_id) {
 
     var req_locus_fields = new Array();
     req_locus_fields['gene_symbol'] = 1;
+    req_locus_fields['gb_genomic_acc'] = 1;
     req_locus_fields['gb_cdna_acc'] = 1;
+    req_locus_fields['gb_protein_acc'] = 1;
     req_locus_fields['reference_pub'] = 1;
     var track = 0;
     $.each(params_arr, function(i, params_arr){
@@ -128,10 +143,10 @@ function save_locus(locus_id) {
         }
     });
 
-    if(track === 3) {
-        $('#gene_symbol').removeClass('error');
-        $('#gb_cdna_acc').removeClass('error');
-        $('#reference_pub').removeClass('error');
+    if(track >= 3) {
+        $('#gene_symbol').removeClass('ui-state-error');
+        $('#gb_genomic_acc, #gb_cdna_acc, #gb_protein_acc').removeClass('ui-state-error');
+        $('#reference_pub').removeClass('ui-state-error');
 
         var req_mutant_info_fields = new Array();
         req_mutant_info_fields['mutant_symbol'] = 1;
@@ -148,15 +163,15 @@ function save_locus(locus_id) {
         });
 
         if(track === 5 || track === 0) {
-            $('#mutant_symbol').removeClass('error');
-            $('#mutant_class_symbol').removeClass('error');
-            $('#mutant_class_name').removeClass('error');
-            $('#mutant_phenotype').removeClass('error');
-            $('#mutant_reference_pub').removeClass('error');
+            $('#mutant_symbol').removeClass('ui-state-error');
+            $('#mutant_class_symbol').removeClass('ui-state-error');
+            $('#mutant_class_name').removeClass('ui-state-error');
+            $('#mutant_phenotype').removeClass('ui-state-error');
+            $('#mutant_reference_pub').removeClass('ui-state-error');
 
             var params = $('#locus_annotate').serialize();
             var query = url + '&' + params;
-            $('#' + status_span).removeClass('error');
+            $('#' + status_span).removeClass('ui-state-error');
             $('#' + status_span).addClass('success');
             $('#' + status_span).html('<img src="/medicago/eucap/include/images/loading.gif" />');
 
@@ -204,20 +219,20 @@ function save_locus(locus_id) {
              $('#' + status_span).addClass('error');
              $('#' + status_span).html('Mutant Symbol, Class Symbol, Expansion, Phenotype and Publication are mandatory! Please fill out these fields.');
 
-             $('#mutant_symbol').addClass('error');
-             $('#mutant_class_symbol').addClass('error');
-             $('#mutant_class_name').addClass('error');
-             $('#mutant_phenotype').addClass('error');
-             $('#mutant_reference_pub').addClass('error');
+             $('#mutant_symbol').addClass('ui-state-error');
+             $('#mutant_class_symbol').addClass('ui-state-error');
+             $('#mutant_class_name').addClass('ui-state-error');
+             $('#mutant_phenotype').addClass('ui-state-error');
+             $('#mutant_reference_pub').addClass('ui-state-error');
         }
     } else {
         $('#' + status_span).removeClass('success');
-        $('#' + status_span).addClass('error');
-        $('#' + status_span).html('Gene Symbol, GenBank cDNA Accession and Reference Publication are mandatory! Please fill out these fields.');
+        $('#' + status_span).addClass('ui-state-error');
+        $('#' + status_span).html('Gene Symbol, Any one of the GenBank Accessions and Reference Publication are mandatory! Please fill out these fields.');
 
-        $('#gene_symbol').addClass('error');
-        $('#gb_cdna_acc').addClass('error');
-        $('#reference_pub').addClass('error');
+        $('#gene_symbol').addClass('ui-state-error');
+        $('#gb_genomic_acc, #gb_cdna_acc, #gb_protein_acc').addClass('ui-state-error');
+        $('#reference_pub').addClass('ui-state-error');
     }
     return false;
 }
@@ -261,10 +276,12 @@ function update_locus_table(locus_id) {
 }
 
 // perform action: make ajax GET call to eucap.pl with action and id as params
-// if id is not passed, make ajax POST call by serializing all form input elements
+// if (param === id) or (param === ''), make ajax GET call with single parameter,
+// else, make ajax POST call by serializing all form input elements
 function perform_action(action, param_name, param) {
-    if(action == undefined) {
-        action = $('#'+ param + '_form input[name=action]').val();
+    if(action !== "" && param_name === undefined && param === undefined) {
+        param  = action;
+        action = $('#'+ action + '_form input[name=action]').val();
     }
     var url = '/cgi-bin/medicago/eucap2/eucap.pl?action=' + action;
 
@@ -282,7 +299,18 @@ function perform_action(action, param_name, param) {
     }
 
     var query = url + '&' + params;
-    $('#' + action).html('<img src="/medicago/eucap/include/images/loading.gif" /><p class="bodytext">Loading</p>');
+
+    if(action === "annotate_alleles" || action === "struct_anno") {
+        $('#overlay').show();
+        $('#' + action).dialog({
+            autoOpen: false,
+            modal: true,
+            width: 800,
+            closeOnEscape: false
+        });
+    } else {
+        $('#' + action).html('<img src="/medicago/eucap/include/images/loading.gif" /><p class="bodytext">Loading</p>');
+    }
 
     $.ajax({
         type: type,
@@ -294,6 +322,13 @@ function perform_action(action, param_name, param) {
                 $('#' + action).addClass('success');
             }
             $('#' + action).html(data);
+
+            if(action === "annotate_alleles" || action === "struct_anno") {
+                $('#overlay').hide();
+                $('#' + action).dialog('open');
+                $('#' + action).addClass('panel_background');
+            }
+
             if(action !== 'submit_struct_anno') {
                 goToByScroll(action);
             }
@@ -326,9 +361,15 @@ function clear_div(id) {
     $('#' + id).empty();
 }
 
-// close the annotation panel on click
+// close a certain panel on click
 function close_panel_and_scroll(panel_to_close, panel_to_scroll_to) {
     clear_div(panel_to_close);
+    goToByScroll(panel_to_scroll_to);
+}
+
+// close a certain dialog
+function close_dialog_and_scroll(dialog_to_close, panel_to_scroll_to) {
+    $('#' + dialog_to_close).dialog('close');
     goToByScroll(panel_to_scroll_to);
 }
 

@@ -2,6 +2,7 @@
 
 use warnings;
 use strict;
+use feature qw( state );
 
 # CGI and authentication related modules
 use CGI;
@@ -55,7 +56,7 @@ use Data::Difference qw(data_diff);
 
 # JCVI template page variables from MedicagoWeb.pm
 use MedicagoWeb
-  qw/:DEFAULT $site $home_page $side_menu $contact_email $body_tmpl $two_column_fluid_width $two_column_fixed_width/;
+  qw/:DEFAULT $site $home_page $left_content $contact_email $body_tmpl $two_column_fluid_width $two_column_fixed_width/;
 
 my $jcvi_template = $two_column_fixed_width;
 my $title         = 'Medicago truncatula Genome Project :: Community Annotation';
@@ -65,6 +66,7 @@ my @stylesheets =
   qw(https://ajax.googleapis.com/ajax/libs/jqueryui/1/themes/smoothness/jquery-ui.css /medicago/eucap/include/css/eucap.css /medicago/include/css/rounded_corners.css);
 my @javascripts =
   qw(https://ajax.googleapis.com/ajax/libs/jquery/1/jquery.min.js http://ajax.googleapis.com/ajax/libs/jqueryui/1/jquery-ui.min.js /medicago/eucap/include/js/eucap.js /medicago/eucap/include/js/json.js /medicago/include/js/rounded_corners.js);
+my $side_menu = get_side_links('Annotation');
 
 # Initialize JCVI template
 my $jcvi_tt   = Template->new({ ABSOLUTE => 1, });
@@ -118,26 +120,32 @@ my $CA_DB_PASSWORD = 'L0g!n2db';
 my $ca_dbh = DBI->connect($CA_DB_DSN, $CA_DB_USERNAME, $CA_DB_PASSWORD)
   or die("cannot connect to CA database:$!");
 
-CGI::Session->name("EuCAP_ID");
 my $cgi = CGI->new;
-my $session = CGI::Session->new("driver:mysql", $cgi, { Handle => $ca_dbh })
-  or die(CGI::Session->errstr . "\n");
-init($session, $cgi);
-$session->flush;
-unless ($session->param('~logged_in')) {
-    login_page();
-}
 my $action   = $cgi->param('action');
 my $locus_id = $cgi->param('locus_id');
 
-if ($action eq 'select_family') {
-    select_family($session, $cgi);
+my $session;
+if ($action ne "check_username" and $action ne "get_loci" and $action ne "get_mutant_info") {
+    CGI::Session->name("EuCAP_ID");
+    $session = CGI::Session->new("driver:mysql", $cgi, { Handle => $ca_dbh })
+      or die(CGI::Session->errstr . "\n");
+
+    init($session, $cgi);
+    $session->flush;
+
+    unless ($session->param('~logged_in')) {
+        login_page();
+    }
+}
+
+if ($action eq 'dashboard') {
+    dashboard($session, $cgi);
 }
 elsif ($action eq 'edit_profile') {
     edit_profile($session, $cgi);
 }
 elsif ($action eq 'update_profile') {
-    edit_profile($session, $cgi);
+    edit_profile($session, $cgi, 1);
 }
 
 # Locus/mutant specific actions
@@ -158,7 +166,8 @@ elsif ($action eq 'add_loci') {
 }
 elsif ($action eq 'get_loci') {
     my $gene_locus = $cgi->param('term');
-    get_loci($cgi, $gene_locus);
+    my $filter = (defined $cgi->param('filter')) ? $cgi->param('filter') : 10;
+    get_loci($cgi, $gene_locus, $filter);
     $FLAG = 1;
 }
 elsif ($action eq 'delete_locus') {
@@ -198,15 +207,15 @@ elsif ($action eq 'struct_anno') {
     structural_annotation($session, $cgi);
     $FLAG = 1;
 }
-elsif ($action eq 'submit_annotation') {
-    submit_annotation($session, $cgi);
-}
 elsif ($action eq 'submit_struct_anno') {
     submit_structural_annotation($session, $cgi);
     $FLAG = 1;
 }
 elsif ($action eq 'review_annotation') {
     review_annotation($session, $cgi);
+}
+elsif ($action eq 'submit_annotation') {
+    submit_annotation($session, $cgi);
 }
 elsif ($action eq 'final_submit') {
     final_submit($session, $cgi);
@@ -224,13 +233,14 @@ else {    # logged in and fall through the actions - then log out
     logout($session, $cgi, 'Sorry! System error. Please report to admin.');
 }
 
-# Print page only if action ne 'get_loci'
+# Print page only if $FLAG == 0
 PROCESS_TMPL: if (!$FLAG) {
-    $jcvi_vars->{title}        = $title;
+    #$jcvi_vars->{title}        = $title;
     $jcvi_vars->{site}         = $site;
     $jcvi_vars->{home_page}    = $home_page;
     $jcvi_vars->{project_name} = $project_name;
     $jcvi_vars->{side_menu}    = $side_menu;
+    $jcvi_vars->{left_content} = $left_content;
     $jcvi_vars->{breadcrumb}   = \@breadcrumb;
     $jcvi_vars->{stylesheets}  = \@stylesheets;
     $jcvi_vars->{javascripts}  = \@javascripts;
@@ -250,6 +260,7 @@ sub init {
         login_page();
         goto PROCESS_TMPL;
     }
+
     my $username = $cgi->param('username');
     my $password = $cgi->param('password');
     my ($user) = CA::users->search(username => $username);
@@ -257,11 +268,11 @@ sub init {
         login_page(1, "User name not found. Please check and try again.");
         goto PROCESS_TMPL;
     }
+
     my $salt      = $user->salt;
     my $hash      = $user->hash;
     my $crypt_obj = Authen::Passphrase::MD5Crypt->new(salt => $salt, hash_base64 => $hash);
     if ($crypt_obj->match($password)) {
-
         #authenticated
         $session->param('~logged_in', 1);
 
@@ -276,6 +287,7 @@ sub init {
     }
     else {
         login_page(1, "Password does not match! Please check and try again.");
+        goto PROCESS_TMPL;
     }
 }
 
@@ -298,10 +310,10 @@ sub logout {
     login_page(1, "Logged out - Thank you");
 }
 
-sub select_family {
+sub dashboard {
     my ($session, $cgi) = @_;
-    my $title    = "Select Gene Family";
-    my $tmpl     = HTML::Template->new(filename => "./tmpl/select_family.tmpl");
+    my $title    = "Annotator Dashboard";
+    my $tmpl     = HTML::Template->new(filename => "./tmpl/dashboard.tmpl");
     my $anno_ref = $session->param('anno_ref');
 
     my $user_id = (defined $anno_ref->{is_admin}) ? 0 : $anno_ref->{user_id};
@@ -316,12 +328,19 @@ sub select_family {
     my $gene_family_list = [];
     while (my $fam = $fams->next) {
         my $family_id = $fam->family_id;
-        my $row       = {
+
+        my $edits = 0;
+        if (defined $anno_ref->{is_admin}) {
+            my @loci_edits_objs = CA::loci_edits->search(family_id => $family_id);
+            $edits = scalar @loci_edits_objs;
+        }
+
+        my $row = {
             user_id           => $fam->user_id,
             family_id         => $family_id,
             gene_class_symbol => $fam->gene_class_symbol,
             family_name       => $fam->family_name,
-            description       => $fam->description
+            description       => (defined $anno_ref->{is_admin}) ? $edits : $fam->description
         };
         push(@$gene_family_list, $row);
 
@@ -348,6 +367,10 @@ sub select_family {
         undef $anno_ref->{user};
         undef $anno_ref->{family_id};
         undef $anno_ref->{family};
+        delete $anno_ref->{loci};
+        delete $anno_ref->{mutant};
+        delete $anno_ref->{mutant_class};
+        delete $anno_ref->{allele};
     }
 
     $session->param('anno_ref', $anno_ref);
@@ -356,8 +379,8 @@ sub select_family {
     print $session->header;
 
     push @breadcrumb, ({ 'link' => '#', 'menu_name' => $title });
-    $jcvi_vars->{title}       = "Medicago truncatula :: EuCAP :: $title";
-    $jcvi_vars->{page_header} = "Select Gene Family";
+    $jcvi_vars->{title}       = "Medicago truncatula Genome Project :: EuCAP :: $title";
+    $jcvi_vars->{page_header} = "Annotator Dashboard";
     $jcvi_vars->{top_menu}    = [
         {
             'link'      => '/cgi-bin/medicago/eucap2/eucap.pl?action=logout',
@@ -368,7 +391,7 @@ sub select_family {
 }
 
 sub edit_profile {
-    my ($session, $cgi) = @_;
+    my ($session, $cgi, $save) = @_;
     my $title    = "Edit User Profile";
     my $tmpl     = HTML::Template->new(filename => "./tmpl/edit_profile.tmpl");
     my $anno_ref = $session->param('anno_ref');
@@ -381,7 +404,7 @@ sub edit_profile {
     my ($username_err_msg, $email_err_msg, $url_err_msg, $photo_err_msg) = ("", "", "", "");
     my ($username_valid, $email_valid, $url_valid, $photo_valid);
 
-    if ($action eq "update_profile") {
+    if ($save) {
         my $user_id          = $cgi->param('user_id');
         my $new_username     = $cgi->param('username');
         my $new_name         = $cgi->param('name');
@@ -481,16 +504,16 @@ sub edit_profile {
     push @breadcrumb,
       (
         {
-            'link'      => '/cgi-bin/medicago/eucap2/eucap.pl?action=select_family',
-            'menu_name' => 'Select Family'
+            'link'      => '/cgi-bin/medicago/eucap2/eucap.pl?action=dashboard',
+            'menu_name' => 'Dashboard'
         },
         { 'link' => '#', 'menu_name' => $title }
       );
-    $jcvi_vars->{title}    = "Medicago truncatula :: EuCAP :: $title";
+    $jcvi_vars->{title}    = "Medicago truncatula Genome Project :: EuCAP :: $title";
     $jcvi_vars->{top_menu} = [
         {
-            'link'      => '/cgi-bin/medicago/eucap2/eucap.pl?action=select_family',
-            'menu_name' => 'Select Family'
+            'link'      => '/cgi-bin/medicago/eucap2/eucap.pl?action=dashboard',
+            'menu_name' => 'Dashboard'
         },
         {
             'link'      => '/cgi-bin/medicago/eucap2/eucap.pl?action=logout',
@@ -533,40 +556,61 @@ sub annotate {
 
     # loop through each locus_id and investigate associated mutants/alleles
     foreach my $locus_id (sort { $a <=> $b } keys %all_loci) {
-        my $locus_edits_obj = CA::loci_edits->retrieve(
+        my %pick_edits = ();
+
+        my $locus_edits_hashref = {};
+        my $locus_edits_obj     = CA::loci_edits->retrieve(
             locus_id  => $locus_id,
             user_id   => $anno_ref->{user_id},
             family_id => $anno_ref->{family_id}
         );
-
-        my $locus_hashref = {};
         if (defined $locus_edits_obj) {
             my $edits = $locus_edits_obj->edits;
             if ($edits eq "") {    # gene has been deleted if $edits exists and is empty
                 delete $anno_ref->{loci}->{$locus_id};
                 next;
             }
-            $locus_hashref = JSON::from_json($locus_edits_obj->edits);
-        }
-        else {
-            my $locus_obj = CA::loci->retrieve(
-                locus_id  => $locus_id,
-                user_id   => $anno_ref->{user_id},
-                family_id => $anno_ref->{family_id},
-            );
-            $locus_hashref = caObj_to_hashref($locus_obj, 'loci')
-              if (defined $locus_obj);
+            $locus_edits_hashref = JSON::from_json($locus_edits_obj->edits);
+
+            #$locus_edits_hashref->{is_edit} = 1;
         }
 
-        $anno_ref->{loci}->{$locus_id} = $locus_hashref;
+        my $locus_hashref = {};
+        my $locus_obj     = CA::loci->retrieve(
+            locus_id  => $locus_id,
+            user_id   => $anno_ref->{user_id},
+            family_id => $anno_ref->{family_id},
+        );
+        $locus_hashref = caObj_to_hashref($locus_obj, 'loci')
+          if (defined $locus_obj);
+
+        #$locus_hashref->{is_edit} = undef;
+
+        my @differences = data_diff($locus_hashref, $locus_edits_hashref);
+
+        foreach my $diff (@differences) {
+            if (defined $diff->{b} and $diff->{b} ne "" and $diff->{b} ne $diff->{a}) {
+                $locus_edits_hashref->{ $diff->{path}[0] . "_edit" } = 1;
+                $pick_edits{loci} = 1;
+            }
+        }
+
+        if ($pick_edits{loci}) {
+            $locus_edits_hashref->{is_edit} = 1;
+            $anno_ref->{loci}->{$locus_id} = $locus_edits_hashref;
+        }
+        else {
+            $locus_hashref->{is_edit} = undef;
+            $anno_ref->{loci}->{$locus_id} = $locus_hashref;
+        }
 
         if (defined $anno_ref->{loci}->{$locus_id}->{mutant_id}
             and $anno_ref->{loci}->{$locus_id}->{mutant_id} ne "")
         {
-            my $mutant_id        = $anno_ref->{loci}->{$locus_id}->{mutant_id};
-            my $mutant_edits_obj = CA::mutant_info_edits->retrieve($mutant_id);
+            my $mutant_id = $anno_ref->{loci}->{$locus_id}->{mutant_id};
 
-            my $mutant_hashref = {};
+            my $mutant_edits_hashref = {};
+            my $mutant_edits_obj     = CA::mutant_info_edits->retrieve($mutant_id);
             if (defined $mutant_edits_obj) {
                 my $edits = $mutant_edits_obj->edits;
                 if ($edits eq "") {    # mutant info has been deleted. unassociate with locus
@@ -576,15 +620,34 @@ sub annotate {
                     delete $anno_ref->{mutant}->{$mutant_id};
                     next;
                 }
-                $mutant_hashref = JSON::from_json($mutant_edits_obj->edits);
-            }
-            else {
-                my $mutant_obj = CA::mutant_info->retrieve($mutant_id);
-                $mutant_hashref = caObj_to_hashref($mutant_obj, 'mutant_info')
-                  if (defined $mutant_obj);
+                $mutant_edits_hashref = JSON::from_json($mutant_edits_obj->edits);
+                $mutant_edits_hashref->{is_edit} = 1;
             }
 
-            $anno_ref->{mutant}->{$mutant_id} = $mutant_hashref;
+            my $mutant_hashref = {};
+            my $mutant_obj     = CA::mutant_info->retrieve($mutant_id);
+            if (defined $mutant_obj) {
+                $mutant_hashref = caObj_to_hashref($mutant_obj, 'mutant_info');
+                $mutant_hashref->{is_edit} = undef;
+            }
+
+            @differences = data_diff($mutant_hashref, $mutant_edits_hashref);
+
+            foreach my $diff (@differences) {
+                if (defined $diff->{b} and $diff->{b} ne "" and $diff->{b} ne $diff->{a}) {
+                    $mutant_edits_hashref->{ $diff->{path}[0] . "_edit" } = 1;
+                    $pick_edits{mutant_info} = 1;
+                }
+            }
+
+            if ($pick_edits{mutant_info}) {
+                $mutant_edits_hashref->{is_edit} = 1;
+                $anno_ref->{mutant}->{$mutant_id} = $mutant_edits_hashref;
+            }
+            else {
+                $mutant_hashref->{is_edit} = undef;
+                $anno_ref->{mutant}->{$mutant_id} = $mutant_hashref;
+            }
 
             # count the number of alleles for the above mutant
             # both from the original & edits tables
@@ -595,10 +658,10 @@ sub annotate {
             $all_alleles{ $_->allele_id } = 1 foreach ((@annotated_alleles, @edited_alleles));
             $anno_ref->{mutant}->{$mutant_id}->{has_alleles} = scalar keys %all_alleles;
 
-            my $mutant_class_id        = $anno_ref->{mutant}->{$mutant_id}->{mutant_class_id};
-            my $mutant_class_edits_obj = CA::mutant_class_edits->retrieve($mutant_class_id);
+            my $mutant_class_id = $anno_ref->{mutant}->{$mutant_id}->{mutant_class_id};
 
-            my $mutant_class_hashref = {};
+            my $mutant_class_edits_hashref = {};
+            my $mutant_class_edits_obj     = CA::mutant_class_edits->retrieve($mutant_class_id);
             if (defined $mutant_class_edits_obj) {
                 my $symbol      = $mutant_class_edits_obj->symbol;
                 my $symbol_name = $mutant_class_edits_obj->symbol_name;
@@ -607,15 +670,35 @@ sub annotate {
                     delete $anno_ref->{mutant_class}->{$mutant_class_id};
                     next;
                 }
-                $mutant_class_hashref = caObj_to_hashref($mutant_class_edits_obj, 'mutant_class');
-            }
-            else {
-                my $mutant_class_obj = CA::mutant_class->retrieve($mutant_class_id);
-                $mutant_class_hashref = caObj_to_hashref($mutant_class_obj, 'mutant_class')
-                  if (defined $mutant_class_obj);
+                $mutant_class_edits_hashref =
+                  caObj_to_hashref($mutant_class_edits_obj, 'mutant_class');
+                $mutant_class_edits_hashref->{is_edit} = 1;
             }
 
-            $anno_ref->{mutant_class}->{$mutant_class_id} = $mutant_class_hashref;
+            my $mutant_class_hashref = {};
+            my $mutant_class_obj     = CA::mutant_class->retrieve($mutant_class_id);
+            if (defined $mutant_class_obj) {
+                $mutant_class_hashref = caObj_to_hashref($mutant_class_obj, 'mutant_class');
+                $mutant_class_hashref->{is_edit} = undef;
+            }
+
+            @differences = data_diff($mutant_class_hashref, $mutant_class_edits_hashref);
+
+            foreach my $diff (@differences) {
+                if (defined $diff->{b} and $diff->{b} ne "" and $diff->{b} ne $diff->{a}) {
+                    $mutant_class_edits_hashref->{ $diff->{path}[0] . "_edit" } = 1;
+                    $pick_edits{mutant_class} = 1;
+                }
+            }
+
+            if ($pick_edits{mutant_class}) {
+                $mutant_class_edits_hashref->{is_edit} = 1;
+                $anno_ref->{mutant_class}->{$mutant_class_id} = $mutant_class_edits_hashref;
+            }
+            else {
+                $mutant_class_hashref->{is_edit} = undef;
+                $anno_ref->{mutant_class}->{$mutant_class_id} = $mutant_class_hashref;
+            }
         }
     }
     $session->param('anno_ref', $anno_ref);
@@ -637,6 +720,9 @@ sub annotate {
         $summary_row->{func_annotation} = $anno_ref->{loci}->{$locus_id}->{func_annotation};
         $summary_row->{comment}         = $anno_ref->{loci}->{$locus_id}->{comment};
         $summary_row->{tableRowClass}   = ($i % 2 == 0) ? "tableRowEven" : "tableRowOdd";
+        $summary_row->{tableRowClass}   = "tableRowEdit"
+          if (  defined $anno_ref->{is_admin}
+            and defined $anno_ref->{loci}->{$locus_id}->{is_edit});
 
         push(@$annotation_summary_loop, $summary_row);
     }
@@ -645,21 +731,23 @@ sub annotate {
     print $session->header;
 
     #print $tmpl->output;
-    push @javascripts, "/medicago/eucap/include/js/annotate.js";
+    push @javascripts, "/medicago/eucap/include/js/annotate.js",
+      "/medicago/include/js/jquery.qtip.min.js";
+    push @stylesheets, "/medicago/include/css/jquery.qtip.css";
     push @breadcrumb,
       (
         {
-            'link'      => '/cgi-bin/medicago/eucap2/eucap.pl?action=select_family',
-            'menu_name' => 'Select Family'
+            'link'      => '/cgi-bin/medicago/eucap2/eucap.pl?action=dashboard',
+            'menu_name' => 'Dashboard'
         },
         { 'link' => '#', 'menu_name' => $title }
       );
-    $jcvi_vars->{title}       = "Medicago truncatula :: EuCAP :: $title";
+    $jcvi_vars->{title}       = "Medicago truncatula Genome Project :: EuCAP :: $title";
     $jcvi_vars->{page_header} = 'Community Annotation for ' . $family->family_name . ' Gene Family';
     $jcvi_vars->{top_menu}    = [
         {
-            'link'      => '/cgi-bin/medicago/eucap2/eucap.pl?action=select_family',
-            'menu_name' => 'Select Family'
+            'link'      => '/cgi-bin/medicago/eucap2/eucap.pl?action=dashboard',
+            'menu_name' => 'Dashboard'
         },
         {
             'link'      => '/cgi-bin/medicago/eucap2/eucap.pl?action=logout',
@@ -674,7 +762,7 @@ sub add_loci {
     my $loci_list = $cgi->param('loci_list');
     my $anno_ref  = $session->param('anno_ref');
 
-    $loci_list =~ s/^\s+|\s+$//;
+    $loci_list =~ s/\s+//;
 
     my @new_loci = split /,/, $loci_list;
     my $track    = 0;
@@ -779,6 +867,8 @@ sub annotate_locus {
 
     #gene_locus info should already be in the session.
     my $anno_ref = $session->param('anno_ref');
+    my $user_id  = $anno_ref->{user_id};
+    my $username = $anno_ref->{user}->{$user_id}->{username};
 
     if ($save) {
         my %result = ();
@@ -787,13 +877,13 @@ sub annotate_locus {
                  # used to track if there are changes or not
 
 # Storing loci is straightforward, there should already be a 'locus_id' for a newly instantiated gene.
-        my $locus_hashref = {};
+        my $locus_hashref  = {};
         my $curr_locus_obj = CA::loci_edits->retrieve(
             locus_id  => $locus_id,
             user_id   => $anno_ref->{user_id},
             family_id => $anno_ref->{family_id}
         );
-        if ( defined $curr_locus_obj ) {
+        if (defined $curr_locus_obj) {
             $locus_hashref = JSON::from_json($curr_locus_obj->edits);
         }
         else {
@@ -809,15 +899,17 @@ sub annotate_locus {
         my @differences = data_diff($locus_hashref, $locus_edits_hashref);
 
         foreach my $diff (@differences) {
-            $save_edits{loci} = 1 if (defined $diff->{b});
+            if (defined $diff->{b} and $diff->{b} ne "" and $diff->{b} ne $diff->{a}) {
+                $save_edits{loci} = 1;
+            }
         }
 
         $anno_ref->{loci}->{$locus_id} =
           (defined $save_edits{loci}) ? $locus_edits_hashref : $locus_hashref;
 
-        # Storing mutant_info - Check if req mutant_info fields have been passed:
-        # if true: get mutant_id from param or max(mutant_id) + 1 from db or increment if it already exists in the edits table
-        # else: undef the 'mutant_id' associated with current locus_id (if any) and remove mutant_edits from anno_ref
+# Storing mutant_info - Check if req mutant_info fields have been passed:
+# if true: get mutant_id from param or max(mutant_id) + 1 from db or increment if it already exists in the edits table
+# else: undef the 'mutant_id' associated with current locus_id (if any) and remove mutant_edits from anno_ref
         my ($mutant_id, $mutant_class_id);
         if (    $cgi->param('mutant_symbol') ne ""
             and $cgi->param('mutant_class_symbol')  ne ""
@@ -854,14 +946,16 @@ sub annotate_locus {
                     $mutant_hashref->{symbol} = $mutant_symbol;
                 }
 
-                if(not defined $mutant_hashref->{has_alleles}) {
+                if (not defined $mutant_hashref->{has_alleles}) {
+
                     # count the number of alleles for the above mutant
                     # both from the original & edits tables
                     my @annotated_alleles = CA::alleles->search(mutant_id => $mutant_id);
                     my @edited_alleles = CA::alleles_edits->search(mutant_id => $mutant_id);
 
                     my %all_alleles = ();
-                    $all_alleles{ $_->allele_id } = 1 foreach ((@annotated_alleles, @edited_alleles));
+                    $all_alleles{ $_->allele_id } = 1
+                      foreach ((@annotated_alleles, @edited_alleles));
                     $mutant_hashref->{has_alleles} = scalar keys %all_alleles;
                 }
 
@@ -870,8 +964,9 @@ sub annotate_locus {
                 my @differences = data_diff($mutant_hashref, $mutant_edits_hashref);
 
                 foreach my $diff (@differences) {
-                    warn Dumper($diff);
-                    $save_edits{mutant_info} = 1 if (defined $diff->{b});
+                    if (defined $diff->{b} and $diff->{b} ne "" and $diff->{b} ne $diff->{a}) {
+                        $save_edits{mutant_info} = 1;
+                    }
                 }
             }
             else {    # new mutant, instantiate into mutant_info_edits
@@ -919,7 +1014,9 @@ sub annotate_locus {
                 my @differences = data_diff($mutant_class_hashref, $mutant_class_edits_hashref);
 
                 foreach my $diff (@differences) {
-                    $save_edits{mutant_class} = 1 if (defined $diff->{b});
+                    if (defined $diff->{b} and $diff->{b} ne "" and $diff->{b} ne $diff->{a}) {
+                        $save_edits{mutant_class} = 1;
+                    }
                 }
             }
             else {
@@ -1043,15 +1140,16 @@ sub annotate_locus {
                     $mutant_class_edits_obj->set(
                         mutant_class_id => $mutant_class_id,
                         symbol          => $anno_ref->{mutant_class}->{$mutant_class_id}->{symbol},
-                        symbol_name     => $anno_ref->{mutant_class}->{$mutant_class_id}->{symbol_name}
+                        symbol_name => $anno_ref->{mutant_class}->{$mutant_class_id}->{symbol_name}
                     );
                 }
                 else {
                     $mutant_class_edits_obj = CA::mutant_class_edits->insert(
                         {
                             mutant_class_id => $mutant_class_id,
-                            symbol          => $anno_ref->{mutant_class}->{$mutant_class_id}->{symbol},
-                            symbol_name     => $anno_ref->{mutant_class}->{$mutant_class_id}->{symbol_name}
+                            symbol => $anno_ref->{mutant_class}->{$mutant_class_id}->{symbol},
+                            symbol_name =>
+                              $anno_ref->{mutant_class}->{$mutant_class_id}->{symbol_name}
                         }
                     );
                 }
@@ -1067,26 +1165,56 @@ sub annotate_locus {
         #print $session->header(-type => 'text/plain');
         print $session->header(-type => 'application/json');
 
-        $result{'updated'} =
-        (
+        $result{'updated'} = (
                  defined $save_edits{loci}
               or defined $save_edits{mutant_info}
               or defined $save_edits{mutant_class}
-          )
-          ? 1 : undef;
-          #? print "Update success! Changes submitted for administrator approval."
-          #: print 'No changes to update.';
+        ) ? 1 : undef;
 
-          print JSON::to_json( \%result );
+        #? print "Update success! Changes submitted for administrator approval."
+        #: print 'No changes to update.';
+
+        print JSON::to_json(\%result);
     }
     else {
 
         #now output the session
-        my $annotation_loop = [];
-        my $row             = {};
+        my $annotation_loop   = [];
+        my $row               = {};
 
-        $row = $anno_ref->{loci}->{$locus_id};
+        #$row = $anno_ref->{loci}->{$locus_id};
+        $row->{gene_symbol}          = $anno_ref->{loci}->{$locus_id}->{gene_symbol};
+        $row->{gene_locus}           = $anno_ref->{loci}->{$locus_id}->{gene_locus};
+        $row->{func_annotation}      = $anno_ref->{loci}->{$locus_id}->{func_annotation};
+        $row->{orig_func_annotation} = $anno_ref->{loci}->{$locus_id}->{orig_func_annotation};
+
+        $row->{comment}        = $anno_ref->{loci}->{$locus_id}->{comment};
+        $row->{gb_genomic_acc} = $anno_ref->{loci}->{$locus_id}->{gb_genomic_acc};
+        $row->{gb_cdna_acc}    = $anno_ref->{loci}->{$locus_id}->{gb_cdna_acc};
+        $row->{gb_protein_acc} = $anno_ref->{loci}->{$locus_id}->{gb_protein_acc};
+
+        $row->{reference_pub}        = $anno_ref->{loci}->{$locus_id}->{reference_pub};
+        $row->{mutant_id}            = $anno_ref->{loci}->{$locus_id}->{mutant_id};
+        $row->{mod_date}             = $anno_ref->{loci}->{$locus_id}->{mod_date};
+        $row->{has_structural_annot} = $anno_ref->{loci}->{$locus_id}->{has_structural_annot};
+
         $row->{locus_id} = $locus_id;
+
+        if (defined $anno_ref->{is_admin}) {
+            $row->{gene_symbol_edit} = 1
+              if (defined $anno_ref->{loci}->{$locus_id}->{gene_symbol_edit});
+            $row->{func_annotation_edit} = 1
+              if (defined $anno_ref->{loci}->{$locus_id}->{func_annotation_edit});
+            $row->{comment_edit} = 1 if (defined $anno_ref->{loci}->{$locus_id}->{comment_edit});
+            $row->{gb_genomic_acc_edit} = 1
+              if (defined $anno_ref->{loci}->{$locus_id}->{gb_genomic_acc_edit});
+            $row->{gb_cdna_acc_edit} = 1
+              if (defined $anno_ref->{loci}->{$locus_id}->{gb_cdna_acc_edit});
+            $row->{gb_protein_acc_edit} = 1
+              if (defined $anno_ref->{loci}->{$locus_id}->{gb_protein_acc_edit});
+            $row->{reference_pub_edit} = 1
+              if (defined $anno_ref->{loci}->{$locus_id}->{reference_pub_edit});
+        }
 
         if (defined $anno_ref->{loci}->{$locus_id}->{mutant_id}
             and $anno_ref->{loci}->{$locus_id}->{mutant_id} ne "")
@@ -1113,13 +1241,36 @@ sub annotate_locus {
             $row->{mutant_mod_date}      = $anno_ref->{mutant}->{$mutant_id}->{mod_date};
 
             $row->{has_alleles} = $anno_ref->{mutant}->{$mutant_id}->{has_alleles};
+
+            if (defined $anno_ref->{is_admin}) {
+                $row->{mutant_symbol_edit} = 1
+                  if (defined $anno_ref->{mutant}->{$mutant_id}->{symbol_edit});
+                $row->{mutant_class_symbol_edit} = 1
+                  if (defined $anno_ref->{mutant_class}->{$mutant_class_id}->{symbol_edit});
+
+#$row->{mutant_class_name_edit} = 1 if(defined $anno_ref->{mutant_class}->{$mutant_class_id}->{symbol_name_edit});
+
+                $row->{mutant_phenotype_edit} = 1
+                  if (defined $anno_ref->{mutant}->{$mutant_id}->{phenotype_edit});
+                $row->{mutant_reference_pub_edit} = 1
+                  if (defined $anno_ref->{mutant}->{$mutant_id}->{reference_pub_edit});
+                $row->{mutant_reference_lab_edit} = 1
+                  if (defined $anno_ref->{mutant}->{$mutant_id}->{reference_lab_edit});
+                $row->{mapping_data_edit} = 1
+                  if (defined $anno_ref->{mutant}->{$mutant_id}->{mapping_data_edit});
+            }
         }
+        $row->{username} = $username;
+
+        #delete $row->{is_edit};         # hack: ignore the 'is_edit' hashref key
         push(@$annotation_loop, $row);
 
         # HTML header
         print $session->header(-type => 'text/plain');
 
-        $tmpl->param(annotation_loop => $annotation_loop);
+        $tmpl->param(
+            annotation_loop => $annotation_loop,
+        );
         print $tmpl->output;
     }
 }
@@ -1183,8 +1334,7 @@ sub add_alleles {
 
     my $anno_ref = $session->param('anno_ref');
 
-    $allele_list =~ s/^\s+|\s+$//;
-    $allele_list =~ s/\s+/,/gs;
+    $allele_list =~ s/\s+//;
 
     my $allele_id;
     my @new_alleles = split(/,/, $allele_list);
@@ -1195,9 +1345,7 @@ sub add_alleles {
             mutant_id   => $mutant_id
         );
 
-        if (defined $allele_obj
-            && exists $anno_ref->{allele}->{ $allele_obj->allele_id })
-        {
+        if (defined $allele_obj) {
             $allele_id = $allele_obj->allele_id;
             my $allele_edits_obj = CA::alleles_edits->retrieve(
                 allele_id => $allele_id,
@@ -1230,7 +1378,6 @@ sub add_alleles {
 
             my $check = CA::alleles_edits->retrieve(
                 allele_id => $allele_id,
-                mutant_id => $mutant_id
             );
             until (not defined $check) {
                 my $edits_max_allele_id = &get_max_id('allele_id', 'v2_alleles_edits');
@@ -1301,7 +1448,9 @@ sub annotate_alleles {
             my @differences = data_diff($allele_hashref, $allele_edits_hashref);
 
             foreach my $diff (@differences) {
-                $track = 1 if (defined $diff->{b});
+                if (defined $diff->{b} and $diff->{b} ne "" and $diff->{b} ne $diff->{a}) {
+                    $track = 1;
+                }
             }
 
             $anno_ref->{mutant}->{$mutant_id}->{allele_id} = $allele_edits_hashref->{'allele_name'};
@@ -1379,7 +1528,7 @@ sub annotate_alleles {
                     mutant_id => $mutant_id,
                     allele_id => $allele_id,
                 );
-                $allele_hashref = caObj_to_hashref($allele_obj, 'alleles') if(defined $allele_obj);
+                $allele_hashref = caObj_to_hashref($allele_obj, 'alleles') if (defined $allele_obj);
             }
 
             $anno_ref->{allele}->{$allele_id} = $allele_hashref;
@@ -1388,10 +1537,12 @@ sub annotate_alleles {
         $session->flush;
 
         #now output the session
+        my $i            = 0;
         my $alleles_loop = [];
-        my @allele_ids = sort { $a <=> $b } keys %{ $anno_ref->{allele} };
+        my @allele_ids   = sort { $a <=> $b } keys %{ $anno_ref->{allele} };
         for my $allele_id (@allele_ids) {
-            next unless ( $anno_ref->{allele}->{$allele_id}->{mutant_id} == $mutant_id );
+            state $i;
+            next unless ($anno_ref->{allele}->{$allele_id}->{mutant_id} == $mutant_id);
 
             my $row = {};
 
@@ -1400,6 +1551,13 @@ sub annotate_alleles {
             $row->{alt_allele_names}  = $anno_ref->{allele}->{$allele_id}->{alt_allele_names};
             $row->{reference_lab}     = $anno_ref->{allele}->{$allele_id}->{reference_lab};
             $row->{altered_phenotype} = $anno_ref->{allele}->{$allele_id}->{altered_phenotype};
+            #$row->{tableRowClass}     = ($i++ % 2 == 0) ? "tableRowEven" : "tableRowOdd";
+            $row->{tableRowClass}     = "tableRowOdd";
+
+            if (defined $anno_ref->{is_admin}) {
+                my $allele_edits_obj = CA::alleles_edits->retrieve(allele_id => $allele_id);
+                $row->{tableRowClass} = "tableRowEdit" if (defined $allele_edits_obj);
+            }
             push(@$alleles_loop, $row);
         }
 
@@ -1471,16 +1629,16 @@ sub structural_annotation {
 
     #my $locus_id = $cgi->param('locus_id');
 
-    my $struct_anno_ref = $session->param('anno_ref');
+    my $anno_ref = $session->param('anno_ref');
 
     # HTTP HEADER
     print $session->header(-type => 'text/plain');
 
-    my $user        = CA::users->retrieve($struct_anno_ref->{user_id});
-    my $family      = CA::family->retrieve($struct_anno_ref->{user_id});
+    my $user        = CA::users->retrieve($anno_ref->{user_id});
+    my $family      = CA::family->retrieve($anno_ref->{user_id});
     my ($locus_obj) = CA::loci->retrieve(
-        user_id   => $struct_anno_ref->{user_id},
-        family_id => $struct_anno_ref->{family_id},
+        user_id   => $anno_ref->{user_id},
+        family_id => $anno_ref->{family_id},
         locus_id  => $locus_id
     );
     my $gene_locus  = $locus_obj->gene_locus;
@@ -1536,48 +1694,57 @@ sub structural_annotation {
 
 sub submit_structural_annotation {
     my ($session, $cgi) = @_;
-    my $gene_locus      = $cgi->param('gene_locus');
-    my $struct_anno_ref = $session->param('anno_ref');
+    my $gene_locus = $cgi->param('gene_locus');
+    my $anno_ref   = $session->param('anno_ref');
 
     my %save_edits = ();
-    my ($struct_locus_obj) = CA::loci->search(
-        user_id    => $struct_anno_ref->{user_id},
-        family_id  => $struct_anno_ref->{family_id},
+    my ($locus_obj) = CA::loci->search(
+        user_id    => $anno_ref->{user_id},
+        family_id  => $anno_ref->{family_id},
         gene_locus => $gene_locus
     );
-    my $struct_locus_id = $struct_locus_obj->locus_id;
-    my $ca_model_json   = $cgi->param('model_json');
+    my $locus_id      = $locus_obj->locus_id;
+    my $ca_model_json = $cgi->param('model_json');
 
     #HTTP HEADER
     print $session->header(-type => 'text/plain');
 
-    my $model_obj = CA::structural_annot->retrieve(locus_id => $struct_locus_id);
-    my $model_hashref = caObj_to_hashref($model_obj, 'structural_annot');
-    my $sa_id = $model_obj->sa_id;
+    my $struct_annot_hashref = {};
 
-    my $model_edits_obj = CA::structural_annot_edits->retrieve(locus_id => $struct_locus_id);
-    my $model_edits_hashref = caObj_to_hashref($model_edits_obj, 'structural_annot');
+    my $struct_annot_obj = CA::structural_annot->retrieve(locus_id => $locus_id);
+    $struct_annot_hashref = caObj_to_hashref($struct_annot_obj, 'structural_annot');
+    my $sa_id = $struct_annot_obj->sa_id;
 
-    my @differences = data_diff($model_hashref, $model_edits_hashref);
+    if (defined CA::structural_annot_edits->retrieve(locus_id => $locus_id)) {
+        my $struct_annot_obj = CA::structural_annot_edits->retrieve(locus_id => $locus_id);
+        $struct_annot_hashref = caObj_to_hashref($struct_annot_obj, 'structural_annot');
+    }
+
+    my $struct_annot_edits_hashref = cgi_to_hashref($cgi, 'structural_annot', undef);
+
+    my @differences = data_diff($struct_annot_hashref, $struct_annot_edits_hashref);
 
     foreach my $diff (@differences) {
-        $save_edits{structural_annot} = 1 if (defined $diff->{b});
+        if (defined $diff->{b} and $diff->{b} ne "" and $diff->{b} ne $diff->{a}) {
+            $save_edits{structural_annot} = 1;
+        }
     }
 
     if (defined $save_edits{structural_annot}) {
-        if (defined $model_edits_obj) {
-            $model_edits_obj->model($ca_model_json);
-            $model_edits_obj->update;
+        my $struct_annot_edits_obj = CA::structural_annot_edits->retrieve(locus_id => $locus_id);
+        if (defined $struct_annot_edits_obj) {
+            $struct_annot_edits_obj->model($ca_model_json);
+            $struct_annot_edits_obj->update;
         }
         else {
-            $model_edits_obj = CA::structural_annot_edits->insert(
+            $struct_annot_edits_obj = CA::structural_annot_edits->insert(
                 {
                     sa_id    => $sa_id,
-                    locus_id => $struct_locus_id,
+                    locus_id => $locus_id,
                     model    => $ca_model_json,
                 }
             );
-            $model_edits_obj->update;
+            $struct_annot_edits_obj->update;
         }
         print "Structure edits saved!";
     }
@@ -1585,8 +1752,8 @@ sub submit_structural_annotation {
         print "No changes to save!";
     }
 
-    $struct_anno_ref->{loci}->{$struct_locus_id}->{has_structural_annot} = 1;
-    $session->param('anno_ref', $struct_anno_ref);
+    $anno_ref->{loci}->{$locus_id}->{has_structural_annot} = 1;
+    $session->param('anno_ref', $anno_ref);
     $session->flush;
 }
 
@@ -1829,18 +1996,19 @@ sub update_user_info {
 sub check_username {
     my ($user_id, $username) = @_;
 
-    print $session->header(-type => 'text/plain');
+    print $cgi->header(-type => 'application/json');
 
+    my @results   = ();
     my $all_users = CA::users->retrieve_all();
     while (my $user = $all_users->next()) {
         next if ($user_id == $user->user_id);
 
         if ($username eq $user->username) {
-            print "Taken!";
+            print JSON::to_json({ 'available' => 0, 'message' => 'Taken!' });
             exit;
         }
     }
-    print "Available!";
+    print JSON::to_json({ 'available' => 1, 'message' => 'Available!' });
 }
 
 sub caObj_to_hashref {
@@ -1853,12 +2021,13 @@ sub caObj_to_hashref {
             'reference_pub', 'mutant_id',      'mod_date',        'has_structural_annot'
         ],
         'mutant_info' => [
-            'symbol',       'phenotype',       'reference_pub', 'reference_lab',
+            'symbol',       'phenotype', 'reference_pub', 'reference_lab',
             'mapping_data', 'mutant_class_id'
         ],
         'mutant_class' => [ 'symbol', 'symbol_name' ],
         'alleles' =>
-          [ 'mutant_id', 'allele_name', 'alt_allele_names', 'reference_lab', 'altered_phenotype' ]
+          [ 'mutant_id', 'allele_name', 'alt_allele_names', 'reference_lab', 'altered_phenotype' ],
+        'structural_annot' => ['model']
     );
 
     my %hash;
@@ -1908,7 +2077,8 @@ sub cgi_to_hashref {
             "alt_allele_names_$id"  => "alt_allele_names",
             "reference_lab_$id"     => "reference_lab",
             "altered_phenotype_$id" => "altered_phenotype"
-        }
+        },
+        'structural_annot' => { 'model_json' => 'model' }
     );
 
     my %hash;
@@ -1923,7 +2093,7 @@ sub cgi_to_hashref {
 
 sub fix_missing_mutant_symbol {
 
-    # dirty hack to inherit the mutant_class_symbol for
+    # hack to inherit the mutant_class_symbol for
     # mutant_info entries with no symbol or symbol eq "-"
     my ($mutant_symbol, $mutant_class_id) = @_;
 
@@ -1934,10 +2104,10 @@ sub fix_missing_mutant_symbol {
 }
 
 sub get_loci {
-    my ($cgi, $gene_locus) = @_;
+    my ($cgi, $gene_locus, $filter) = @_;
 
     # HTTP HEADER
-    print $session->header(-type => 'application/json');
+    print $cgi->header(-type => 'application/json');
 
     # EXECUTE THE QUERY
     my @locus_feats = $gff_dbh->get_features_by_name(
@@ -1958,7 +2128,7 @@ sub get_loci {
           };
     }
     @query_output = sort { $a->{id} <=> $b->{id} } @query_output;
-    @query_output = (scalar @query_output >= 10) ? @query_output[ 0 .. 9 ] : @query_output;
+    @query_output = (scalar @query_output >= $filter) ? @query_output[ 0 .. --$filter ] : @query_output;
 
     # JSON OUTPUT
     print JSON::to_json(\@query_output);
@@ -1968,7 +2138,7 @@ sub get_mutant_info {
     my ($cgi, $mutant_sym) = @_;
 
     # HTTP HEADER
-    print $session->header(-type => 'application/json');
+    print $cgi->header(-type => 'application/json');
 
     $mutant_sym =~ s/[0-9]+$//gs;
     my @mutant_feats = CA::mutant_class->search_like(
@@ -2515,17 +2685,17 @@ sub annotate_mutants {
     push @breadcrumb,
       (
         {
-            'link'      => '/cgi-bin/medicago/eucap2/eucap.pl?action=select_family',
-            'menu_name' => 'Select Family'
+            'link'      => '/cgi-bin/medicago/eucap2/eucap.pl?action=dashboard',
+            'menu_name' => 'Dashboard'
         },
         { 'link' => '#', 'menu_name' => $title }
       );
-    $jcvi_vars->{title} = "Medicago truncatula :: EuCAP :: $title";
+    $jcvi_vars->{title} = "Medicago truncatula Genome Project :: EuCAP :: $title";
     $jcvi_vars->{page_header} = $family->family_name . ' Gene Family';
     $jcvi_vars->{top_menu} = [
         {
-            'link'      => '/cgi-bin/medicago/eucap2/eucap.pl?action=select_family',
-            'menu_name' => 'Select Family'
+            'link'      => '/cgi-bin/medicago/eucap2/eucap.pl?action=dashboard',
+            'menu_name' => 'Dashboard'
         },
         {
             'link'      => '/cgi-bin/medicago/eucap2/eucap.pl?action=logout',
