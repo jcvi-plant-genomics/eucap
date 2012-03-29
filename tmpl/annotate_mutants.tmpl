@@ -2,9 +2,9 @@
           <tr class="tableRowEven">
             <input type="hidden" id="mutant_id" name="mutant_id" value="<TMPL_VAR NAME="mutant_id">">
             <input type="hidden" id="mutant_mod_date" name="mutant_mod_date" value="<TMPL_VAR NAME="mutant_mod_date">">
-            <td <TMPL_IF NAME="mutant_symbol_edit">class="tableRowEdit"</TMPL_IF>><p>
-            <label for="mutant_symbol">Mutant Symbol: </label>
-            <input type="text" id="mutant_symbol" name="mutant_symbol" value="<TMPL_IF NAME="mutant_symbol"><TMPL_VAR NAME="mutant_symbol"><TMPL_ELSE>Search mutants...</TMPL_IF>" onfocus="if(this.value == 'Search mutants...') this.value = '';" onblur="if(this.value == '') this.value = 'Search mutants...';">&nbsp;<span width="16px" id="mutant_autocmp_status" name="mutant_autocmp_status"></span><br /><br />
+            <td class="mutant_<TMPL_VAR NAME="mutant_id"><TMPL_IF NAME="mutant_symbol_edit"> tableRowEdit</TMPL_IF>"><p>
+                <label for="mutant_symbol">Mutant Symbol: </label>
+                <input type="text" id="mutant_symbol" name="mutant_symbol" value="<TMPL_IF NAME="mutant_symbol"><TMPL_VAR NAME="mutant_symbol"><TMPL_ELSE>Search mutants...</TMPL_IF>" onfocus="if(this.value == 'Search mutants...') this.value = '';" onblur="if(this.value == '') this.value = 'Search mutants...';">&nbsp;<span width="16px" id="mutant_autocmp_status" name="mutant_autocmp_status"></span><br /><br />
             </p></td>
 
             <script type="text/javascript">
@@ -102,52 +102,52 @@
                 });
         </script>
 
-            <td rowspan=2 <TMPL_IF NAME="mutant_phenotype_edit">class="tableRowEdit"</TMPL_IF>><p>
-            <label for="mutant_phenotype">Mutant Phenotype: </label>
-            <textarea ROWS=4 id="mutant_phenotype" name="mutant_phenotype"><TMPL_IF NAME="mutant_phenotype"><TMPL_VAR NAME="mutant_phenotype"></TMPL_IF></textarea>
+            <td rowspan=2 class="mutant_<TMPL_VAR NAME="mutant_id"><TMPL_IF NAME="mutant_phenotype_edit"> tableRowEdit</TMPL_IF>"><p>
+                <label for="mutant_phenotype">Mutant Phenotype: </label>
+                <textarea ROWS=4 id="mutant_phenotype" name="mutant_phenotype"><TMPL_IF NAME="mutant_phenotype"><TMPL_VAR NAME="mutant_phenotype"></TMPL_IF></textarea>
             </p></td>
           </tr>
 
           <tr class="tableRowEven">
-            <td <TMPL_IF NAME="mutant_class_symbol_edit">class="tableRowEdit"</TMPL_IF>><p>
-            <input type="hidden" id="mutant_class_id" name="mutant_class_id" value="<TMPL_VAR NAME="mutant_class_id">">
-            <label for="mutant_class_symbol">Mutant Class Symbol &amp; Expansion: </label>
-            <input readonly="readonly" type="text" size="6" id="mutant_class_symbol" name="mutant_class_symbol" value="<TMPL_IF NAME="mutant_class_symbol"><TMPL_VAR NAME="mutant_class_symbol"></TMPL_IF>"><br />
-            <br />
-            <textarea ROWS=1 id="mutant_class_name" name="mutant_class_name"><TMPL_IF NAME="mutant_class_name"><TMPL_VAR NAME="mutant_class_name"></TMPL_IF></textarea>
+            <td class="mutant_class_<TMPL_VAR NAME="mutant_class_id"><TMPL_IF NAME="mutant_class_symbol_edit"> tableRowEdit</TMPL_IF>"><p>
+                <input type="hidden" id="mutant_class_id" name="mutant_class_id" value="<TMPL_VAR NAME="mutant_class_id">">
+                <label for="mutant_class_symbol">Mutant Class Symbol &amp;</label>
+                <input readonly="readonly" type="text" size="6" id="mutant_class_symbol" name="mutant_class_symbol" value="<TMPL_IF NAME="mutant_class_symbol"><TMPL_VAR NAME="mutant_class_symbol"></TMPL_IF>"><br />
+                <label for="mutant_class_name">Expansion: </label>
+                <textarea ROWS=1 id="mutant_class_name" name="mutant_class_name"><TMPL_IF NAME="mutant_class_name"><TMPL_VAR NAME="mutant_class_name"></TMPL_IF></textarea>
             </p></td>
           </tr>
 
           <tr class="tableRowEven">
-            <td <TMPL_IF NAME="mapping_data_edit">class="tableRowEdit"</TMPL_IF>><p>
-            <label for="mapping_data">Mapping Data: </label>
-            <textarea id="mapping_data" name="mapping_data"><TMPL_IF NAME="mapping_data"><TMPL_VAR NAME="mapping_data"></TMPL_IF></textarea>
+            <td class="mutant_<TMPL_VAR NAME="mutant_id"><TMPL_IF NAME="mapping_data_edit"> tableRowEdit</TMPL_IF>"><p>
+                <label for="mapping_data">Mapping Data: </label>
+                <textarea id="mapping_data" name="mapping_data"><TMPL_IF NAME="mapping_data"><TMPL_VAR NAME="mapping_data"></TMPL_IF></textarea>
             </p></td>
 
-            <td><p>
-            <label for="alleles">Has Alleles?</label>
-            <input type="hidden" id="has_alleles" name="has_alleles" value="<TMPL_VAR NAME="has_alleles">">
-            <span id="disp_get_alleles" name="disp_get_alleles">
-                <TMPL_IF NAME="mutant_id">
-                <input type="button" id="get_alleles" name="get_alleles"
-                value="<TMPL_IF NAME="has_alleles">Edit<TMPL_ELSE>Add</TMPL_IF>"
-                onclick="perform_action('annotate_alleles', 'mutant_id', <TMPL_VAR NAME="mutant_id">);">
-                <TMPL_ELSE>
-                No
-                </TMPL_IF>
-            </span>
+            <td class="mutant_<TMPL_VAR NAME="mutant_id"><TMPL_IF NAME="has_alleles_edit"> tableRowEdit</TMPL_IF>"><p>
+                <label for="alleles">Has Alleles?</label>
+                <input type="hidden" id="has_alleles" name="has_alleles" value="<TMPL_VAR NAME="has_alleles">">
+                <span id="disp_get_alleles" name="disp_get_alleles">
+                    <TMPL_IF NAME="mutant_id">
+                    <input type="button" id="get_alleles" name="get_alleles"
+                    value="<TMPL_IF NAME="has_alleles">Edit<TMPL_ELSE>Add</TMPL_IF>"
+                    onclick="perform_action('annotate_alleles', 'mutant_id', <TMPL_VAR NAME="mutant_id">);">
+                    <TMPL_ELSE>
+                    No
+                    </TMPL_IF>
+                </span>
             </p></td>
           </tr>
 
           <tr class="tableRowEven">
-            <td <TMPL_IF NAME="mutant_reference_lab_edit">class="tableRowEdit"</TMPL_IF>><p>
-            <label for="mutant_reference_lab">Reference Lab: </label>
-            <textarea ROWS=1 id="mutant_reference_lab" name="mutant_reference_lab"><TMPL_IF NAME="mutant_reference_lab"><TMPL_VAR NAME="mutant_reference_lab"></TMPL_IF></textarea>
+            <td class="mutant_<TMPL_VAR NAME="mutant_id"><TMPL_IF NAME="mutant_reference_lab_edit"> tableRowEdit</TMPL_IF>"><p>
+                <label for="mutant_reference_lab">Reference Lab: </label>
+                <textarea ROWS=2 id="mutant_reference_lab" name="mutant_reference_lab"><TMPL_IF NAME="mutant_reference_lab"><TMPL_VAR NAME="mutant_reference_lab"></TMPL_IF></textarea>
             </p></td>
 
-            <td <TMPL_IF NAME="mutant_reference_pub_edit">class="tableRowEdit"</TMPL_IF>><p>
-            <label for="mutant_reference_pub">Reference Publication: </label>
-            <textarea ROWS=1 id="mutant_reference_pub" name="mutant_reference_pub"><TMPL_IF NAME="mutant_reference_pub"><TMPL_VAR NAME="mutant_reference_pub"></TMPL_IF></textarea>
+            <td class="mutant_<TMPL_VAR NAME="mutant_id"><TMPL_IF NAME="mutant_reference_pub_edit"> tableRowEdit</TMPL_IF>"><p>
+                <label for="mutant_reference_pub">Reference Publication: </label>
+                <textarea ROWS=2 id="mutant_reference_pub" name="mutant_reference_pub"><TMPL_IF NAME="mutant_reference_pub"><TMPL_VAR NAME="mutant_reference_pub"></TMPL_IF></textarea>
             </p></td>
           </tr>
       </table>
@@ -180,11 +180,14 @@
             position: { my: 'bottom left', at: 'top center' }
         });
         $('#mapping_data').qtip({
-            content: '<b style="color: green;">Optional</b><br />If available, please summarize what is known about the chromosomal location of the gene, and results of any allelism tests performed',
+            content: '<b style="color: green;">Optional</b><br />If available, please summarize what is known about the chromosomal ' +
+            'location of the gene, and results of any allelism tests performed',
             position: { my: 'bottom left', at: 'top center' }
         });
         $('#mutant_reference_pub').qtip({
-            content: '<b style="color: red;">Required</b><br />Please indicated any publications on web sites.<br />If work is not published yet, please input <br /> "In Progress" or "In Press"',
+            content: '<b style="color: red;">Required</b><br />Please indicated any publications on web sites.<br />If work is not ' +
+            'published yet, please input <br /> "In Progress" or "In Press".<br /><br />' +
+            'If there are multiple references, list them with a ";" separator',
             position: { my: 'bottom left', at: 'top center' }
         });
         $('#mutant_reference_lab').qtip({

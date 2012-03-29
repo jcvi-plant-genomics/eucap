@@ -68,7 +68,7 @@
 		<td colspan="2"><p>&nbsp;</p></td>
 	</tr>
 	<TMPL_LOOP NAME="annotation_summary_loop">
-	<tr class="<TMPL_VAR NAME="tableRowClass">">
+	<tr class="locus_<TMPL_VAR NAME="locus_id"> <TMPL_VAR NAME="tableRowClass">">
 		<input type="hidden" id="locus_id" name="locus_id" value="<TMPL_VAR NAME="locus_id">">
 		<td><p id="gene_symbol_<TMPL_VAR NAME="locus_id">"><TMPL_VAR NAME="gene_symbol"></p></td>
 		<td><p id="gene_locus_<TMPL_VAR NAME="locus_id">"><TMPL_VAR NAME="gene_locus"></p></td>

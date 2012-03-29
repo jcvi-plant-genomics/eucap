@@ -116,6 +116,12 @@ function delete_feature(feature, feature_id, feature_name) {
     });
 }
 
+// Response messages for save_locus() and save_alleles()
+// message[0] - for non admin users
+// message[1] - for admin user
+var message = new Array();
+message[0] = 'Update success! Changes submitted for admin approval';
+message[1] = 'Changes Approved!';
 
 // save all the locus edits to database. remember to check if gene_symbol,
 // gene_locus, and orig_functional_annotation are populated for a given
@@ -202,7 +208,21 @@ function save_locus(locus_id) {
                             $('mutant_class_id').val(data.mutant_class_id);
                         }
 
-                        $('#' + status_span).html('Update success! Changes submitted for admin approval');
+                        var msg = message[0];
+                        if(data.locus_edits !== 1) {
+                            remove_edits_highlight(data.locus_id, 'locus');
+                            msg = message[1];
+                        }
+                        if(data.mutant_edits !== 1) {
+                            remove_edits_highlight(data.mutant_id, 'mutant');
+                            msg = message[1];
+                        }
+                        if(data.mutant_class_edits !== 1) {
+                            remove_edits_highlight(data.mutant_class_id, 'mutant_class');
+                            msg = message[1];
+                        }
+
+                        $('#' + status_span).html(msg);
                         update_locus_table(locus_id);
                     } else {
                         $('#' + status_span).html('No changes to update.');
@@ -252,9 +272,17 @@ function save_alleles(mutant_id) {
         url: url,
         data: params,
         success: function(data, textStatus, XMLHttpRequest) {
-            $('#' + status_span).removeClass('error');
-            $('#' + status_span).addClass('success');
-            $('#' + status_span).html(data);
+            if(data.updated === 1) {
+                $('#' + status_span).removeClass('error');
+                $('#' + status_span).addClass('success');
+                var msg = message[0];
+                if(data.allele_edits !== 1) {
+                    msg = message[1];
+                }
+                $('#' + status_span).html(msg);
+            } else {
+                $('#' + status_span).html('No changes to update.');
+            }
         },
         error: function(XMLHttpRequest, textStatus, errorThrown) {
             $('#' + status_span).removeClass('success');
@@ -265,7 +293,6 @@ function save_alleles(mutant_id) {
     return false;
 }
 
-
 // update the locus_table
 function update_locus_table(locus_id) {
     $('#gene_symbol_' + locus_id).html($('#gene_symbol').val());
@@ -275,11 +302,17 @@ function update_locus_table(locus_id) {
     $('#comment_' + locus_id).html($('#comment').val());
 }
 
+// remove edits highlighting
+function remove_edits_highlight(id, prefix) {
+    $('.' + prefix + '_' + id).removeClass('tableRowEdit');
+    $('.' + prefix + '_' + id).addClass('tableRowOdd');
+}
+
 // perform action: make ajax GET call to eucap.pl with action and id as params
 // if (param === id) or (param === ''), make ajax GET call with single parameter,
 // else, make ajax POST call by serializing all form input elements
 function perform_action(action, param_name, param) {
-    if(action !== "" && param_name === undefined && param === undefined) {
+    if(action !== '' && param_name === undefined && param === undefined) {
         param  = action;
         action = $('#'+ action + '_form input[name=action]').val();
     }
@@ -300,7 +333,7 @@ function perform_action(action, param_name, param) {
 
     var query = url + '&' + params;
 
-    if(action === "annotate_alleles" || action === "struct_anno") {
+    if(action === 'annotate_alleles' || action === 'struct_anno') {
         $('#overlay').show();
         $('#' + action).dialog({
             autoOpen: false,
@@ -323,7 +356,7 @@ function perform_action(action, param_name, param) {
             }
             $('#' + action).html(data);
 
-            if(action === "annotate_alleles" || action === "struct_anno") {
+            if(action === 'annotate_alleles' || action === 'struct_anno') {
                 $('#overlay').hide();
                 $('#' + action).dialog('open');
                 $('#' + action).addClass('panel_background');

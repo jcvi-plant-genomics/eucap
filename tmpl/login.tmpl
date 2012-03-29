@@ -1,39 +1,49 @@
-	<p class="header1">Eucaryotic Community Annotation Package (EuCAP)</p>
-    <p class="header2"><em>Medicago truncatula</em> Community Annotation Portal</p>
-<div class="panel_background">
-	<p class="header3">Please log in:</p>
-	<TMPL_IF NAME="error">
-		<p style="color:red"><TMPL_VAR NAME="error_string"></p>
-	</TMPL_IF>
-
-	<table>
+<table class="bodycontent">
 	<tbody>
-	<form action="/cgi-bin/medicago/eucap/eucap.pl" method="post">
-	<input type="hidden" id="action" name="action" value="dashboard">
-          <tr>
-			<td><p>Username: </p></td>
-			<td><p><input type="text" name="username" id="username"></p></td>
-		</tr>
-		<tr>
-			<td><p>Password: </p></td>
-			<td><p><input type="password" name="password" is="password"></p></td>
-		</tr>
-		<!-- spacing -->
-		<tr>
-			<td colspan="2">&nbsp;</p></td>
-		</tr>
-		<tr>
-			<td><p>
-				<input type="submit" value="Log in">
-			</p></td>
-			<td><p>
-				<input type="reset">
-			</p></td>
-		</tr>
-	</form>
-	</tbody>
-	</table>
-</div>
+    <tr class="tableRowEven">
+        <td colspan="2" align="left">
+            <p class="section">Sign In</p>
+        </td>
+    </tr>
+    <tr class="tableRowOdd">
+        <td align="left">
+            <br />
+            <p class="bodytext">You need a EuCAP account to start curating Gene Families.</p>
+            <p class="bodytext">Don&apos;t have an account?
+            <a href="/cgi-bin/medicago/eucap/eucap.pl?action=signup_page">Create one.</a></p>
+            <br />
+            <br />
+            <p class="bodytext"><b>EuCAP</b> - the Community Annotation gateway:</p>
+            <ul>
+                <li>Curate gene function and structure (per family)</li>
+                <li>Annotate <i>Medicago truncatula</i> mutants <br />
+                and alleles</li>
+            </ul>
+        </td>
+        <td align="right">
+            <br />
+            <TMPL_IF NAME="error">
+                <p style="color:red"><TMPL_VAR NAME="error_string"></p>
+                <br />
+            </TMPL_IF>
+            <form action="/cgi-bin/medicago/eucap/eucap.pl" method="post">
+            <p>
+                <input type="hidden" id="action" name="action" value="dashboard">
+                <label for="username">Username: </label>
+                <input type="text" name="username" id="username">
+                <br /><br />
+                <label for="password">Password: </label>
+                <input type="password" name="password" id="password">
+                <br /><br /><br />
+                <input type="submit" value="Log in">
+                &nbsp;
+                <input type="reset">
+            </p>
+            </form>
+        </td>
+    </tr>
+    </tbody>
+    </table>
 
 <script type="text/javascript">
   document.getElementById('username').focus();

@@ -1,25 +1,27 @@
-  <script type="text/javascript">
-  $(document).ready(function() {
-      $('.disabled-action').addClass('ui-state-disabled');
+      <script type="text/javascript">
+      $(document).ready(function() {
+          $('.disabled-action').addClass('ui-state-disabled');
 
-      $('#actions').accordion({ collapsible: true, autoHeight: true });
+          $('#actions').accordion({ collapsible: true, autoHeight: true, active: <TMPL_IF NAME="disabled">1<TMPL_ELSE>0</TMPL_IF> });
 
-      var accordion = $('#actions').data('accordion');
-      accordion._std_clickHandler = accordion._clickHandler;
-      accordion._clickHandler = function( event, target ) {
-          var clicked = $( event.currentTarget || target );
-          if (! clicked.hasClass('ui-state-disabled'))
-            this._std_clickHandler(event, target);
-      };
-  });
-  </script>
+          var accordion = $('#actions').data('accordion');
+          accordion._std_clickHandler = accordion._clickHandler;
+          accordion._clickHandler = function( event, target ) {
+              var clicked = $( event.currentTarget || target );
+              if (! clicked.hasClass('ui-state-disabled'))
+                this._std_clickHandler(event, target);
+          };
+      });
+      </script>
 
 <table width=100% border=0>
 <tr class="tableRowEven">
     <td width="70%">
     <div id="actions">
-        <h3><a href="#">Annotate Gene Families</a></h3>
+        <h3<TMPL_IF NAME="disabled"> class="disabled-action"</TMPL_IF>><a href="#">Annotate Gene Families</a></h3>
         <div>
+        <TMPL_IF NAME="disabled">
+        <TMPL_ELSE>
             <form name="select_annotation" action="/cgi-bin/medicago/eucap/eucap.pl" method="POST">
             <input type="hidden" id="action" name="action" value="annotate">
             <input type="hidden" id="user_id" name="user_id" value="">
@@ -59,6 +61,7 @@
               </tr>
             </table>
             </form>
+        </TMPL_IF>
         </div>
         <h3><a href="#">Annotate Mutants</a></h3>
         <div>

@@ -46,11 +46,14 @@
 
  <input type="hidden" id="mutant_id" name="mutant_id" value="<TMPL_VAR NAME="mutant_id">">
 <TMPL_LOOP NAME="alleles_loop">
-  <tr class="<TMPL_VAR NAME="tableRowClass">">
+  <tr class="allele_<TMPL_VAR NAME="allele_id"> <TMPL_VAR NAME="tableRowClass">">
     <input type="hidden" id="allele_id" name="allele_id" value="<TMPL_VAR NAME="allele_id">">
-    <td><p><input type="text" size="10" id="allele_name_<TMPL_VAR NAME="allele_id">" name="allele_name_<TMPL_VAR NAME="allele_id">" value="<TMPL_IF NAME="allele_name"><TMPL_VAR NAME="allele_name"></TMPL_IF>"></p><br />
-    <td><p><input type="text" id="alt_allele_names_<TMPL_VAR NAME="allele_id">" name="alt_allele_names_<TMPL_VAR NAME="allele_id">" value="<TMPL_IF NAME="alt_allele_names"><TMPL_VAR NAME="alt_allele_names"></TMPL_IF>"></p><br />
-    <td><p><input type="text" id="reference_lab_<TMPL_VAR NAME="allele_id">" name="reference_lab_<TMPL_VAR NAME="allele_id">" value="<TMPL_IF NAME="reference_lab"><TMPL_VAR NAME="reference_lab"></TMPL_IF>"></p><br />
+    <td><p><input type="text" size="10" id="allele_name_<TMPL_VAR NAME="allele_id">" name="allele_name_<TMPL_VAR NAME="allele_id">" value="<TMPL_IF NAME="allele_name"><TMPL_VAR NAME="allele_name"></TMPL_IF>"></p></td>
+
+    <td><p><input type="text" id="alt_allele_names_<TMPL_VAR NAME="allele_id">" name="alt_allele_names_<TMPL_VAR NAME="allele_id">" value="<TMPL_IF NAME="alt_allele_names"><TMPL_VAR NAME="alt_allele_names"></TMPL_IF>"></p></td>
+
+    <td><p><input type="text" id="reference_lab_<TMPL_VAR NAME="allele_id">" name="reference_lab_<TMPL_VAR NAME="allele_id">" value="<TMPL_IF NAME="reference_lab"><TMPL_VAR NAME="reference_lab"></TMPL_IF>"></p></td>
+
     <td><p><input type="text" id="altered_phenotype_<TMPL_VAR NAME="allele_id">" name="altered_phenotype_<TMPL_VAR NAME="allele_id">" value="<TMPL_VAR NAME="altered_phenotype">"></p></td>
     <td><p><img src="/medicago/eucap/include/images/delete.png" class="delete_allele_<TMPL_VAR NAME="allele_id">" alt=" Delete Allele <TMPL_VAR NAME="allele_name">" title="Delete Allele <TMPL_VAR NAME="allele_name">" onclick="delete_feature('allele', <TMPL_VAR NAME="allele_id">, '<TMPL_VAR NAME="allele_name">');" /></p></td>
   </tr>
