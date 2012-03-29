@@ -1,113 +1,66 @@
-// jquery widget to augment .keyup() (onDelayedKeyup)
-(function($){
-    $.widget('ui.onDelayedKeyup', {
-        _init : function() {
-            var self = this;
-            $(this.element).keyup(function() {
-                if(typeof(window['inputTimeout']) != 'undefined'){
-                    window.clearTimeout(inputTimeout);
-                }
-                var handler = self.options.handler;
-                window['inputTimeout'] = window.setTimeout(function() { handler.call(self.element) }, self.options.delay);
+$(document).ready(function(){
+    $('#edit_profile').validate({
+        rules: {
+            username: {
+                required: true,
+                minlength: 4,
+                remote: '/cgi-bin/medicago/eucap/eucap.pl?action=check_username&ignore=' + $('#orig_username').val()
+            },
+            name: {
+                required: true,
+                minlength: 2
+            },
+            email: {
+                required: true,
+                email: true,
+                remote: '/cgi-bin/medicago/eucap/eucap.pl?action=check_email&ignore=' + $('#orig_email').val()
+            },
+            url: {
+                required: false,
+                url: true
+            }
+        },
+        messages: {
+            username: {
+                required: 'Cannot be empty',
+                minlength: jQuery.format('At least {0} characters'),
+                remote: jQuery.format('Taken')
+            },
+            name: {
+                required: 'Cannot be empty',
+                minlength: jQuery.format('At least {0} characters'),
+            },
+            password: {
+                required: 'Cannot be empty',
+                minlength: jQuery.format('At least {0} characters'),
+            },
+            email: {
+                required: 'Cannot be empty',
+                email: 'Invalid',
+                remote: jQuery.format('{0} is already in use')
+            },
+            url: {
+                url: 'Invalid'
+            }
+        },
+        submitHandler: function(form) {
+            jQuery(form).ajaxSubmit({
+                url:    '/cgi-bin/medicago/eucap/eucap.pl',
+                type:   'POST',
+                dataType: 'json',
+                success: function(data, statusText, XMLHttpRequest) {
+                    $('#update_status').removeClass('error success');
+                    if(data.photo_file_name !== null) {
+                        $('#user_photo').attr('src', '/medicago/eucap/include/images/ca_users/' + data.photo_file_name);
+                        $('#update_status').addClass('success');
+                    } else {
+                        $('#update_status').addClass('error');
+                    }
+                    $('#update_status').html(data.update_status);
+                },
             });
-        },
-        options: {
-            handler: $.noop(),
-            delay: 500
-        }
-    });
-})(jQuery);
 
-$(function() {
-    $('#username').onDelayedKeyup( {
-        handler: function() {
-            $('#username_err_msg').html('');
-            $('#username_err_msg').removeClass('success error');
-            if($(this).val() !== '' &&
-               $(this).val().length > 4 &&
-               $(this).val() !== $('#orig_username').val()) {
-                var user_id = $('#user_id').val();
-                validate_username(user_id, $(this).val());
-            }
+            return false;
         }
     });
 });
-
-$(function() {
-    $('#email').onDelayedKeyup( {
-        handler: function() {
-            $('#email_err_msg').html('');
-            $('#email_err_msg').removeClass('success error');
-            if($(this).val().length !== 0 &&
-               $(this).val() !== $('#orig_email').val()) {
-                validate_email($(this).val());
-            }
-        }
-    });
-});
-
-$(function() {
-    $('#url').onDelayedKeyup( {
-        handler: function() {
-            $('#url_err_msg').html('');
-            $('#url_err_msg').removeClass('success error');
-            if($(this).val().length !== 0 &&
-               $(this).val() !== $('#orig_url').val()) {
-                validate_url($(this).val());
-            }
-        }
-    });
-});
-
-function validate_username(user_id, username) {
-    var url = '/cgi-bin/medicago/eucap/eucap.pl?action=check_username';
-    var params = 'user_id=' + user_id + '&username=' + username;
-    var query = url + '&' + params;
-
-    $.ajax({
-        url: url,
-        data: params,
-        success: function(data, textStatus, XMLHttpRequest) {
-            if(data.available === 1) {
-                $('#username_err_msg').removeClass('error');
-                $('#username_err_msg').addClass('success');
-            } else {
-                $('#username_err_msg').removeClass('success');
-                $('#username_err_msg').addClass('error');
-            }
-            $('#username_valid').val(data.available);
-            $('#username_err_msg').html(data.message);
-        },
-        error: function(XMLHttpRequest, textStatus, errorThrown) {
-            $('#username_err_msg').removeClass('success error');
-            $('#username_err_msg').html('Error in XmlHttpRequest: <a href="' + query + '">' + query + '</a>');
-        }
-    });
-}
-
-function validate_email(email_address) {
-    var filter = /^[a-zA-Z0-9_.-]+@[a-zA-Z0-9]+[a-zA-Z0-9.-]+[a-zA-Z0-9]+.[a-z]{0,4}$/;
-    if(filter.test(email_address)) {
-        $('#email_err_msg').html('Valid!');
-        $('#email_err_msg').addClass('success');
-        $('#email_valid').val('1');
-    } else {
-        $('#email_err_msg').html('Invalid!');
-        $('#email_err_msg').addClass('error');
-        $('#email_valid').val('0');
-    }
-}
-
-function validate_url(url) {
-    var urlregex = new RegExp("^(http|https|ftp)\://([a-zA-Z0-9\.\-]+(\:[a-zA-Z0-9\.&amp;%\$\-]+)*@)*((25[0-5]|2[0-4][0-9]|[0-1]{1}[0-9]{2}|[1-9]{1}[0-9]{1}|[1-9])\.(25[0-5]|2[0-4][0-9]|[0-1]{1}[0-9]{2}|[1-9]{1}[0-9]{1}|[1-9]|0)\.(25[0-5]|2[0-4][0-9]|[0-1]{1}[0-9]{2}|[1-9]{1}[0-9]{1}|[1-9]|0)\.(25[0-5]|2[0-4][0-9]|[0-1]{1}[0-9]{2}|[1-9]{1}[0-9]{1}|[0-9])|([a-zA-Z0-9\-]+\.)*[a-zA-Z0-9\-]+\.(com|edu|gov|int|mil|net|org|biz|arpa|info|name|pro|aero|coop|museum|[a-zA-Z]{2}))(\:[0-9]+)*(/($|[a-zA-Z0-9\.\,\?\'\\\+&amp;%\$#\=~_\-]+))*$");
-
-    if(urlregex.test(url)) {
-        $('#url_err_msg').html('Valid!');
-        $('#url_err_msg').addClass('success');
-        $('#url_valid').val('1');
-    } else {
-        $('#url_err_msg').html('Invalid!');
-        $('#url_err_msg').addClass('error');
-        $('#url_valid').val('0');
-    }
-}

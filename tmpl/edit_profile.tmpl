@@ -1,62 +1,62 @@
-<!--
-<p class="header1">Select a Gene Family to Annotate</p>
--->
-
 <div class="panel_background">
 <!--form enctype="multipart/form-data" id="edit_profile" name="edit_profile" action="/cgi-bin/medicago/eucap/eucap.pl" method="post"-->
-<form id="edit_profile" name="edit_profile" enctype="multipart/form-data" method="POST" action="/cgi-bin/medicago/eucap/eucap.pl">
-<input type="hidden" name="action" value="" id="action">
+<form id="edit_profile" name="edit_profile" enctype="multipart/form-data">
+<input type="hidden" name="action" value="update_profile" id="action">
 
 <p class="header1">Edit your profile</p>
 
 <input type="hidden" id="user_id" name="user_id" value="<TMPL_VAR NAME="user_id">">
 <input type="hidden" id="orig_username" name="orig_username" value="<TMPL_VAR NAME="username">">
 <input type="hidden" id="orig_email" name="orig_email" value="<TMPL_VAR NAME="email">">
-<input type="hidden" id="orig_url" name="orig_url" value="<TMPL_VAR NAME="url">">
 
 <hr />
-<table width=100% border=0>
+<table width="100%" border="0">
 <tr>
     <td align="right">
         <p><label for="username"><b>Username:</b></label>
-        <input type="text" id="username" name="username" value="<TMPL_VAR NAME="username">" /></p>
+        <input type="text" id="username" name="username" value="<TMPL_VAR NAME="username">" class="required" /></p>
     </td>
-    <td width="10%" id="username_err_msg" name="username_err_msg">
-    <TMPL_IF NAME="username_err_msg"><TMPL_VAR NAME="username_err_msg"><TMPL_ELSE>&nbsp;</TMPL_IF>
+    <td width="5%">
+    &nbsp;
     </td>
-    <input type="hidden" id="username_valid" name="username_valid" valid="1">
-    <td rowspan=5>
-        <img class="rounded" src="/medicago/eucap/include/images/ca_users/<TMPL_VAR NAME="image_name">" /><br />
+    <td height="200px" rowspan="5">
+        <img id="user_photo" name="user_photo" class="rounded" src="/medicago/eucap/include/images/ca_users/<TMPL_VAR NAME="photo_file_name">" /><br />
         <p>Please select image to upload:<br />
         <input type="file" name="photo"></p>
-        <em>JPG|JPEG|PNG format only. Max dimensions 200x200px</em><br />
-        <span id="photo_err_msg" name="photo_err_msg" style="color: red;"><TMPL_VAR NAME="photo_err_msg"></span>
+        <em>JPG|JPEG|PNG format only.<br />
+            Max dimensions: 200x200px<br />
+            Max file size: 1 MB</em><br />
     </td>
 </tr>
 
 <tr>
     <td align="right"><p>
         <label for="name"><b>Name:</b></label>
-        <input type="text" id="name" name="name" value="<TMPL_VAR NAME="name">">
+        <input type="text" id="name" name="name" value="<TMPL_VAR NAME="name">" class="required">
     </p></td>
+    <td width="5%">
+    &nbsp;
+    </td>
 </tr>
 
 <tr>
     <td align="right"><p>
         <label for="organization"><b>Organization:</b></label>
-        <input type="text" id="organization" name="organization" value="<TMPL_VAR NAME="organization">">
+        <input type="text" id="organization" name="organization" value="<TMPL_VAR NAME="organization">" />
     </p></td>
+    <td width="5%">
+    &nbsp;
+    </td>
 </tr>
 
 <tr>
     <td align="right"><p>
         <label for="email"><b>Email:</b></label>
-        <input type="text" id="email" name="email" value="<TMPL_VAR NAME="email">"></p>
+        <input type="text" id="email" name="email" value="<TMPL_VAR NAME="email">" class="required" /></p>
     </td>
-    <td width="10%" id="email_err_msg" name="email_err_msg">
-    <TMPL_IF NAME="email_err_msg"><TMPL_VAR NAME="email_err_msg"><TMPL_ELSE>&nbsp;</TMPL_IF>
+    <td width="5%">
+    &nbsp;
     </td>
-    <input type="hidden" id="email_valid" name="email_valid" value="1">
 </tr>
 
 <tr>
@@ -64,18 +64,17 @@
         <label for="url"><b>Website:</b></label>
         <input type="text" id="url" name="url" value="<TMPL_VAR NAME="url">"></p>
     </td>
-    <td width="10%" id="url_err_msg" name="url_err_msg">
-    <TMPL_IF NAME="url_err_msg"><TMPL_VAR NAME="url_err_msg"><TMPL_ELSE>&nbsp;</TMPL_IF>
+    <td width="5%">
+    &nbsp;
     </td>
-    <input type="hidden" id="url_valid" name="url_valid" value="1">
 </tr>
 </table>
 <br />
 <table border="0" cellspacing="5px">
     <tr>
-        <td><p><input type="Submit" id="update_profile" name="update_profile" value="Update Profile" onclick="set_action(this)"></p></td>
+        <td><p><input type="Submit" id="update_profile" name="update_profile" value="Update Profile"></p></td>
         <td><p><input type="Reset"></p></td>
-        <td><span id=update_status" name="update_status" class="success"><TMPL_IF NAME="update_status"><TMPL_VAR NAME="update_status"></TMPL_IF></span></td>
+        <td><span id="update_status" name="update_status" class="success"></span></td>
     </tr>
 </table>
 <hr />

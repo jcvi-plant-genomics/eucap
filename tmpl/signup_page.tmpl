@@ -1,0 +1,46 @@
+<div class="panel_background">
+<form id="create_user" name="create_user">
+    <input type="hidden" name="action" value="signup_user" id="action">
+
+    <p class="header1">Please provide the following details</p>
+    <p class="bodytext"><b>*</b> fields are mandatory</p>
+    <hr />
+    <p>
+        <label for="name">* Full Name:</label>
+        <input type="text" id="name" name="name" class="required" value="">
+		<br /><br />
+        <p><label for="username">* Username:</label>
+        <input type="text" id="username" name="username" class="required" value="">
+		<br /><br />
+        <label for="name">* Password:</label>
+        <input type="password" id="password" name="password" class="required" value="">
+		<br /><br />
+        <label for="name">* Reconfirm Password:</label>
+        <input type="password" id="confirm_password" name="confirm_password" class="required" value="">
+		<br /><br />
+
+        <label for="email">*Email:</label>
+        <input type="text" id="email" name="email" class="required" value="">
+		<br /><br />
+        <label for="email">*Reconfirm Email:</label>
+        <input type="text" id="confirm_email" name="confirm_email" class="required" value="">
+		<br /><br />
+
+        <label for="organization">Organization:</label>
+        <input type="text" id="organization" name="organization" value="">
+		<br /><br />
+
+        <label for="url">Website:</label>
+        <input type="text" id="url" name="url" value="">
+    </p>
+    <br />
+    <table border="0" cellspacing="5px">
+        <tr>
+            <td><p><input type="submit" id="signup_user" name="signup_user" value="Sign Up"></p></td>
+            <td><p><input type="Reset"></p></td>
+            <td><span id="signup_status" name="signup_status" class="success"></span></td>
+        </tr>
+    </table>
+    <hr />
+</form>
+</div>

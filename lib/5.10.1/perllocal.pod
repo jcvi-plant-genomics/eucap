@@ -1,0 +1,44 @@
+=head2 Wed Mar 28 06:33:09 2012: C<Module> L<Data::Difference|Data::Difference>
+
+=over 4
+
+=item *
+
+C<installed into: /opt/www/medicago/cgi-bin/medicago/eucap/lib/5.10.1>
+
+=item *
+
+C<LINKTYPE: dynamic>
+
+=item *
+
+C<VERSION: 0.112850>
+
+=item *
+
+C<EXE_FILES: >
+
+=back
+
+=head2 Wed Mar 28 06:33:54 2012: C<Module> L<MIME::Base64|MIME::Base64>
+
+=over 4
+
+=item *
+
+C<installed into: /opt/www/medicago/cgi-bin/medicago/eucap/lib/5.10.1>
+
+=item *
+
+C<LINKTYPE: dynamic>
+
+=item *
+
+C<VERSION: 3.13>
+
+=item *
+
+C<EXE_FILES: >
+
+=back
+

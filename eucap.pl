@@ -87,8 +87,8 @@ my $APACHE_DOC_ROOT    = $ENV{"DOCUMENT_ROOT"};
 my $WEBSERVER_DOC_PATH = $APACHE_DOC_ROOT . "/medicago";
 my $WEBSERVER_TEMP_REL = '/medicago/tmp';
 
-# Allow max 5MB upload size
-$CGI::POST_MAX = 1024 * 5000;
+# Allow max 1MB upload size
+$CGI::POST_MAX = 1024 * 1000;
 
 # Describe safe file name characters (no spaces or symbols allowed
 my $safe_filename_characters = "a-zA-Z0-9_.-";
@@ -172,6 +172,7 @@ elsif ($action eq 'edit_profile') {
 }
 elsif ($action eq 'update_profile') {
     edit_profile($session, $cgi, 1);
+    $FLAG = 1;
 }
 
 # Locus/mutant specific actions
@@ -247,16 +248,18 @@ elsif ($action eq 'final_submit') {
     final_submit($session, $cgi);
 }
 elsif ($action eq 'check_username') {
-    my $user_id = (defined $cgi->param('user_id')) ? $cgi->param('user_id') : undef;
     my $username = $cgi->param('username');
+    my $user_id  = (defined $cgi->param('user_id')) ? $cgi->param('user_id') : undef;
+    my $ignore   = (defined $cgi->param('ignore')) ? $cgi->param('ignore') : undef;
 
-    check_username($username, $user_id);
+    check_username($username, $user_id, $ignore);
     $FLAG = 1;
 }
 elsif ($action eq 'check_email') {
     my $email = $cgi->param('email');
+    my $ignore = (defined $cgi->param('ignore')) ? $cgi->param('ignore') : undef;
 
-    check_email($email);
+    check_email($email, $ignore);
     $FLAG = 1;
 }
 elsif ($action eq 'logout') {
@@ -434,8 +437,10 @@ sub validate_new_user {
     }
     else {
         login_page(1,
-"Bad validation using username=". $cgi->param('username') . "and validation_key=" . $cgi->param('validation_key')
-        );
+                "Bad validation using username="
+              . $cgi->param('username')
+              . "and validation_key="
+              . $cgi->param('validation_key'));
     }
     goto PROCESS_TMPL;
 }
@@ -462,11 +467,12 @@ sub dashboard {
       ? CA::family->retrieve_all
       : CA::family->search(user_id => $anno_ref->{user_id});
 
-    my $disabled = undef;
+    my $disabled         = undef;
     my $gene_family_list = [];
-    if(not defined $fams) {
+    if (not defined $fams) {
         $disabled = 1;
-    } else {
+    }
+    else {
         while (my $fam = $fams->next) {
             my $family_id = $fam->family_id;
 
@@ -536,16 +542,12 @@ sub dashboard {
 sub edit_profile {
     my ($session, $cgi, $save) = @_;
     my $title    = "Edit User Profile";
-    my $tmpl     = HTML::Template->new(filename => "./tmpl/edit_profile.tmpl");
     my $anno_ref = $session->param('anno_ref');
-    my ($userInfoUpdated, $photoUploaded) = (undef, undef);
 
-    &get_user_info($anno_ref, 0) if (defined $anno_ref->{is_admin});
-    my $user_id       = $anno_ref->{user_id};
-    my $username      = $anno_ref->{users}->{$user_id}->{username};
+    my $user_id = (defined $anno_ref->{is_admin}) ? 0 : $anno_ref->{user_id};
+    &get_user_info($anno_ref, $user_id);
+    my $username = $anno_ref->{users}->{$user_id}->{username};
     my $update_status = "";
-    my ($username_err_msg, $email_err_msg, $url_err_msg, $photo_err_msg) = ("", "", "", "");
-    my ($username_valid, $email_valid, $url_valid, $photo_valid);
 
     if ($save) {
         my $user_id          = $cgi->param('user_id');
@@ -555,12 +557,14 @@ sub edit_profile {
         my $new_email        = $cgi->param('email');
         my $new_url          = $cgi->param('url');
 
-        my $username_valid = $cgi->param('username_valid');
-        my $email_valid    = $cgi->param('email_valid');
-        my $url_valid      = $cgi->param('url_valid');
-
         my $new_photo   = $cgi->param('photo');
-        my $photo_valid = 1;
+        my %photo_valid = (
+            extension  => 1,
+            file_size  => 1,
+            dimensions => 1
+        );
+        my $photoUploaded;
+        my %result = ();
 
         my $new_photo_file_name;
         if ($new_photo) {
@@ -577,13 +581,19 @@ sub edit_profile {
                 $new_photo_file_name = $new_username . $extension;
 
                 my $upload_filehandle = $cgi->upload("photo");
-                open UPLOADFILE, ">", "$WEBSERVER_TEMP_DIR/$new_photo_file_name"
-                  or die "$!";
-                binmode UPLOADFILE;
-                while (<$upload_filehandle>) {
-                    print UPLOADFILE $_;
+                eval {
+                    open UPLOADFILE, ">", "$WEBSERVER_TEMP_DIR/$new_photo_file_name"
+                      or die "$!";
+                    binmode UPLOADFILE;
+                    while (<$upload_filehandle>) {
+                        print UPLOADFILE $_;
+                    }
+                    close UPLOADFILE;
+                };
+
+                if ($@) {
+                    $photo_valid{file_size} = undef;
                 }
-                close UPLOADFILE;
 
                 my ($width, $height) = imgsize("$WEBSERVER_TEMP_DIR/$new_photo_file_name");
                 if ($width <= 200 and $height <= 200) {
@@ -591,11 +601,14 @@ sub edit_profile {
                         "$WEBSERVER_TEMP_DIR/$new_photo_file_name",
                         "$CA_USER_IMAGE_PATH/$new_photo_file_name"
                     ) or die "$!";
+
                     $photoUploaded = 1;
+                } else {
+                    $photo_valid{dimensions} = undef;
                 }
-                else {
-                    $photo_valid = 0;
-                }
+            }
+            else {
+                $photo_valid{extension} = undef;
             }
         }
 
@@ -607,63 +620,66 @@ sub edit_profile {
         $anno_ref->{users}->{$user_id}->{photo_file_name} = $new_photo_file_name
           if (defined $photoUploaded);
 
-        if ($username_valid and $email_valid and $url_valid and $photo_valid) {
+        if (    defined $photo_valid{dimensions}
+            and defined $photo_valid{file_size}
+            and defined $photo_valid{extension})
+        {
             &update_user_info($anno_ref, $user_id);
-            $userInfoUpdated = 1;
             $update_status   = 'Profile updated!';
+            $result{photo_file_name} = $anno_ref->{users}->{$user_id}->{photo_file_name};
+            $result{error} = undef;
         }
         else {
-            $username_err_msg = 'Taken!'   if (not $username_valid);
-            $email_err_msg    = 'Invalid!' if (not $email_valid);
-            $url_err_msg      = 'Invalid!' if (not $url_valid);
-            $photo_err_msg = 'Please check size/dimensions of uploaded picture'
-              if (not $photo_valid);
-            $update_status = 'Please check your input!';
+            $update_status = "Error: Please check ";
+            $update_status .= (not defined $photo_valid{extension})  ? "(file format)" : "";
+            $update_status .= (not defined $photo_valid{dimensions}) ? "(dimensions)"  : "";
+            $update_status .= (not defined $photo_valid{file_size})  ? "(file size)"   : "";
+            $update_status .= " of uploaded picture";
+
+            $result{photo_file_name} = undef;
+            $result{error} = 1;
         }
+
+        $result{update_status} = $update_status;
+
+        print $session->header(-type => 'application/json');
+        print JSON::to_json(\%result);
+    } else {
+        my $tmpl = HTML::Template->new(filename => "./tmpl/edit_profile.tmpl");
+        $tmpl->param(
+            user_id         => $user_id,
+            username        => $anno_ref->{users}->{$user_id}->{username},
+            name            => $anno_ref->{users}->{$user_id}->{name},
+            organization    => $anno_ref->{users}->{$user_id}->{organization},
+            email           => $anno_ref->{users}->{$user_id}->{email},
+            url             => $anno_ref->{users}->{$user_id}->{url},
+            photo_file_name => $anno_ref->{users}->{$user_id}->{photo_file_name},
+        );
+        print $session->header;
+
+        push @javascripts, "/medicago/eucap/include/js/jquery.validate.min.js",
+          "/medicago/eucap/include/js/jquery.form.js", "/medicago/eucap/include/js/edit_profile.js";
+        push @breadcrumb,
+          (
+            {
+                'link'      => '/cgi-bin/medicago/eucap/eucap.pl?action=dashboard',
+                'menu_name' => 'Dashboard'
+            },
+            { 'link' => '#', 'menu_name' => $title }
+          );
+        $jcvi_vars->{title}    = "Medicago truncatula Genome Project :: EuCAP :: $title";
+        $jcvi_vars->{top_menu} = [
+            {
+                'link'      => '/cgi-bin/medicago/eucap/eucap.pl?action=dashboard',
+                'menu_name' => 'Dashboard'
+            },
+            {
+                'link'      => '/cgi-bin/medicago/eucap/eucap.pl?action=logout',
+                'menu_name' => 'Logout (<em>' . $anno_ref->{users}->{$user_id}->{username} . '</em>)'
+            }
+        ];
+        $jcvi_vars->{main_content} = $tmpl->output;
     }
-
-    &get_user_info($anno_ref, $user_id) if (defined $userInfoUpdated);
-
-    my $photo_file_name = $anno_ref->{users}->{$user_id}->{photo_file_name};
-    my $image_name      = $anno_ref->{users}->{$user_id}->{photo_file_name};
-
-    $tmpl->param(
-        user_id          => $user_id,
-        username         => $anno_ref->{users}->{$user_id}->{username},
-        name             => $anno_ref->{users}->{$user_id}->{name},
-        organization     => $anno_ref->{users}->{$user_id}->{organization},
-        email            => $anno_ref->{users}->{$user_id}->{email},
-        url              => $anno_ref->{users}->{$user_id}->{url},
-        image_name       => $anno_ref->{users}->{$user_id}->{photo_file_name},
-        update_status    => $update_status,
-        username_err_msg => $username_err_msg,
-        email_err_msg    => $email_err_msg,
-        url_err_msg      => $url_err_msg,
-        photo_err_msg    => $photo_err_msg
-    );
-    print $session->header;
-
-    push @javascripts, "/medicago/eucap/include/js/edit_profile.js";
-    push @breadcrumb,
-      (
-        {
-            'link'      => '/cgi-bin/medicago/eucap/eucap.pl?action=dashboard',
-            'menu_name' => 'Dashboard'
-        },
-        { 'link' => '#', 'menu_name' => $title }
-      );
-    $jcvi_vars->{title}    = "Medicago truncatula Genome Project :: EuCAP :: $title";
-    $jcvi_vars->{top_menu} = [
-        {
-            'link'      => '/cgi-bin/medicago/eucap/eucap.pl?action=dashboard',
-            'menu_name' => 'Dashboard'
-        },
-        {
-            'link'      => '/cgi-bin/medicago/eucap/eucap.pl?action=logout',
-            'menu_name' => 'Logout (<em>' . $anno_ref->{users}->{$user_id}->{username} . '</em>)'
-        }
-    ];
-    $jcvi_vars->{main_content} = $tmpl->output;
 }
 
 sub annotate {
@@ -1169,7 +1185,8 @@ sub annotate_locus {
                         $save_edits{mutant_info} = 1;
                     }
                 }
-                $save_edits{mutant_info} = 1 if (defined $anno_ref->{is_admin} and defined $e_flag);
+                $save_edits{mutant_info} = 1
+                  if (defined $anno_ref->{is_admin} and defined $e_flag);
             }
             else {    # new mutant, instantiate into mutant_info_edits
                 my $max_mutant_id = &get_max_id('mutant_id', 'mutant_info');
@@ -1225,7 +1242,10 @@ sub annotate_locus {
                         $e_flag = 1 if (defined $anno_ref->{is_admin});
                         next;
                     }
-                    if (defined $diff->{b} and $diff->{b} ne "" and $diff->{b} ne $diff->{a}) {
+                    if (    defined $diff->{b}
+                        and $diff->{b} ne ""
+                        and $diff->{b} ne $diff->{a})
+                    {
                         $mutant_class_edits_hashref->{ $diff->{path}[0] . "_edit" } = 1;
                         $save_edits{mutant_class} = 1;
                     }
@@ -1498,7 +1518,8 @@ sub annotate_locus {
               if (defined $anno_ref->{loci}->{$locus_id}->{gene_symbol_edit});
             $row->{func_annotation_edit} = 1
               if (defined $anno_ref->{loci}->{$locus_id}->{func_annotation_edit});
-            $row->{comment_edit} = 1 if (defined $anno_ref->{loci}->{$locus_id}->{comment_edit});
+            $row->{comment_edit} = 1
+              if (defined $anno_ref->{loci}->{$locus_id}->{comment_edit});
             $row->{gb_genomic_acc_edit} = 1
               if (defined $anno_ref->{loci}->{$locus_id}->{gb_genomic_acc_edit});
             $row->{gb_cdna_acc_edit} = 1
@@ -1656,6 +1677,7 @@ sub add_alleles {
             my $edits = $allele_edits_obj->edits if (defined $allele_edits_obj);
 
             if (defined $allele_edits_obj and $edits eq "") {
+
                 # If not 'admin' user, allow user to re-add the allele
                 # else, delete the empty edits object, bring back
                 # the original entry and continue processing the
@@ -1748,7 +1770,7 @@ sub annotate_alleles {
     if ($save) {
         my %save_edits = ();
         my %result     = ();
-        my $e_flag = undef;
+        my $e_flag     = undef;
         for my $allele_id (keys %{ $anno_ref->{alleles} }) {
             my $allele_hashref = {};
             if (defined CA::alleles_edits->retrieve($allele_id)) {
@@ -1768,6 +1790,7 @@ sub annotate_alleles {
             my @differences = data_diff($allele_hashref, $allele_edits_hashref);
 
             foreach my $diff (@differences) {
+
                 # skip all hashref keys corresponding to tracking edits
                 # but if admin, save a flag to track preexisting changes
                 # not evident from comparing the form to the database
@@ -1780,7 +1803,8 @@ sub annotate_alleles {
                     $save_edits{alleles} = 1;
                 }
             }
-            $save_edits{alleles} = 1 if (defined $anno_ref->{is_admin} and defined $e_flag);
+            $save_edits{alleles} = 1
+              if (defined $anno_ref->{is_admin} and defined $e_flag);
 
             $anno_ref->{mutant_info}->{$mutant_id}->{allele_id} = $allele_id;
             $anno_ref->{alleles}->{$allele_id} =
@@ -1790,7 +1814,7 @@ sub annotate_alleles {
 
             #save current value to db if save flag set
             if ($save_edits{alleles}) {
-                if(defined $anno_ref->{is_admin}) {
+                if (defined $anno_ref->{is_admin}) {
                     my $allele_obj = CA::alleles->retrieve(
                         allele_id => $allele_id,
                         mutant_id => $mutant_id,
@@ -1806,16 +1830,18 @@ sub annotate_alleles {
                         );
                         $allele_obj->update;
                     }
-                    ($allele_obj, $anno_ref->{alleles}->{$allele_id}) = hashref_to_caObj($anno_ref->{alleles}->{$allele_id}, $allele_obj, 'alleles');
+                    ($allele_obj, $anno_ref->{alleles}->{$allele_id}) =
+                      hashref_to_caObj($anno_ref->{alleles}->{$allele_id}, $allele_obj, 'alleles');
 
                     my $allele_edits_obj = CA::alleles_edits->retrieve(
                         allele_id => $allele_id,
                         mutant_id => $mutant_id,
                     );
-                    $allele_edits_obj->delete if(defined $allele_edits_obj);
+                    $allele_edits_obj->delete if (defined $allele_edits_obj);
                     $anno_ref->{alleles}->{$allele_id}->{is_edit} = undef;
                     $result{'allele_edits'} = undef;
-                } else {
+                }
+                else {
                     my $allele_edits_obj = CA::alleles_edits->retrieve(
                         allele_id => $allele_id,
                         mutant_id => $mutant_id,
@@ -1872,7 +1898,7 @@ sub annotate_alleles {
 
             my $allele_edits_hashref = {};
             my $allele_edits_obj     = CA::alleles_edits->retrieve(
-                allele_id  => $allele_id,
+                allele_id => $allele_id,
                 mutant_id => $mutant_id
             );
             if (defined $allele_edits_obj) {
@@ -1979,16 +2005,16 @@ sub delete_allele {
     my $deleted = undef;
     if (not defined $anno_ref->{is_admin}) {    # if not admin
         if (defined $allele_edits_obj) {
-            if (defined $allele_obj) {           # If allele_obj exists, just empty the 'edits' column
+            if (defined $allele_obj) {    # If allele_obj exists, just empty the 'edits' column
                 $allele_edits_obj->edits("");
                 $allele_edits_obj->update();
             }
-            else {    # else delete the edits object (since it is unapproved)
+            else {                        # else delete the edits object (since it is unapproved)
                 $allele_edits_obj->delete;
             }
             $deleted = 1;
         }
-        else {        # otherwise, create a new edits_obj, with empty `edits` field
+        else {    # otherwise, create a new edits_obj, with empty `edits` field
             $allele_edits_obj = CA::alleles_edits->insert(
                 {
                     allele_id => $allele_id,
@@ -1999,7 +2025,7 @@ sub delete_allele {
             $deleted = 1;
         }
     }
-    else {            # delete allele_obj if 'admin'
+    else {        # delete allele_obj if 'admin'
         $allele_edits_obj->delete if (defined $allele_edits_obj);
         $allele_obj->delete       if (defined $allele_obj);
         $deleted = 1;
@@ -2438,7 +2464,7 @@ sub update_user_info {
 }
 
 sub check_username {
-    my ($username, $user_id) = @_;
+    my ($username, $user_id, $ignore) = @_;
 
     #print $cgi->header(-type => 'application/json');
     print $cgi->header(-type => 'text/plain');
@@ -2447,21 +2473,23 @@ sub check_username {
     my $all_users = CA::users->retrieve_all();
     while (my $user = $all_users->next()) {
         next if (defined $user_id and $user_id == $user->user_id);
+        next if (defined $ignore and $ignore eq $user->username);
 
         if ($username eq $user->username) {
+            print "false";
 
             #print JSON::to_json({ 'available' => 0, 'message' => 'Taken!' });
-            print "false";
             exit;
         }
     }
 
-    #print JSON::to_json({ 'available' => 1, 'message' => 'Available!' });
     print "true";
+
+    #print JSON::to_json({ 'available' => 1, 'message' => 'Available!' });
 }
 
 sub check_email {
-    my ($email) = @_;
+    my ($email, $ignore) = @_;
 
     #print $cgi->header(-type => 'application/json');
     print $cgi->header(-type => 'text/plain');
@@ -2469,16 +2497,18 @@ sub check_email {
     my @results   = ();
     my $all_users = CA::users->retrieve_all();
     while (my $user = $all_users->next()) {
+        next if (defined $ignore and lc $ignore eq lc $user->email);
         if (lc $email eq lc $user->email) {
+            print "false";
 
             #print JSON::to_json({ 'available' => 0, 'message' => 'Taken!' });
-            print "false";
             exit;
         }
     }
 
-    #print JSON::to_json({ 'available' => 1, 'message' => 'Available!' });
     print "true";
+
+    #print JSON::to_json({ 'available' => 1, 'message' => 'Available!' });
 }
 
 sub caObj_to_hashref {
