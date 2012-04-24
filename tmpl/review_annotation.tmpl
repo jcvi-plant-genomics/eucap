@@ -1,57 +1,105 @@
-<!--
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN"
-"http://www.w3.org/TR/html4/strict.dtd">
-<html>
-<head>
-<title>Review Annotation</title>
-<link href="/medicago/css/eucap.css" rel="stylesheet" type="text/css">
-</head>
-
-<body>
--->
-  <form name="back_to_annotation" method="post" action="/cgi-bin/medicago/eucap/eucap.pl">
-    <input type="hidden" name="action" value="annotate">
-    <p><input type="submit" name="back" value="Back to Main Annotation Page"></p>
-  </form>
 <p class="header1">Review of Community Annotation For: <TMPL_VAR NAME="family_name"> Gene Family</p>
+    <input type="hidden" id="family_name" name="family_name" value="<TMPL_VAR NAME="family_name">">
+    <table class="contenttable" width="100%">
+    <tbody>
+    <tr class="tableHeader">
+    <td colspan="4"></td>
+    <td align="center" colspan="3"><p>GenBank Accessions</p></td>
+    <td colspan="5"></td>
+    </tr>
+    <tr class="tableHeader">
+    <td><p>MTR Locus</p></td>
+    <td><p>Original Functional Annotation</p></td>
+    <td><p>Gene Symbol</p></td>
+    <td><p>Proposed Functional Annotation</p></td>
+    <td><p>Genomic</p></td>
+    <td><p>cDNA</p></td>
+    <td><p>Protein</p></td>
+    <td><p>Mutant Symbol</p></td>
+    <td><p>Reference Publication</p></td>
+    <td><p>Comment</p></td>
+    <td><p>Date Modified</p></td>
+    <td><p>Has Struct Anno?</p></td>
+    </tr>
+    <TMPL_LOOP NAME="review_loop">
+    <tr class="tableRowOdd">
+    <td><p><TMPL_VAR NAME="gene_locus"></p></td>
+    <td><p><TMPL_VAR NAME="orig_func_annotation"></p></td>
+    <td><p><TMPL_VAR NAME="gene_symbol"></p></td>
+    <td><p><TMPL_VAR NAME="func_annotation"></p></td>
+    <td><p><TMPL_VAR NAME="gb_genomic_acc"></p></td>
+    <td><p><TMPL_VAR NAME="gb_cdna_acc"></p></td>
+    <td><p><TMPL_VAR NAME="gb_protein_acc"></p></td>
+    <td><p><TMPL_VAR NAME="mutant_symbol"></p></td>
+    <td><p><TMPL_VAR NAME="reference_pub"></p></td>
+    <td><p><TMPL_VAR NAME="comment"></p></td>
+    <td><p><TMPL_VAR NAME="mod_date"></p></td>
+    <td align="center"><p><TMPL_IF NAME="has_structural_annot">Yes<TMPL_ELSE>No</TMPL_IF></p></td>
+    </tr>
+    </TMPL_LOOP>
+    </tbody>
+    </table>
 
+    <br />
+    <table width="100%" border="0">
+        <tr>
+        <td width="95%" align="right"><p><input type="button" id="submit_annot" name="submit_annot" value="Submit Annotation"></p></td>
+        <td width="5%" align="right"><p><input type="button" value="Close" onclick="close_dialog_and_scroll('review_annotation', undefined);" /></p></td>
+        </tr>
+    </table>
 
-<table class="contenttable" width="100%">
-<tbody>
-<tr class="tableHeader">
-<td><p>Locus</p></td>
-<td><p>Orig Annotation</p></td>
-<td><p>Gene Name</p></td>
-<td><p>Alt Gene Name</p></td>
-<td><p>Gene Desc</p></td>
-<td><p>Genomic GB Acc</p></td>
-<td><p>cDNA GB Acc</p></td>
-<td><p>Protein GB Acc</p></td>
-<td><p>Mutant Info</p></td>
-<td><p>Comment</p></td>
-<td><p>Has Struct Anno?</p></td>
-</tr>
-<TMPL_LOOP NAME="review_loop">
+    <div id="submit-confirm" title="Finalize and Submit Annotation?" class="hide_panel" style="text-align: left;">
+        <span class="ui-icon ui-icon-alert" style="float:left; margin:0 7px 20px 0;"></span>The annotation will be submitted to administrator for review and approval.<br /><br />Are you sure?<br /><br />
+        <span id="submit_status" name="submit_status"></span>
+    </div>
 
-<tr class="tableRowEven">
-<td><p><TMPL_VAR NAME="locus_name"></p></td>
-<td><p><TMPL_VAR NAME="original_annotation"></p></td>
-<td><p><TMPL_VAR NAME="gene_name"></p></td>
-<td><p><TMPL_VAR NAME="alt_gene_name"></p></td>
-<td><p><TMPL_VAR NAME="gene_description"></p></td>
-<td><p><TMPL_VAR NAME="genbank_genomic_acc"></p></td>
-<td><p><TMPL_VAR NAME="genbank_cdna_acc"></p></td>
-<td><p><TMPL_VAR NAME="genbank_protein_acc"></p></td>
-<td><p><TMPL_VAR NAME="mutant_info"></p></td>
-<td><p><TMPL_VAR NAME="comment"></p></td>
-<td align="center"><p><TMPL_IF NAME="has_structural_annotation">Yes<TMPL_ELSE>No</TMPL_IF></p></td>
-</tr>
+    <script type="text/javascript">
+        // initialize dialog box to confirm annotation submission
+        $(function() {
+            $('#submit-confirm').dialog({
+                resizable: false,
+                autoOpen: false,
+                height: 200,
+                modal: true,
+                stack: true,
+                buttons: {
+                    'Submit': function() {
+                        var family_name = $('#family_name').val();
+                        var url = '/cgi-bin/medicago/eucap/eucap.pl?action=submit_annotation';
+                        var params = 'family_name=' + family_name;
+                        var query = url + '&' + params;
+                        var status_span = 'submit_status';
 
-</TMPL_LOOP>
-</tbody>
-</table>
+                        $('#' + status_span).removeClass('error success');
+                        $('#' + status_span).html('<img src="/medicago/eucap/include/images/loading.gif" />');
 
-<!--
-</body>
-</html>
--->
+                        $.ajax({
+                            type: 'GET',
+                            url: url,
+                            data: params,
+                            success: function(data, textStatus, XMLHttpRequest) {
+                                if(data.success) {
+                                    $('#' + status_span).addClass('success');
+                                } else {
+                                    $('#' + status_span).addClass('error');
+                                }
+                                $('#' + status_span).html(data.message);
+                            },
+                            error: function(XMLHttpRequest, textStatus, errorThrown) {
+                                $('#' + status_span).html('Error in XMLHttpRequest: <a href="' + query + '">' + query + '</a><br />textStatus: ' + textStatus + '<br />errorThrown: ' + errorThrown);
+                            }
+                        });
+                        return false;
+                    },
+                    Cancel: function() {
+                        $(this).dialog( 'close' );
+                    }
+                }
+            });
+        });
+
+        // trigger submission dialog box open
+        $('#submit_annot').click(function() {
+            $('#submit-confirm').dialog('open');
+        });
+    </script>

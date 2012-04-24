@@ -34,9 +34,9 @@
 <form id="alleles_annotate" name="alleles_annotate" onsubmit="return save_alleles(<TMPL_VAR NAME="mutant_id">);">
 <input type="hidden" name="action" value="save_alleles" id="action">
 <TMPL_IF NAME="alleles_loop">
-<table width="100%" class="contenttable">
+<table id="allele_table" name="allele_table" class="contenttable" width="100%">
 <tbody>
-  <tr class="tableHeader">
+  <tr id="allele_table_header" name="allele_table_header" class="tableHeader">
     <td><p>Allele Name</p></td>
     <td><p>Alternate Allele Name</p></td>
     <td><p>Reference Lab</p></td>
@@ -58,15 +58,55 @@
     <td><p><img src="/medicago/eucap/include/images/delete.png" class="delete_allele_<TMPL_VAR NAME="allele_id">" alt=" Delete Allele <TMPL_VAR NAME="allele_name">" title="Delete Allele <TMPL_VAR NAME="allele_name">" onclick="delete_feature('allele', <TMPL_VAR NAME="allele_id">, '<TMPL_VAR NAME="allele_name">');" /></p></td>
   </tr>
 </TMPL_LOOP>
-  <tr>
-    <td height="16px" colspan=5 align="right"><span id="allele_delete_status" name="allele_delete_status"></span></td>
-  </tr>
 </tbody>
 </table>
+<span height="16px" style="float: right;" id="allele_delete_status" name="allele_delete_status"></span>
 <TMPL_ELSE>
 <h2>No alleles present for this mutant.</h2>
 </TMPL_IF>
 <br />
+
+<TMPL_IF NAME="deleted_alleles_loop">
+<div id="deleted_allele_panel" name="deleted_allele_panel">
+    <p class="header1">Deleted Alleles</p>
+    <table id="deleted_allele_table" name="deleted_allele_table" class="contenttable" width="100%">
+        <tbody>
+        <tr id="allele_table_header" name="allele_table_header" class="tableHeader">
+            <td><p>Allele Name</p></td>
+            <td><p>Alternate Allele Name</p></td>
+            <td><p>Reference Lab</p></td>
+            <td><p>Has altered phenotype?</p></td>
+            <td><p>&nbsp;</p></td>
+        </tr>
+        <TMPL_LOOP NAME="deleted_alleles_loop">
+          <tr class="allele_<TMPL_VAR NAME="allele_id"> <TMPL_VAR NAME="tableRowClass">">
+            <input type="hidden" id="allele_id" name="allele_id" value="<TMPL_VAR NAME="allele_id">">
+            <td><p><input type="text" size="10" id="allele_name_<TMPL_VAR NAME="allele_id">" name="allele_name_<TMPL_VAR NAME="allele_id">" value="<TMPL_IF NAME="allele_name"><TMPL_VAR NAME="allele_name"></TMPL_IF>"></p></td>
+
+            <td><p><input type="text" id="alt_allele_names_<TMPL_VAR NAME="allele_id">" name="alt_allele_names_<TMPL_VAR NAME="allele_id">" value="<TMPL_IF NAME="alt_allele_names"><TMPL_VAR NAME="alt_allele_names"></TMPL_IF>"></p></td>
+
+            <td><p><input type="text" id="reference_lab_<TMPL_VAR NAME="allele_id">" name="reference_lab_<TMPL_VAR NAME="allele_id">" value="<TMPL_IF NAME="reference_lab"><TMPL_VAR NAME="reference_lab"></TMPL_IF>"></p></td>
+
+            <td><p><input type="text" id="altered_phenotype_<TMPL_VAR NAME="allele_id">" name="altered_phenotype_<TMPL_VAR NAME="allele_id">" value="<TMPL_VAR NAME="altered_phenotype">"></p></td>
+            <td><p><img src="/medicago/eucap/include/images/undelete.png" class="undelete_allele_<TMPL_VAR NAME="allele_id">" alt=" unDelete Allele <TMPL_VAR NAME="allele_name">" title="unDelete Allele <TMPL_VAR NAME="allele_name">" onclick="undelete_feature('allele', <TMPL_VAR NAME="allele_id">, '<TMPL_VAR NAME="allele_name">');" /></p></td>
+          </tr>
+        </TMPL_LOOP>
+        </tbody>
+    </table>
+    <span height="16px" style="float: right;" id="allele_undelete_status" name="allele_undelete_status"></span>
+</div>
+<TMPL_ELSE>
+<div class="hide_panel" id="deleted_allele_panel" name="deleted_allele_panel">
+    <p class="header1">Deleted Alleles</p>
+    <table id="deleted_allele_table" name="deleted_allele_table" class="contenttable" width="100%">
+        <tbody>
+        </tbody>
+    </table>
+    <span height="16px" style="float: right;" id="allele_undelete_status" name="allele_undelete_status"></span>
+</div>
+</TMPL_IF>
+<br />
+
 <table width="100%" border="0" cellpadding="20px">
 <tr height="10px">
     <td width="10%" align="center"><p><input type="submit" value="Save Alleles" /></p></td>

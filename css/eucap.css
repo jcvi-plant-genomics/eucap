@@ -19,6 +19,9 @@
 .success {
     color: green;
 }
+.italics {
+    font-style: italic;
+}
 
 input.error, textarea.error {
     border: 1px solid #c00;

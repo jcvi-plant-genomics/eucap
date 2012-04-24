@@ -63,14 +63,14 @@
           <option value="CDS" <TMPL_IF NAME="CDS">selected="selected"</TMPL_IF> >CDS</option>
           <option value="UTR" <TMPL_UNLESS NAME="CDS">selected="selected"</TMPL_UNLESS>>UTR</option>
           </select></p></td>
-          <td><p><input type="text" name="start" size="10" value="<TMPL_VAR NAME="start">"></p></td>
-          <td><p><input type="text" name="stop" size="10" value="<TMPL_VAR NAME="stop">"></p></td>
+          <td><p><input type="text" id="start" name="start" size="10" value="<TMPL_VAR NAME="start">"></p></td>
+          <td><p><input type="text" id="start" name="stop" size="10" value="<TMPL_VAR NAME="stop">"></p></td>
           <td><p>&nbsp;</p></td>
         </tr>
       </TMPL_LOOP>
       <tr class="add tableRowOdd"><td colspan="5" align="right"><p><input type="button" name="add_feature" value="Add Feature" onclick="addFeature(this)"></p></td></tr>
     </tbody>
-    <table>
+    </table>
     <input type="hidden" name="model_json" value="<TMPL_VAR NAME="model_json">" id="model_json">
     <br />
     <table width="100%" border="0" cellpadding="20px">

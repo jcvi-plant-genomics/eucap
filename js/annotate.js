@@ -42,6 +42,9 @@ function add_from_list(datatype, element, elemtype) {
             $('#' + status_span).removeClass('error');
             $('#' + status_span).addClass('success');
             $('#' + status_span).html(data);
+            $('#' + status_span).fadeTo(20000, 0, function() {
+                $(this).empty();
+            });
 
             if (datatype === 'loci') {
                 window.location = '/cgi-bin/medicago/eucap/eucap.pl?action=annotate';
@@ -78,7 +81,7 @@ function add_blast_loci( checkBoxClass ) {
 
 // delete a gene/allele from the gene/allele table. possible options:
 // feature     : 'locus', 'allele'
-// feature_id  : '1', '2'
+// feature_id  : '1', '2',  etc.
 // feature_name: gene_symbol or allele_name
 function delete_feature(feature, feature_id, feature_name) {
     var url = '/cgi-bin/medicago/eucap/eucap.pl?action=delete_' + feature;
@@ -90,6 +93,7 @@ function delete_feature(feature, feature_id, feature_name) {
 
     var query = url + '&' + params;
     var status_span = feature + "_delete_status";
+    var deleted_table = "deleted_" + feature + "_table";
     $('#' + status_span).html('<img src="/medicago/eucap/include/images/loading.gif" />');
 
     $.ajax({
@@ -97,17 +101,112 @@ function delete_feature(feature, feature_id, feature_name) {
         data: params,
         success: function(data, textStatus, XMLHttpRequest) {
             if(data === 'Deleted!') {
+                // close any open edit panel
+                if(feature === 'locus') {
+                    close_panel_and_scroll('annotate_locus', undefined);
+                }
+
                 $('#' + status_span).removeClass('error');
                 $('#' + status_span).addClass('success');
                 $('#' + status_span).html('Deleted ' + feature + ' ' + feature_name);
+                $('#' + status_span).fadeTo(20000, 0, function() {
+                    $(this).empty();
+                });
+
+                var deleted_row = $('img.delete_' + feature + '_' + feature_id).closest('tr').clone();
                 $('img.delete_' + feature + '_' + feature_id).closest('tr').fadeTo(400, 0, function () {
                     $(this).remove();
                 });
+
+                deleted_row.find('img.delete_' + feature + '_' + feature_id)
+                    .attr('src', '/medicago/eucap/include/images/undelete.png')
+                    .attr('alt', function(i, val) { return 'un' + val; })
+                    .attr('title', function(i, val) { return 'un' + val; })
+                    .attr('onclick', function(i, val) { return 'un' + val; })
+                    .attr('class', function(i, val) { return 'un' + val; });
+
+                deleted_row.find('input#annotate_' + feature + '_' + feature_id).prop('disabled', true);
+
+                var num_deleted_rows = $('#' + deleted_table + ' tr').length;
+                if(num_deleted_rows === 0) {
+                    $('#deleted_' + feature + '_panel').removeClass('hide_panel');
+                    $('#' + deleted_table + ' tbody').append( $('#' + feature + '_table_header').clone() );
+                }
+                $('#' + deleted_table + ' tbody').append(deleted_row);
+
                 return false;
             } else {
                 $('#' + status_span).removeClass('success');
                 $('#' + status_span).addClass('error');
                 $('#' + status_span).html('Error: Could not delete ' + feature + ' ' + feature_name);
+            }
+        },
+        error: function(XMLHttpRequest, textStatus, errorThrown) {
+            $('#' + status_span).html('Error in XMLHttpRequest: <a href="' + query + '">' + query + '</a>');
+        }
+    });
+}
+
+// undelete a gene/allele from the gene/allele table. possible options:
+// feature     : 'locus', 'allele'
+// feature_id  : '1', '2',  etc.
+// feature_name: gene_symbol or allele_name
+function undelete_feature(feature, feature_id, feature_name) {
+    var url = '/cgi-bin/medicago/eucap/eucap.pl?action=undelete_' + feature;
+    var params = feature + '_id=' + feature_id;
+
+    if(feature === 'allele') {
+       params = params + '&mutant_id=' + $('#mutant_id').val();
+    }
+
+    var query = url + '&' + params;
+    var status_span = feature + "_undelete_status";
+    var feature_table =  feature + "_table";
+    $('#' + status_span).html('<img src="/medicago/eucap/include/images/loading.gif" />');
+
+    $.ajax({
+        url: url,
+        data: params,
+        success: function(data, textStatus, XMLHttpRequest) {
+            if(data === "Reverted!") {
+                // close any open edit panel
+                if(feature === 'locus') {
+                    close_panel_and_scroll('annotate_locus', undefined);
+                }
+
+                $('#' + status_span).removeClass('error');
+                $('#' + status_span).addClass('success');
+                $('#' + status_span).html('Undeleted ' + feature + ' ' + feature_name);
+                $('#' + status_span).fadeTo(20000, 0, function() {
+                    $(this).empty();
+                });
+
+                var undeleted_row = $('img.undelete_' + feature + '_' + feature_id).closest('tr').clone();
+                $('img.undelete_' + feature + '_' + feature_id).closest('tr').fadeTo(400, 0, function () {
+                    $(this).remove();
+                });
+
+                undeleted_row.find('img.undelete_' + feature + '_' + feature_id)
+                    .attr('src', '/medicago/eucap/include/images/delete.png')
+                    .attr('alt', function(i, val) { return val.replace(/^un/, ''); })
+                    .attr('title', function(i, val) { return val.replace(/^un/, ''); })
+                    .attr('onclick', function(i, val) { return val.replace(/^un/, ''); })
+                    .attr('class', function(i, val) { return val.replace(/^un/, ''); });
+
+                undeleted_row.find('input#annotate_' + feature + '_' + feature_id).prop('disabled', false);
+
+                var num_deleted_rows = $('#deleted_' + feature_table + ' tr').length;
+                if(num_deleted_rows === 2) {
+                    $('#deleted_' + feature_table + ' tr').remove();
+                    $('#deleted_' + feature + '_panel').addClass('hide_panel');
+                }
+                $('#' + feature_table + ' tbody').append(undeleted_row);
+
+                return false;
+            } else {
+                $('#' + status_span).removeClass('success');
+                $('#' + status_span).addClass('error');
+                $('#' + status_span).html('Error: Could not undelete ' + feature + ' ' + feature_name);
             }
         },
         error: function(XMLHttpRequest, textStatus, errorThrown) {
@@ -208,21 +307,26 @@ function save_locus(locus_id) {
                             $('mutant_class_id').val(data.mutant_class_id);
                         }
 
-                        var msg = message[0];
-                        if(data.locus_edits !== 1) {
-                            remove_edits_highlight(data.locus_id, 'locus');
+                        var msg = '';
+                        if(data.locus_edits || data.mutant_info_edits || data.mutant_class_edits) {
+                            msg = message[0];
+                        } else {
                             msg = message[1];
-                        }
-                        if(data.mutant_edits !== 1) {
-                            remove_edits_highlight(data.mutant_id, 'mutant');
-                            msg = message[1];
-                        }
-                        if(data.mutant_class_edits !== 1) {
-                            remove_edits_highlight(data.mutant_class_id, 'mutant_class');
-                            msg = message[1];
+                            if(!data.locus_edits) {
+                                remove_edits_highlight(data.locus_id, 'locus');
+                            }
+                            if(!data.mutant_info_edits) {
+                                remove_edits_highlight(data.mutant_id, 'mutant');
+                            }
+                            if(!data.mutant_class_edits) {
+                                remove_edits_highlight(data.mutant_class_id, 'mutant_class');
+                            }
                         }
 
                         $('#' + status_span).html(msg);
+                        $('#' + status_span).fadeTo(20000, 0, function() {
+                            $(this).empty();
+                        });
                         update_locus_table(locus_id);
                     } else {
                         $('#' + status_span).html('No changes to update.');
@@ -257,6 +361,112 @@ function save_locus(locus_id) {
     return false;
 }
 
+// save all the mutant edits to database. make sure that mutant_symbol,
+// phenotype, mutant_class_symbol and class_name are provided
+function save_mutant(mutant_id) {
+    var url = '/cgi-bin/medicago/eucap/eucap.pl?action=save_mutant';
+    if ( $('#mutant_symbol').val() === 'Search mutants...') {
+        $('#mutant_symbol').val("");
+    }
+
+    var status_span = "mutant_save_status";
+    var params_arr = $('#mutant_annotate').serializeArray();
+
+    var req_mutant_info_fields = new Array();
+    req_mutant_info_fields['mutant_symbol'] = 1;
+    req_mutant_info_fields['mutant_class_symbol'] = 1;
+    req_mutant_info_fields['mutant_class_name'] = 1;
+    req_mutant_info_fields['mutant_phenotype'] = 1;
+    req_mutant_info_fields['mutant_reference_pub'] = 1;
+    track = 0;
+
+    $.each(params_arr, function(i, params_arr){
+        if(req_mutant_info_fields[params_arr.name] === 1 && params_arr.value !== "") {
+            track += 1;
+        }
+    });
+
+    if(track === 5) {
+        $('#mutant_symbol').removeClass('ui-state-error');
+        $('#mutant_class_symbol').removeClass('ui-state-error');
+        $('#mutant_class_name').removeClass('ui-state-error');
+        $('#mutant_phenotype').removeClass('ui-state-error');
+        $('#mutant_reference_pub').removeClass('ui-state-error');
+
+        var params = $('#mutant_annotate').serialize();
+        var query = url + '&' + params;
+        $('#' + status_span).removeClass('ui-state-error');
+        $('#' + status_span).addClass('success');
+        $('#' + status_span).html('<img src="/medicago/eucap/include/images/loading.gif" />');
+
+        $.ajax({
+            type: 'POST',
+            url: url,
+            data: params,
+            dataType: 'json',
+            success: function(data, textStatus, XMLHttpRequest) {
+                if(data.updated === 1) {
+                    $('#mutant_mod_date').val(data.mutant_mod_date);
+                    $('#mod_date').html('Last Modified date: <b>' + data.mutant_mod_date + '</b>');
+
+                    if(data.updated_mutant === 1) {
+                        $('#mutant_id').val(data.mutant_id);
+
+                        var button_label = (data.has_alleles > 0) ? "Edit" : "Add";
+                        $('#disp_get_alleles').html(
+                            '<input type="button" id="get_alleles" name="get_alleles"'
+                            + ' value="' + button_label
+                            + '" onclick="perform_action(\'annotate_alleles\', \'mutant_id\', '
+                            + data.mutant_id + ')" />'
+                        );
+                    }
+
+                    if(data.updated_mutant_class === 1) {
+                        $('mutant_class_id').val(data.mutant_class_id);
+                    }
+
+                    var msg = '';
+                    if(data.mutant_info_edits || data.mutant_class_edits) {
+                        msg = message[0];
+                    } else {
+                        msg = message[1];
+                        if(!data.mutant_info_edits) {
+                            remove_edits_highlight(data.mutant_id, 'mutant');
+                        }
+                        if(!data.mutant_class_edits) {
+                            remove_edits_highlight(data.mutant_class_id, 'mutant_class');
+                        }
+                    }
+
+                    $('#' + status_span).html(msg);
+                    $('#' + status_span).fadeTo(20000, 0, function() {
+                        $(this).empty();
+                    });
+                    update_mutant_table(mutant_id);
+                } else {
+                    $('#' + status_span).html('No changes to update.');
+                }
+
+                $('#get_alleles').prop('disabled', false);
+            },
+            error: function(XMLHttpRequest, textStatus, errorThrown) {
+                $('#' + status_span).html('Error in XMLHttpRequest: <a href="' + query + '">' + query + '</a>');
+            }
+        });
+    } else {
+         $('#' + status_span).removeClass('success');
+         $('#' + status_span).addClass('error');
+         $('#' + status_span).html('Mutant Symbol, Class Symbol, Expansion, Phenotype and Publication are mandatory! Please fill out these fields.');
+
+         $('#mutant_symbol').addClass('ui-state-error');
+         $('#mutant_class_symbol').addClass('ui-state-error');
+         $('#mutant_class_name').addClass('ui-state-error');
+         $('#mutant_phenotype').addClass('ui-state-error');
+         $('#mutant_reference_pub').addClass('ui-state-error');
+    }
+    return false;
+}
+
 // save all the alleles from the form
 function save_alleles(mutant_id) {
     var url = '/cgi-bin/medicago/eucap/eucap.pl?action=save_alleles';
@@ -280,9 +490,13 @@ function save_alleles(mutant_id) {
                     msg = message[1];
                 }
                 $('#' + status_span).html(msg);
+
             } else {
                 $('#' + status_span).html('No changes to update.');
             }
+            $('#' + status_span).fadeTo(20000, 0, function() {
+                $(this).empty();
+            });
         },
         error: function(XMLHttpRequest, textStatus, errorThrown) {
             $('#' + status_span).removeClass('success');
@@ -302,19 +516,27 @@ function update_locus_table(locus_id) {
     $('#comment_' + locus_id).html($('#comment').val());
 }
 
+//update the mutant_table {
+function update_mutant_table(mutant_id) {
+    $('#mutant_symbol_' + mutant_id).html($('#mutant_symbol').val());
+    $('#mutant_phenotype_' + mutant_id).html($('#mutant_phenotype').val());
+    $('#mapping_data_' + mutant_id).html($('#mapping_data').val());
+    $('#reference_lab_' + mutant_id).html($('#mutant_reference_lab').val());
+}
+
 // remove edits highlighting
 function remove_edits_highlight(id, prefix) {
     $('.' + prefix + '_' + id).removeClass('tableRowEdit');
     $('.' + prefix + '_' + id).addClass('tableRowOdd');
 }
 
-// perform action: make ajax GET call to eucap.pl with action and id as params
-// if (param === id) or (param === ''), make ajax GET call with single parameter,
+// perform action: make ajax GET call to eucap.pl with `action`,  parameter `param_name` and `param` as value
+// if (`param` === [0-9]+) or (param === ''), make ajax GET call with single paramater `param_name` and its val(),
 // else, make ajax POST call by serializing all form input elements
 function perform_action(action, param_name, param) {
     if(action !== '' && param_name === undefined && param === undefined) {
-        param  = action;
-        action = $('#'+ action + '_form input[name=action]').val();
+        param = action;
+        //action = $('#'+ action + '_form input[name=action]').val();
     }
     var url = '/cgi-bin/medicago/eucap/eucap.pl?action=' + action;
 
@@ -324,7 +546,7 @@ function perform_action(action, param_name, param) {
         params = param_name + '=' + param;
         type = 'GET';
     } else if(param === '') {
-       params = param_name + '=' + $('#' + param_name).val()
+        params = param_name + '=' + $('#' + param_name).val()
         type = 'GET';
     } else {
         params = $('#' + param + '_form').serialize();
@@ -333,12 +555,15 @@ function perform_action(action, param_name, param) {
 
     var query = url + '&' + params;
 
-    if(action === 'annotate_alleles' || action === 'struct_anno') {
+    if(action === 'annotate_alleles' || action === 'struct_anno' || action === 'review_annotation') {
         $('#overlay').show();
+        var width = 1000;
+        if(action === 'review_annotation')
+            width = 1200;
         $('#' + action).dialog({
             autoOpen: false,
             modal: true,
-            width: 800,
+            width: width,
             closeOnEscape: false
         });
     } else {
@@ -356,7 +581,7 @@ function perform_action(action, param_name, param) {
             }
             $('#' + action).html(data);
 
-            if(action === 'annotate_alleles' || action === 'struct_anno') {
+            if(action === 'annotate_alleles' || action === 'struct_anno' || action === 'review_annotation') {
                 $('#overlay').hide();
                 $('#' + action).dialog('open');
                 $('#' + action).addClass('panel_background');
@@ -394,16 +619,20 @@ function clear_div(id) {
     $('#' + id).empty();
 }
 
-// close a certain panel on click
+// close a certain panel on click and scroll page to a specified panel
 function close_panel_and_scroll(panel_to_close, panel_to_scroll_to) {
     clear_div(panel_to_close);
-    goToByScroll(panel_to_scroll_to);
+    if(panel_to_scroll_to !== undefined) {
+        goToByScroll(panel_to_scroll_to);
+    }
 }
 
 // close a certain dialog
 function close_dialog_and_scroll(dialog_to_close, panel_to_scroll_to) {
     $('#' + dialog_to_close).dialog('close');
-    goToByScroll(panel_to_scroll_to);
+    if(panel_to_scroll_to !== undefined) {
+        goToByScroll(panel_to_scroll_to);
+    }
 }
 
 // scroll to a certain anchor on the page

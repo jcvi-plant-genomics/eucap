@@ -2,7 +2,7 @@
       $(document).ready(function() {
           $('.disabled-action').addClass('ui-state-disabled');
 
-          $('#actions').accordion({ collapsible: true, autoHeight: true, active: <TMPL_IF NAME="disabled">1<TMPL_ELSE>0</TMPL_IF> });
+          $('#actions').accordion({ collapsible: true, autoHeight: false, active: <TMPL_IF NAME="disabled">1<TMPL_ELSE>0</TMPL_IF> });
 
           var accordion = $('#actions').data('accordion');
           accordion._std_clickHandler = accordion._clickHandler;
@@ -19,53 +19,75 @@
     <td width="70%">
     <div id="actions">
         <h3<TMPL_IF NAME="disabled"> class="disabled-action"</TMPL_IF>><a href="#">Annotate Gene Families</a></h3>
-        <div>
+        <div id="gene_family">
         <TMPL_IF NAME="disabled">
         <TMPL_ELSE>
-            <form name="select_annotation" action="/cgi-bin/medicago/eucap/eucap.pl" method="POST">
-            <input type="hidden" id="action" name="action" value="annotate">
-            <input type="hidden" id="user_id" name="user_id" value="">
-            <input type="hidden" id="family_id" name="family_id" value="">
+            <form id="annotate_family" name="annotate_family" action="/cgi-bin/medicago/eucap/eucap.pl" method="POST">
+                <input type="hidden" id="action" name="action" value="annotate">
+                <input type="hidden" id="user_id" name="user_id" value="">
+                <input type="hidden" id="family_id" name="family_id" value="">
 
-            <table width=100% class="contenttable" cellpadding="5px">
-            <tbody>
-              <tr class="tableHeader">
-                <td><p>&nbsp;</p></td>
-                <td><p>Gene Class Symbol</p></td>
-                <td><p>Family Name</p></td>
-                <TMPL_IF NAME="is_admin">
-                <td><p>Edits Pending Approval</p></td>
-                <TMPL_ELSE>
-                <td><p>Description</p></td>
-                </TMPL_IF>
-              </tr>
-            <TMPL_LOOP NAME="gene_family_radio">
-              <tr class="tableRowOdd">
-                <td align=center><input type="radio" name="gene_family" onclick="set_user_and_family(<TMPL_VAR NAME="user_id">, <TMPL_VAR NAME="family_id">);"></p></td>
-                <td><p><TMPL_VAR NAME="gene_class_symbol"></p></td>
-                <td><p><TMPL_VAR NAME="family_name"></p></td>
-                <TMPL_IF NAME="is_admin">
-                <td><p><TMPL_VAR NAME="pending_edits"></p></td>
-                <TMPL_ELSE>
-                <td><p><TMPL_VAR NAME="description"></p></td>
-                </TMPL_IF>
-              </tr>
-            </TMPL_LOOP>
-            </tbody>
-            </table>
-            <br />
-            <table border="0" cellspacing="5px">
-              <tr>
-                <td><p><input type="submit" value="Annotate Gene Family"></p></td>
-                <td><p><input type="reset"></p></td>
-              </tr>
-            </table>
+                <table width=100% class="contenttable" cellpadding="5px">
+                <tbody>
+                  <tr class="tableHeader">
+                    <td><p>&nbsp;</p></td>
+                    <td><p>Gene Class Symbol</p></td>
+                    <td><p>Family Name</p></td>
+                    <TMPL_IF NAME="is_admin">
+                    <td><p>Edits Pending Approval</p></td>
+                    <TMPL_ELSE>
+                    <td><p>Description</p></td>
+                    </TMPL_IF>
+                  </tr>
+                <TMPL_LOOP NAME="gene_family_radio">
+                  <tr class="tableRowOdd">
+                    <td align=center><p><input type="radio" name="gene_family" onclick="set_value('user_id', <TMPL_VAR NAME="user_id">, 'annotate_family'); set_value('family_id',<TMPL_VAR NAME="family_id">, 'annotate_family');"></p></td>
+                    <td><p><TMPL_VAR NAME="gene_class_symbol"></p></td>
+                    <td><p><TMPL_VAR NAME="family_name"></p></td>
+                    <TMPL_IF NAME="is_admin">
+                    <td><p><TMPL_VAR NAME="pending_edits"></p></td>
+                    <TMPL_ELSE>
+                    <td><p><TMPL_VAR NAME="description"></p></td>
+                    </TMPL_IF>
+                  </tr>
+                </TMPL_LOOP>
+                </tbody>
+                </table>
+                <br />
+                <table border="0" cellspacing="5px">
+                  <tr>
+                    <td><p><input type="submit" value="Annotate Gene Family"></p></td>
+                    <td><p><input type="reset"></p></td>
+                  </tr>
+                </table>
             </form>
         </TMPL_IF>
         </div>
         <h3><a href="#">Annotate Mutants</a></h3>
-        <div>
+        <div id="mutant_class">
+            <form id="annotate_mutant_class" name="annotate_mutant_class" action="/cgi-bin/medicago/eucap/eucap.pl" method="POST">
+            <input type="hidden" id="action" name="action" value="annotate_mutants">
+            <input type="hidden" id="user_id" name="user_id" value="">
+            <input type="hidden" id="mutant_class_id" name="mutant_class_id" value="">
 
+            <table width=100% class="contenttable" cellpadding="5px">
+            <tbody>
+                <tr class="tableHeader">
+                    <td><p>Mutant Class</p></td>
+                    <td><p>Symbol Name</p></td>
+                    <td><p>Number of mutants</p></td>
+                    <td><p>&nbsp;</p></td>
+                </tr>
+            <TMPL_LOOP NAME="mutant_class_list">
+                <tr class="tableRowOdd">
+                    <td><p><TMPL_VAR NAME="mutant_class_symbol"></p></td>
+                    <td><p><TMPL_VAR NAME="mutant_class_name"></p></td>
+                    <td><p><TMPL_VAR NAME="num_mutants"></p></td>
+                    <td><p><input type="submit" id="annotate_mutant_<TMPL_VAR NAME="mutant_class_id">" value="Annotate" onclick="set_value('user_id', <TMPL_VAR NAME="user_id">, 'annotate_mutant_class'); set_value('mutant_class_id', <TMPL_VAR NAME="mutant_class_id">, 'annotate_mutant_class');" /></p></td>
+                </tr>
+            </TMPL_LOOP>
+            </tbody>
+            </table>
         </div>
     </td>
     <td width="30%">
@@ -97,3 +119,9 @@
     </td>
 </tr>
 </table>
+
+<script type="text/javascript">
+    $(function () {
+        $("#gene_family input:radio:first").attr('checked', true).click();
+    });
+</script>

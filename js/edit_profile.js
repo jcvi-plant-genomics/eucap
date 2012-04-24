@@ -22,27 +22,29 @@ $(document).ready(function(){
         },
         messages: {
             username: {
-                required: 'Cannot be empty',
-                minlength: jQuery.format('At least {0} characters'),
-                remote: jQuery.format('Taken')
+                required: 'Username cannot be empty',
+                minlength: jQuery.format('Username must be at least {0} characters'),
+                remote: jQuery.format('Username is taken')
             },
             name: {
-                required: 'Cannot be empty',
-                minlength: jQuery.format('At least {0} characters'),
+                required: 'Name cannot be empty',
+                minlength: jQuery.format('Name must be at least {0} characters'),
             },
             password: {
-                required: 'Cannot be empty',
-                minlength: jQuery.format('At least {0} characters'),
+                required: 'Password cannot be empty',
+                minlength: jQuery.format('Password must be at least {0} characters'),
             },
             email: {
-                required: 'Cannot be empty',
-                email: 'Invalid',
-                remote: jQuery.format('{0} is already in use')
+                required: 'Email cannot be empty',
+                email: 'Please enter a valid email address',
+                remote: jQuery.format('Email {0} is already in use')
             },
             url: {
-                url: 'Invalid'
+                url: 'Please enter a valid URL'
             }
         },
+        errorLabelContainer: "#errorBox",
+        wrapper: "li",
         submitHandler: function(form) {
             jQuery(form).ajaxSubmit({
                 url:    '/cgi-bin/medicago/eucap/eucap.pl',

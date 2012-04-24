@@ -1,4 +1,3 @@
-<TMPL_LOOP NAME="annotation_loop">
 <p class="section">Edit <TMPL_VAR NAME="gene_symbol"> Gene <img id="edit_gene_info" style="vertical-align: super;" src="/medicago/eucap/include/images/info.png" /></p>
 <form id="locus_annotate" name="locus_annotate" onsubmit="return save_locus(<TMPL_VAR NAME="locus_id">);">
     <input type="hidden" id="action" name="action" value="save_locus">
@@ -82,12 +81,12 @@
         <TMPL_IF NAME="has_structural_annot"><input type="button" id="structural_annot" name="structural_annot" value="View/Edit" onclick="perform_action('struct_anno', 'locus_id', <TMPL_VAR NAME="locus_id">);"><TMPL_ELSE>No</TMPL_IF></p></td>
       </tr>
 
-      <tr class="tableRowEven"><td colspan="3">
+      <tr class="tableRowEven"><td class="locus_<TMPL_VAR NAME="locus_id"><TMPL_IF NAME="mutant_id_edit"> tableRowEdit</TMPL_IF>" colspan="3">
       <p><input type="button" name="hide_panel" value="<TMPL_IF NAME="mutant_id">Hide<TMPL_ELSE>Add</TMPL_IF>"
       onclick="toggle_mutant_panel(this, <TMPL_IF NAME="mutant_id">1<TMPL_ELSE>0</TMPL_IF>);">
       Mutant Information <img id="edit_mutant_info" style="vertical-align: middle;" src="/medicago/eucap/include/images/info.png" /></p>
         <div class="panel_background large_margin" style="display:<TMPL_IF NAME="mutant_id">block<TMPL_ELSE>none</TMPL_IF>;" id="mutant_panel">
-            <TMPL_INCLUDE NAME="annotate_mutants.tmpl">
+            <TMPL_INCLUDE NAME="annotate_mutant.tmpl">
         </div>
       </td></tr>
     </tbody>
@@ -145,5 +144,3 @@
 <div id="annotate_alleles" name="annotate_alleles" class="hide_panel" style="text-align: left;"></div>
 
 <div id="struct_anno" name="struct_anno" class="hide_panel" style="text-align: left;"></div>
-
-</TMPL_LOOP>

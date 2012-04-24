@@ -30,7 +30,11 @@ function deleteFeature(input_elem) {
 
 function addFeature(input_elem) {
     var add_feature_row_html = '<td colspan="5" align="right"><p><input type="button" name="add_feature" value="Add Feature" onclick="addFeature(this)"></p></td>';
-    var feature_row_html = '<td><p><input type="button" name="delete" value="Delete" onclick="deleteFeature(this)"></p></td> <td><p><select name="type"><option value="CDS">CDS</option><option value="UTR">UTR</option></select></p></td> <td><p><input type="text" name="start" size="10" value="start"></p></td> <td><p><input type="text" name="stop" size="10" value="stop"></p></td><td><p>&nbsp;</p></td>';
+    var feature_row_html = '<td><p><input type="button" name="delete" value="Delete" onclick="deleteFeature(this)"></p></td>' +
+        '<td><p><select name="type"><option value="CDS">CDS</option><option value="UTR">UTR</option></select></p></td>' +
+        '<td><p><input type="text" id="start" name="start" size="10" value="end5" onfocus="if(this.value == \'end5\') this.value = \'\';" onblur="if(this.value == \'\') this.value = \'end5\';"></p></td>' +
+        '<td><p><input type="text" id="stop" name="stop" size="10" value="end3" onfocus="if(this.value == \'end3\') this.value = \'\';" onblur="if(this.value == \'\') this.value = \'end3\';">' +
+        '</p></td><td><p>&nbsp;</p></td>';
     var row = input_elem.parentNode.parentNode.parentNode;
     var row_index = row.sectionRowIndex;
     var ca_tbody = document.getElementById('ca_table_body');
@@ -155,44 +159,21 @@ function update_model_json(action) {
 }
 
 /* Annotation Template JS */
-function set_action(elem, locus_id) {
+function set_action(elem) {
     var hidden = document.getElementById('action');
-    if (elem.value == "Add Loci"){
-        hidden.value = "add_loci";
-    }
-    else if (elem.value == "Find Homologs"){
-        hidden.value = "run_blast";
-    }
-    else if (elem.value == "Delete Checked"){
-        hidden.value = "delete_checked";
-    }
-    else if (elem.value == "Save Checked" ){
-        hidden.value = "save_annotation";
-    }
-    else if (elem.value == "Review All Annotation") {
-        hidden.value = "review_annotation";
-    }
-    else if (elem.value == "Submit Annotation") {
-        hidden.value = "submit_annotation";
-    }
-    else if (elem.value == "Go"){
-        hidden.value = "struct_anno";
-    }
-    else if (elem.value == "Update Profile"){
+    if (elem.value == "Update Profile"){
         hidden.value = "update_profile";
-    } else if(elem.value == "Add" || elem.value == "Edit"){
-        hidden.value = "edit_alleles";
-    }
-
-    if( typeof(locus_id) !== 'undefined' ){
-        var hidden_locus = document.getElementById('locus_id');
-        hidden_locus.value = locus_id;
+    } else if(elem.value == "Sign Up") {
+        hidden.value = "signup_user";
     }
 }
 
-function set_user_and_family(user_id, family_id) {
-    $('#user_id').val(user_id);
-    $('#family_id').val(family_id);
+function set_value(id, value, form_id) {
+    if(form_id === undefined) {
+        $('#' + id).val(value);
+    } else {
+        $('#' + form_id + ' input').filter('[id=' + id + ']').val(value);
+    }
 }
 
 function clear_textarea( textarea_id ){
