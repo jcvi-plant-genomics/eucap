@@ -3397,9 +3397,9 @@ sub get_loci {
         $id =~ s/\D+//gs;
         push @query_output,
           {
-            'id'                   => $id,
-            'value'                => $locus_obj->name,
-            'orig_func_annotation' => $locus_obj->notes
+            'id'              => $id,
+            'locus'           => $locus_obj->name,
+            'func_annotation' => $locus_obj->notes
           };
     }
     @query_output = sort { $a->{id} <=> $b->{id} } @query_output;
