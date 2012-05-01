@@ -3,6 +3,7 @@ use warnings;
 use strict;
 use Switch;
 use base 'Class::DBI::mysql';
+use Class::DBI::AbstractSearch;
 
 my ($dsn, $username, $password) = getConfig();
 

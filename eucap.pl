@@ -19,6 +19,7 @@ use Authen::Passphrase::MD5Crypt;
 # Page rendering Template modules
 use Template;
 use HTML::Template;
+use Print_to_screen;
 
 # Data related modules
 use URI;
@@ -64,24 +65,17 @@ use CA::structural_annot_edits;
 use MIME::Base64 qw/encode_base64url/;
 use Data::Difference qw/data_diff/;
 
-# JCVI template page variables from MedicagoWeb.pm
-use MedicagoWeb
-  qw/:DEFAULT $site $home_page $left_content $contact_email $body_tmpl $two_column_fluid_width $two_column_fixed_width/;
+my @breadcrumb = ();
+my @stylesheets = ();
+my @javascripts = ();
 
-my $jcvi_template = $two_column_fixed_width;
-my $title         = 'Medicago truncatula Genome Project :: Community Annotation';
-my $project_name  = 'Medicago truncatula Community Annotation Portal';
-my @breadcrumb    = ({ 'link' => $ENV{REQUEST_URI}, 'menu_name' => 'EuCAP' });
-my @stylesheets =
-  qw(https://ajax.googleapis.com/ajax/libs/jqueryui/1/themes/smoothness/jquery-ui.css /medicago/eucap/include/css/eucap.css /medicago/include/css/rounded_corners.css);
-my @javascripts =
-  qw(https://ajax.googleapis.com/ajax/libs/jquery/1/jquery.min.js http://ajax.googleapis.com/ajax/libs/jqueryui/1/jquery-ui.min.js /medicago/eucap/include/js/eucap.js /medicago/eucap/include/js/json.js /medicago/include/js/rounded_corners.js);
-my $side_menu = get_side_links('Annotation');
-$left_content .=
-'<br /><font><span style="color: red;">Warning:</span>  This site uses <a href="http://en.wikipedia.org/wiki/Ajax_(programming)">AJAX</a>. Please don&apos;t press your browser&apos;s back button!</font>';
+my $email_domain = "\@jcvi.org";
+my $PA           = "sbidwell";
+my $admin        = "vkrishnakumar";
+my $PA_address    = $PA . $email_domain;
+my $admin_address = $admin . $email_domain;
+my $title = "";
 
-# Initialize JCVI template
-my $jcvi_tt   = Template->new({ ABSOLUTE => 1, });
 my $jcvi_vars = {};
 my $FLAG      = 0;
 
@@ -313,18 +307,7 @@ else {    # logged in and fall through the actions - then log out
 # $FLAG == 0 corresponds to any option resulting in a complete page reload
 # $FLAG == 1 corresponds to an asynchronous requests returing JSON/HTML/PLAINTEXT
 PROCESS_TMPL: if (!$FLAG) {
-
-    #$jcvi_vars->{title}        = $title;
-    $jcvi_vars->{site}         = $site;
-    $jcvi_vars->{home_page}    = $home_page;
-    $jcvi_vars->{project_name} = $project_name;
-    $jcvi_vars->{side_menu}    = $side_menu;
-    $jcvi_vars->{left_content} = $left_content;
-    $jcvi_vars->{breadcrumb}   = \@breadcrumb;
-    $jcvi_vars->{stylesheets}  = \@stylesheets;
-    $jcvi_vars->{javascripts}  = \@javascripts;
-
-    $jcvi_tt->process($jcvi_template, $jcvi_vars) or $jcvi_tt->error();
+    output_to_jcvi_tmpl($jcvi_vars);
 }
 
 $ca_dbh->disconnect if $ca_dbh;
@@ -381,7 +364,7 @@ sub login_page {
     print $cgi->header;
 
     my $title = "Community Annotation Portal";
-    push @breadcrumb, ({ 'link' => '#', 'menu_name' => $title });
+    push @{ $jcvi_vars->{breadcrumb} }, ({ 'link' => '#', 'menu_name' => $title });
 
     $jcvi_vars->{top_menu} = [
         {
@@ -402,9 +385,9 @@ sub signup_page {
     print $cgi->header(-type => 'text/html');
     my $title = "Account Sign Up";
 
-    push @javascripts, "/medicago/eucap/include/js/jquery.validate.min.js",
+    push @{ $jcvi_vars->{javascripts} }, "/medicago/eucap/include/js/jquery.validate.min.js",
       "/medicago/eucap/include/js/jquery.form.js", "/medicago/eucap/include/js/signup_page.js";
-    push @breadcrumb, { 'link' => '#', 'menu_name' => $title };
+    push @{ $jcvi_vars->{breadcrumb} }, { 'link' => '#', 'menu_name' => $title };
 
     $jcvi_vars->{top_menu} = [
         {
@@ -431,18 +414,7 @@ sub signup_user {
 
     eval {
         $user_info->{validation_key} = validation_hash($user_info);
-        my $pending_user_row = CA::registration_pending->insert(
-            {
-                name           => $user_info->{name},
-                email          => $user_info->{email},
-                username       => $user_info->{username},
-                salt           => $user_info->{salt},
-                hash           => $user_info->{hash},
-                url            => $user_info->{url},
-                organization   => $user_info->{organization},
-                validation_key => $user_info->{validation_key}
-            }
-        );
+        my $pending_user_row = insert_caObj('registration_pending', $user_info);
     };
 
     if ($@) {
@@ -520,7 +492,7 @@ sub dashboard {
 
     my @fams =
       ($username eq "admin")
-      ? CA::family->retrieve_all
+      ? retrieve_all_caObjs_array('family')
       : CA::family->search(user_id => $anno_ref->{user_id});
 
     my $disabled         = undef;
@@ -607,7 +579,7 @@ sub dashboard {
 
     print $session->header;
 
-    push @breadcrumb, ({ 'link' => '#', 'menu_name' => $title });
+    push @{ $jcvi_vars->{breadcrumb} }, ({ 'link' => '#', 'menu_name' => $title });
     $jcvi_vars->{title}       = "Medicago truncatula Genome Project :: EuCAP :: $title";
     $jcvi_vars->{page_header} = "Annotator Dashboard";
     $jcvi_vars->{top_menu}    = [
@@ -739,10 +711,10 @@ sub edit_profile {
         );
         print $session->header;
 
-        push @javascripts, "/medicago/eucap/include/js/jquery.validate.min.js",
+        push @{ $jcvi_vars->{javascripts} }, "/medicago/eucap/include/js/jquery.validate.min.js",
           "/medicago/eucap/include/js/jquery.form.js",
           "/medicago/eucap/include/js/edit_profile.js";
-        push @breadcrumb,
+        push @{ $jcvi_vars->{breadcrumb} },
           (
             {
                 'link'      => '/cgi-bin/medicago/eucap/eucap.pl?action=dashboard',
@@ -1063,10 +1035,10 @@ sub annotate {
     print $session->header;
 
     #print $tmpl->output;
-    push @javascripts, "/medicago/eucap/include/js/annotate.js",
+    push @{ $jcvi_vars->{javascripts} }, "/medicago/eucap/include/js/annotate.js",
       "/medicago/include/js/jquery.qtip.min.js";
-    push @stylesheets, "/medicago/include/css/jquery.qtip.css";
-    push @breadcrumb,
+    push @{ $jcvi_vars->{stylesheets} }, "/medicago/include/css/jquery.qtip.css";
+    push @{ $jcvi_vars->{breadcrumb} },
       (
         {
             'link'      => '/cgi-bin/medicago/eucap/eucap.pl?action=dashboard',
@@ -2817,7 +2789,7 @@ sub promote_pending_user {
     my ($pending_user) = @_;
 
     eval {
-        my $new_user = CA::users->insert(
+        my $new_user = insert_caObj('users',
             {
                 name         => $pending_user->name,
                 email        => $pending_user->email,
@@ -2996,7 +2968,7 @@ sub get_user_info {
 
 sub update_user_info {
     my ($anno_ref, $user_id) = @_;
-    my $user_obj = CA::users->retrieve($user_id);
+    my $user_obj = retrieve_caObj({ table => 'users', key_values => { user_id => $user_id } });
 
     $user_obj->set(
         username        => $anno_ref->{users}->{$user_id}->{username},
@@ -3123,6 +3095,15 @@ sub delete_caObj {
     my $caObj = $Class->retrieve($arg_ref->{primary_key});
 
     $caObj->delete if (defined $caObj);
+}
+
+sub retrieve_all_caObjs_array {
+    my ($table) = @_;
+
+    my $Class = join '::', MODULE, $table;
+    my @caObjs = $Class->retrieve_all;
+
+    return @caObjs;
 }
 
 sub retrieve_unique_ids {
@@ -3527,17 +3508,9 @@ sub get_mutant_info {
 
 sub get_max_id {
     my ($arg_ref) = @_;
-    my $max_id = 0;
 
-    my $max_q   = "SELECT MAX($arg_ref->{column}) FROM $arg_ref->{table};";
-    my $max_sth = $ca_dbh->prepare($max_q);
-    $max_sth->execute();
-
-    while (my @data = $max_sth->fetchrow_array()) {
-        $max_id = $data[0];
-    }
-
-    $max_sth->finish();
+    my $Class = join "::", MODULE, $arg_ref->{table};
+    my $max_id = $Class->maximum_value_of($arg_ref->{column});
 
     return $max_id;
 }
@@ -3554,7 +3527,7 @@ sub get_original_annotation {
 
 sub filter_hit_name {
 
-    #this has to be changes based on the defline of your proteome file
+    #this has to be changed based on the defline of your proteome file
     #returns just the locus name
     my ($hit_name) = @_;
     $hit_name =~ /^IMGA\|(\S+)\.\d+/;

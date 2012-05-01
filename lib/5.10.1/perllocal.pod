@@ -42,3 +42,69 @@ C<EXE_FILES: >
 
 =back
 
+=head2 Tue May  1 14:06:38 2012: C<Module> L<Exporter::Simple|Exporter::Simple>
+
+=over 4
+
+=item *
+
+C<installed into: /opt/www/medicago/cgi-bin/medicago/eucap/lib/5.10.1>
+
+=item *
+
+C<LINKTYPE: dynamic>
+
+=item *
+
+C<VERSION: 1.10>
+
+=item *
+
+C<EXE_FILES: >
+
+=back
+
+=head2 Tue May  1 14:06:58 2012: C<Module> L<Merge::HashRef|Merge::HashRef>
+
+=over 4
+
+=item *
+
+C<installed into: /opt/www/medicago/cgi-bin/medicago/eucap/lib/5.10.1>
+
+=item *
+
+C<LINKTYPE: dynamic>
+
+=item *
+
+C<VERSION: 0.01>
+
+=item *
+
+C<EXE_FILES: >
+
+=back
+
+=head2 Tue May  1 18:23:36 2012: C<Module> L<Class::DBI::AbstractSearch|Class::DBI::AbstractSearch>
+
+=over 4
+
+=item *
+
+C<installed into: /opt/www/medicago/cgi-bin/medicago/eucap/lib/5.10.1>
+
+=item *
+
+C<LINKTYPE: dynamic>
+
+=item *
+
+C<VERSION: 0.07>
+
+=item *
+
+C<EXE_FILES: >
+
+=back
+
