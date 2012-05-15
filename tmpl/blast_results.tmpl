@@ -1,3 +1,10 @@
+<script type="text/javascript">
+    // prettify all the buttons
+    $(function() {
+        $('.submitButton, .inputButton, .resetButton').button();
+    });
+</script>
+
 <TMPL_IF NAME="blast_results">
 <p><TMPL_VAR NAME="total_hits"> hits for query: <TMPL_VAR NAME="query_name"> </p>
 <table class="contenttable">
@@ -26,8 +33,8 @@
 </table>
 <table border="0" cellspacing="10px" cellpadding="5px" class="large_margin">
   <tr>
-  <td><p><input type="button" name="add_loci_button" value="Add Selected Loci" onclick="add_blast_loci( 'hit' )"> </p></td>
-  <td><p><input type="button" name="remove_blast_results" value="Clear Blast Results Panel" onclick="close_panel_and_scroll( 'run_blast', 'add_by_blast' )"></p></td>
+  <td><p><input type="button" class="inputButton" name="add_loci_button" value="Add Selected Loci" onclick="add_blast_loci( 'hit' )"> </p></td>
+  <td><p><input type="button" class="inputButton" name="remove_blast_results" value="Clear Blast Results Panel" onclick="close_panel_and_scroll( 'run_blast', 'add_by_blast' )"></p></td>
 </table>
 <hr />
 </TMPL_IF>

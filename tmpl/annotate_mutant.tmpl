@@ -1,6 +1,14 @@
-<TMPL_IF NAME="is_mutant_edit"><p class="section">Edit <TMPL_VAR NAME="mutant_symbol"> Mutant <img id="edit_mutant_info" style="vertical-align: super;" src="/medicago/eucap/include/images/info.png" /></p>
+<script type="text/javascript">
+    //// prettify all the buttons
+    $(function() {
+        $('.submitButton, .inputButton, .resetButton').button();
+    });
+</script>
+
+<TMPL_IF NAME="is_mutant_edit"><p class="section">Edit <i><TMPL_VAR NAME="mutant_symbol"></i> Mutant <img id="edit_mutant_info" style="vertical-align: super;" src="/medicago/eucap/include/images/info.png" /></p>
 <form id="mutant_annotate" name="mutant_annotate" onsubmit="return save_mutant(<TMPL_VAR NAME="mutant_id">);">
 <input type="hidden" id="action" name="action" value="save_mutant">
+<input type="hidden" id="user_id" name="user_id" value="<TMPL_VAR NAME="user_id">">
 </TMPL_IF>
       <table class="contenttable" width="100%">
             <TMPL_IF NAME="is_mutant_edit">
@@ -15,17 +23,18 @@
             <input type="hidden" id="mutant_mod_date" name="mutant_mod_date" value="<TMPL_VAR NAME="mutant_mod_date">">
             <td class="mutant_<TMPL_VAR NAME="mutant_id"><TMPL_IF NAME="mutant_symbol_edit"> tableRowEdit</TMPL_IF>"><p>
                 <label for="mutant_symbol">Mutant Symbol: </label>
-                <input type="text" id="mutant_symbol" name="mutant_symbol" value="<TMPL_IF NAME="mutant_symbol"><TMPL_VAR NAME="mutant_symbol"><TMPL_ELSE>Search mutants...</TMPL_IF>" onfocus="if(this.value == 'Search mutants...') this.value = '';" onblur="if(this.value == '') this.value = 'Search mutants...';" class="italics">&nbsp;<span width="16px" id="mutant_autocmp_status" name="mutant_autocmp_status"></span><br /><br />
+                <input type="text" id="mutant_symbol" name="mutant_symbol" value="<TMPL_IF NAME="is_mutant_edit"><TMPL_VAR NAME="mutant_symbol"><TMPL_ELSE><TMPL_IF NAME="mutant_symbol"><TMPL_VAR NAME="mutant_symbol"><TMPL_ELSE>Search mutants...</TMPL_IF></TMPL_IF>" onfocus="if(this.value == 'Search mutants...') this.value = '';" onblur="if(this.value == '') this.value = 'Search mutants...';" class="italics">&nbsp;<span width="16px" id="mutant_autocmp_status" name="mutant_autocmp_status"></span><br /><br />
             </p></td>
 
+            <TMPL_UNLESS NAME="is_mutant_edit">
             <script type="text/javascript">
                 $(function() {
                     $("#mutant_symbol").autocomplete({
-                        source: "/cgi-bin/medicago/eucap/eucap.pl?action=get_mutant_info&edits=1",
+                        source: "/cgi-bin/medicago/eucap/eucap.pl?action=get_mutant_info&edits=1&user_id=<TMPL_VAR NAME="user_id">",
                         delay: 200,
                         minLength: 1,
                         search: function(event, ui) {
-                            clear_div('annotate_alleles');
+                            clear_element('annotate_alleles');
 
                             if ($(this).val().length < 3) {
                                 $('#mutant_id').val("");
@@ -62,7 +71,7 @@
                             }
 
                             $('#disp_get_alleles').html(
-                                '<input type="button" id="get_alleles" name="get_alleles"'
+                                '<input type="button" class="inputButton" id="get_alleles" name="get_alleles"'
                                 + ' value="' + has_alleles_val
                                 + '" onclick="perform_action(\'annotate_alleles\', \'mutant_id\', '
                                 + ui.item.id + ')" />'
@@ -96,7 +105,7 @@
 
                 $('#mutant_symbol').keyup(function() {
                     if($(this).val().length == 0 && $(this).val() !== 'Search mutants...') {
-                        clear_div('annotate_alleles');
+                        clear_element('annotate_alleles');
 
                         $('#mutant_autocmp_status').html("");
                         $('#mutant_id').val("");
@@ -112,6 +121,7 @@
                     }
                 });
         </script>
+        </TMPL_UNLESS>
 
             <td rowspan=2 class="mutant_<TMPL_VAR NAME="mutant_id"><TMPL_IF NAME="mutant_phenotype_edit"> tableRowEdit</TMPL_IF>"><p>
                 <label for="mutant_phenotype">Mutant Phenotype: </label>
@@ -140,9 +150,7 @@
                 <input type="hidden" id="has_alleles" name="has_alleles" value="<TMPL_VAR NAME="has_alleles">">
                 <span id="disp_get_alleles" name="disp_get_alleles">
                     <TMPL_IF NAME="mutant_id">
-                    <input type="button" id="get_alleles" name="get_alleles"
-                    value="<TMPL_IF NAME="has_alleles">Edit<TMPL_ELSE>Add</TMPL_IF>"
-                    onclick="perform_action('annotate_alleles', 'mutant_id', <TMPL_VAR NAME="mutant_id">);">
+                    <input type="button" class="inputButton" id="get_alleles" name="get_alleles" value="<TMPL_IF NAME="has_alleles">Edit<TMPL_ELSE>Add</TMPL_IF>" onclick="perform_action('annotate_alleles', 'mutant_id', <TMPL_VAR NAME="mutant_id">);">
                     <TMPL_ELSE>
                     No
                     </TMPL_IF>
@@ -166,10 +174,10 @@
     <br />
     <table width="100%" border="0" cellpadding="20px">
     <tr height="10px">
-        <td width="10%" align="center"><p><input type="submit" value="Save Annotation" /></p></td>
-        <td width="10%" align="center"><p><input type="Reset" onclick="clear_status('mutant');"></p></td>
+        <td width="10%" align="center"><p><input type="submit" class="submitButton" value="Save Annotation" /></p></td>
+        <td width="10%" align="center"><p><input type="reset" class="resetButton" onclick="clear_status('mutant');"></p></td>
         <td width="70%" align="left"><span id="mutant_save_status" name="mutant_save_status"></span></td>
-        <td width="10%" align="right"><p><input type="button" value="Close" onclick="close_panel_and_scroll('annotate_mutant', 'mutant_table');" /></p></td>
+        <td width="10%" align="right"><p><input type="button" class="inputButton" value="Close" onclick="close_panel_and_scroll('annotate_mutant', 'mutant_table');" /></p></td>
     </tr>
     </table>
 </form>
@@ -182,6 +190,16 @@
             position: { my: 'top left', at: 'right center' }
         });
         $('#mutant_symbol').qtip({
+            <TMPL_IF NAME="is_mutant_edit">
+            content: {
+                text: '<b style="color: red;">Required</b><br />' +
+                'Provide a mutant symbol<br /><br />' +
+                'Refer to summary of <br />' +
+                '<a href="/cgi-bin/medicago/annotation.cgi?page=mutant_nomenclature" target="_blank">Mutant Nomenclature Rules</a> ' +
+                '<img style="vertical-align: middle;" src="/medicago/include/images/external_link.gif" />',
+            },
+            position: { my: 'bottom left', at: 'top center' }
+            <TMPL_ELSE>
             content: {
                 text: '<b style="color: red;">Required</b><br />Search for a mutant symbol in our database of known mutants.<br /><br />' +
                 'Refer to the <a href="/cgi-bin/medicago/annotation.cgi?page=mutant_info" target="_blank">Mutant List</a> page ' +
@@ -191,7 +209,10 @@
                 title: { text: 'Search mutants', button: true }
             },
             position: { my: 'bottom left', at: 'top center' },
-            hide: false
+            hide: {
+                target: $('input[type=submit]')
+            }
+            </TMPL_IF>
         });
         $('#mutant_class_name').qtip({
             content: '<b style="color: red;">Required</b><br />Provide an appropriate expansion for the abbreviated mutant symbol',

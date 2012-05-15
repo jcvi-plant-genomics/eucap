@@ -1,3 +1,10 @@
+<script type="text/javascript">
+    //// prettify all the buttons
+    $(function() {
+        $('.submitButton, .inputButton, .resetButton').button();
+    });
+</script>
+
 <p class="section">Edit <TMPL_VAR NAME="gene_symbol"> Gene <img id="edit_gene_info" style="vertical-align: super;" src="/medicago/eucap/include/images/info.png" /></p>
 <form id="locus_annotate" name="locus_annotate" onsubmit="return save_locus(<TMPL_VAR NAME="locus_id">);">
     <input type="hidden" id="action" name="action" value="save_locus">
@@ -78,12 +85,12 @@
         <input type="text" id="gb_protein_acc" name="gb_protein_acc" value="<TMPL_IF NAME="gb_protein_acc"><TMPL_VAR NAME="gb_protein_acc"></TMPL_IF>"></p></td>
         <td><p><label for="structural_annot">Has Struct Annotation?</label>
         <input type="hidden" id="has_structural_annot" name="has_structural_annot" value="<TMPL_VAR NAME="has_structural_annot">">
-        <TMPL_IF NAME="has_structural_annot"><input type="button" id="structural_annot" name="structural_annot" value="View/Edit" onclick="perform_action('struct_anno', 'locus_id', <TMPL_VAR NAME="locus_id">);"><TMPL_ELSE>No</TMPL_IF></p></td>
+        <TMPL_IF NAME="has_structural_annot"><input type="button" class="inputButton" id="structural_annot" name="structural_annot" value="View/Edit" onclick="perform_action('struct_anno', 'locus_id', <TMPL_VAR NAME="locus_id">);"><TMPL_ELSE>No</TMPL_IF></p></td>
       </tr>
 
       <tr class="tableRowEven"><td class="locus_<TMPL_VAR NAME="locus_id"><TMPL_IF NAME="mutant_id_edit"> tableRowEdit</TMPL_IF>" colspan="3">
-      <p><input type="button" name="hide_panel" value="<TMPL_IF NAME="mutant_id">Hide<TMPL_ELSE>Add</TMPL_IF>"
-      onclick="toggle_mutant_panel(this, <TMPL_IF NAME="mutant_id">1<TMPL_ELSE>0</TMPL_IF>);">
+      <p><input type="button" class="inputButton" id="hide_panel" name="hide_panel" value="<TMPL_IF NAME="mutant_id">Hide<TMPL_ELSE>Add</TMPL_IF>"
+      onclick="toggle_mutant_panel('hide_panel', <TMPL_IF NAME="mutant_id">1<TMPL_ELSE>0</TMPL_IF>);">
       Mutant Information <img id="edit_mutant_info" style="vertical-align: middle;" src="/medicago/eucap/include/images/info.png" /></p>
         <div class="panel_background large_margin" style="display:<TMPL_IF NAME="mutant_id">block<TMPL_ELSE>none</TMPL_IF>;" id="mutant_panel">
             <TMPL_INCLUDE NAME="annotate_mutant.tmpl">
@@ -94,10 +101,10 @@
     <br />
     <table width="100%" border="0" cellpadding="20px">
     <tr height="10px">
-        <td width="10%" align="center"><p><input type="submit" value="Save Annotation" /></p></td>
-        <td width="10%" align="center"><p><input type="Reset" onclick="clear_status('locus');"></p></td>
+        <td width="10%" align="center"><p><input type="submit" class="submitButton" value="Save Annotation" /></p></td>
+        <td width="10%" align="center"><p><input type="reset" class="resetButton" onclick="clear_status('locus');"></p></td>
         <td width="70%" align="left"><span id="locus_save_status" name="locus_save_status"></span></td>
-        <td width="10%" align="right"><p><input type="button" value="Close" onclick="close_panel_and_scroll('annotate_locus', 'locus_table');" /></p></td>
+        <td width="10%" align="right"><p><input type="button" class="inputButton" value="Close" onclick="close_panel_and_scroll('annotate_locus', 'locus_table');" /></p></td>
     </tr>
     </table>
 </form>

@@ -1,0 +1,45 @@
+<p class="section"><TMPL_VAR NAME="gene_symbol"> Gene</p>
+<table width="100%" class="contenttable">
+<tbody>
+  <tr>
+      <input type="hidden" id="locus_id" value="<TMPL_VAR NAME="locus_id">">
+      <td align="right" colspan="6">
+        <p>Last Modified date: <b><TMPL_VAR NAME="mod_date"></b></p>
+      </td>
+  </tr>
+  <tr class="tableHeader">
+	<td><p>Gene Symbol</p></td>
+	<td><p>Mutant Symbol</p></td>
+	<td><p>Gene Locus</p></td>
+	<td><p>Original Annotation</p></td>
+	<td colspan="2"><p>Proposed Annotation</p></td>
+  </tr>
+  <tr class="tableRowEven">
+	<td><p><TMPL_VAR NAME="gene_symbol"></p></td>
+    <td><p><TMPL_IF NAME="mutant_id"><TMPL_VAR NAME="mutant_symbol"></TMPL_IF></p></td>
+	<td><p><TMPL_VAR NAME="gene_locus"></p></td>
+	<td><p><TMPL_VAR NAME="orig_func_annotation"> </p></td>
+	<td colspan="2"><p><TMPL_IF NAME="func_annotation"><TMPL_VAR NAME="func_annotation"></TMPL_IF></p></td>
+  </tr>
+
+  <tr class="tableHeader">
+	<td><p>Genomic Acc</p></td>
+	<td><p>cDNA Acc</p></td>
+	<td><p>Protein Acc</p></td>
+	<td><p>Has Struct Anno?</p></td>
+	<td><p>Reference Publication</p></td>
+	<td><p>Comment</p></td>
+  </tr>
+
+  <tr class="tableRowEven">
+	<td><p><TMPL_IF NAME="gb_genomic_acc"><TMPL_VAR NAME="gb_genomic_acc"></TMPL_IF></p></td>
+	<td><p><TMPL_IF NAME="gb_cdna_acc"><TMPL_VAR NAME="gb_cdna_acc"></TMPL_IF></p></td>
+	<td><p><TMPL_IF NAME="gb_protein_acc"><TMPL_VAR NAME="gb_protein_acc"></TMPL_IF></p></td>
+	<td align="center"><p><TMPL_IF NAME="has_structural_annot">Yes<TMPL_ELSE>No</TMPL_IF></p></td>
+	<td><p><TMPL_IF NAME="reference_pub"><TMPL_VAR NAME="reference_pub"></TMPL_IF></p></td>
+	<td><p><TMPL_IF NAME="comment"><TMPL_VAR NAME="comment"></TMPL_IF></p></td>
+  </tr>
+</tbody>
+</table>
+
+<br />

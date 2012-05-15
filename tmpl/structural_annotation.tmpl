@@ -1,3 +1,10 @@
+<script type="text/javascript">
+    //// prettify all the buttons
+    $(function() {
+        $('.submitButton, .inputButton, .resetButton').button();
+    });
+</script>
+
 <p class="section">Structural Annotation for <TMPL_VAR NAME="gene_locus"></p>
 <center>
 <img id="ca_image" border="1" src="<TMPL_VAR NAME="img_path">" usemap="#<TMPL_VAR NAME="map_name">">
@@ -6,19 +13,19 @@
 <p class="bodytext">Exon Coordinate info - Roll the mouse cursor over the
   exon features above to display their coordinates:</p>
 <p>
-<form name="subfeature_coords">
+<form id="subfeature_coords" name="subfeature_coords">
 <table class="contenttable" width="100%">
 <tbody>
 <tr class="tableRowEven">
   <td><p>Rel Start:</p></td>
-  <td><p><input type="text" name="rel_end5" value="" size="6"></p></td>
+  <td><p><input type="text" id="rel_end5" name="rel_end5" value="" size="6"></p></td>
   <td><p>Rel End:</p></td>
-  <td><p><input type="text" name="rel_end3" value="" size="6"></p></td>
+  <td><p><input type="text" id="rel_end3" name="rel_end3" value="" size="6"></p></td>
 
   <td><p>Abs Start:</p></td>
-  <td><p><input type="text" name="abs_end5" value="" size="10"></p></td>
+  <td><p><input type="text" id="abs_end5" name="abs_end5" value="" size="10"></p></td>
   <td><p>Abs End:</p></td>
-  <td><p><input type="text" name="abs_end3" value="" size="10"></p></td>
+  <td><p><input type="text" id="abs_end3" name="abs_end3" value="" size="10"></p></td>
 </tr>
 </tbody>
 </table>
@@ -29,12 +36,12 @@
     <input type="hidden" name="action" id="action" value="struct_anno">
 
     <!-- hidden inputs for locus info -->
-    <input type="hidden" name="locus_id" value="<TMPL_VAR NAME="locus_id">">
-    <input type="hidden" name="gene_locus" value="<TMPL_VAR NAME="gene_locus">">
-    <input type="hidden" name="locus_type" value="<TMPL_VAR NAME="locus_type">">
-    <input type="hidden" name="locus_seq_id" value="<TMPL_VAR NAME="locus_seq_id">">
-    <input type="hidden" name="locus_start" value="<TMPL_VAR NAME="locus_start">">
-    <input type="hidden" name="locus_stop" value="<TMPL_VAR NAME="locus_stop">">
+    <input type="hidden" id="locus_id" name="locus_id" value="<TMPL_VAR NAME="locus_id">">
+    <input type="hidden" id="gene_locus" name="gene_locus" value="<TMPL_VAR NAME="gene_locus">">
+    <input type="hidden" id="locus_type" name="locus_type" value="<TMPL_VAR NAME="locus_type">">
+    <input type="hidden" id="locus_seq_id" name="locus_seq_id" value="<TMPL_VAR NAME="locus_seq_id">">
+    <input type="hidden" id="locus_start" name="locus_start" value="<TMPL_VAR NAME="locus_start">">
+    <input type="hidden" id="locus_stop" name="locus_stop" value="<TMPL_VAR NAME="locus_stop">">
     <input type="hidden" name="locus_strand"
           value="<TMPL_VAR NAME="locus_strand">">
     <!-- end hidden inputs -->
@@ -56,9 +63,9 @@
     </thead>
     <tbody id="ca_table_body">
       <TMPL_LOOP NAME="ca_anno_loop">
-        <tr class="add tableRowOdd"><td colspan="5" align="right"><p><input type="button" name="add_feature" value="Add Feature" onclick="addFeature(this)"></p></td></tr>
+        <tr class="add tableRowOdd"><td colspan="5" align="right"><p><input type="button" class="inputButton" id="add_feature" name="add_feature" value="Add Feature" onclick="addFeature(this)"></p></td></tr>
         <tr class="feature">
-          <td><p><input type="button" name="delete" value="Delete" onclick="deleteFeature(this)"></p></td>
+          <td><p><input type="button" class="inputButton" id="delete" name="delete" value="Delete" onclick="deleteFeature(this)"></p></td>
           <td><p><select name="type">
           <option value="CDS" <TMPL_IF NAME="CDS">selected="selected"</TMPL_IF> >CDS</option>
           <option value="UTR" <TMPL_UNLESS NAME="CDS">selected="selected"</TMPL_UNLESS>>UTR</option>
@@ -68,17 +75,17 @@
           <td><p>&nbsp;</p></td>
         </tr>
       </TMPL_LOOP>
-      <tr class="add tableRowOdd"><td colspan="5" align="right"><p><input type="button" name="add_feature" value="Add Feature" onclick="addFeature(this)"></p></td></tr>
+      <tr class="add tableRowOdd"><td colspan="5" align="right"><p><input type="button" class="inputButton" id="add_feature" name="add_feature" value="Add Feature" onclick="addFeature(this)"></p></td></tr>
     </tbody>
     </table>
-    <input type="hidden" name="model_json" value="<TMPL_VAR NAME="model_json">" id="model_json">
+    <input type="hidden" id="model_json" name="model_json" value="<TMPL_VAR NAME="model_json">" id="model_json">
     <br />
     <table width="100%" border="0" cellpadding="20px">
     <tr height="10px">
-        <td width="20%" align="center"><p><input type="submit" name="update_structure" value="Update Structure" onclick="update_model_json('struct_anno');"></p></td>
-        <td width="30%" align="center"><p><input type="submit" name="submit_structure" value="Submit Structure To Database" onclick="update_model_json('submit_struct_anno');"></p></td>
+        <td width="20%" align="center"><p><input type="submit" class="submitButton" id="update_structure" name="update_structure" value="Update Structure" onclick="update_model_json('struct_anno');"></p></td>
+        <td width="30%" align="center"><p><input type="submit" class="submitButton" id="submit_structure" name="submit_structure" value="Submit Structure To Database" onclick="update_model_json('submit_struct_anno');"></p></td>
         <td width="40%" align="left"><span id="submit_struct_anno" name="submit_struct_anno"></span></td>
-        <td width="10%" align="right"><p><input type="button" value="Close" onclick="close_dialog_and_scroll('struct_anno', 'annotate_locus');" /></p></td>
+        <td width="10%" align="right"><p><input type="button" class="inputButton" value="Close" onclick="close_dialog_and_scroll('struct_anno', 'annotate_locus');" /></p></td>
     </tr>
     </table>
 </form>

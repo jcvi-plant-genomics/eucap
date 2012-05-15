@@ -1,0 +1,35 @@
+<script type="text/javascript">
+    //// prettify all the buttons
+    $(function() {
+        $('.submitButton, .inputButton, .resetButton').button();
+    });
+</script>
+
+<form id="mutant_class_form" name="mutant_class_form" onsubmit="return mutant_class('<TMPL_IF NAME="mutant_class_id">save_mutant_class<TMPL_ELSE>add_mutant_class</TMPL_IF>', 'mutant_class_form');">
+    <input type="hidden" id="action" name="action" value="<TMPL_IF NAME="mutant_class_id">save_mutant_class<TMPL_ELSE>add_mutant_class</TMPL_IF>" />
+    <input type="hidden" id="user_id" name="user_id" value="<TMPL_VAR NAME="user_id">" />
+    <input type="hidden" id="mutant_class_id" name="mutant_class_id" value="<TMPL_VAR NAME="mutant_class_id">" />
+    <input type="hidden" id="save" name="save" value="1" />
+    <table class="contenttable">
+        <tr class="tableRowEven">
+            <td><p class="section"><TMPL_IF NAME="mutant_class_id">Edit<TMPL_ELSE>Add</TMPL_IF> Mutant Class</p></td>
+        </tr>
+        <tr class="tableRowEven">
+            <td class="mutant_class"><p>
+                <label for="mutant_class_symbol">Mutant Class Symbol &amp;</label>
+                <input type="text" size="6" id="mutant_class_symbol" name="mutant_class_symbol" value="<TMPL_VAR NAME="mutant_class_symbol">" class="italics" /><br />
+                <label for="mutant_class_name">Expansion: </label>
+                <textarea ROWS=1 id="mutant_class_name" name="mutant_class_name" class="italics"><TMPL_VAR NAME="mutant_class_name"></textarea>
+            </p></td>
+        </tr>
+    </table>
+    <br />
+    <table width="100%" border="0" cellpadding="20px">
+    <tr height="10px">
+        <td width="10%" align="center"><p><input type="submit" class="submitButton" value="<TMPL_IF NAME="mutant_class_id">Update<TMPL_ELSE>Add</TMPL_IF>" /></p></td>
+        <td width="10%" align="center"><p><input type="reset" class="resetButton" onclick="clear_status('mutant');"></p></td>
+        <td width="70%" align="left"><span id="mutant_save_status" name="mutant_save_status"></span></td>
+        <td width="10%" align="right"><p><input type="button" class="inputButton" value="Close" onclick="close_dialog_and_scroll('<TMPL_IF NAME="mutant_class_id">annotate_mutant_class<TMPL_ELSE>add_mutant_class_dialog</TMPL_IF>', 'mutant_class');" /></p></td>
+    </tr>
+    </table>
+</form>

@@ -71,7 +71,7 @@ label.error {
    opacity: 0.6;
 }
 
-/* override jquery UI (smoothness) */
+/* override jquery UI (smoothness)
 .ui-widget-content {
     border: 1px solid #aaaaaa;
 	background: #f5f5f5 url(../images/ui-bg_flat_75_f5f5f5_40x100.png) 50% 50% repeat-x;
@@ -84,4 +84,4 @@ label.error {
 	font-weight: normal;
 	color: #212121;
 }
-/* end override */
+end override */

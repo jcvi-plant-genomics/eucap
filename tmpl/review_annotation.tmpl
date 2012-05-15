@@ -1,3 +1,10 @@
+<script type="text/javascript">
+    //// prettify all the buttons
+    $(function() {
+        $('.submitButton, .inputButton, .resetButton').button();
+    });
+</script>
+
 <p class="header1">Review of Community Annotation For: <TMPL_VAR NAME="family_name"> Gene Family</p>
     <input type="hidden" id="family_name" name="family_name" value="<TMPL_VAR NAME="family_name">">
     <table class="contenttable" width="100%">
@@ -43,8 +50,8 @@
     <br />
     <table width="100%" border="0">
         <tr>
-        <td width="95%" align="right"><p><input type="button" id="submit_annot" name="submit_annot" value="Submit Annotation"></p></td>
-        <td width="5%" align="right"><p><input type="button" value="Close" onclick="close_dialog_and_scroll('review_annotation', undefined);" /></p></td>
+        <td width="95%" align="right"><p><input type="button" class="inputButton" id="submit_annot" name="submit_annot" value="Submit Annotation"></p></td>
+        <td width="5%" align="right"><p><input type="button" class="inputButton" value="Close" onclick="close_dialog_and_scroll('review_annotation', undefined);" /></p></td>
         </tr>
     </table>
 

@@ -1,6 +1,7 @@
 package CA::DBHelper;
 use strict;
 use Switch;
+use Data::Dumper;
 
 #Class::DBI (ORM) classes
 use CA::CDBI;
@@ -51,6 +52,7 @@ my %table_columns = (
     'alleles' =>
       [ 'mutant_id', 'allele_name', 'alt_allele_names', 'reference_lab', 'altered_phenotype' ],
     'structural_annot' => ['model'],
+    'structural_annot_edits' => ['model'],
     'users' => [ 'name', 'username', 'email', 'organization', 'url', 'photo_file_name' ],
     'family' => [ 'user_id', 'family_name', 'gene_class_symbol', 'description', 'source' ]
 );
@@ -150,30 +152,19 @@ sub selectall_iter {
 }
 
 sub selectall_id {
-    my ($table, $arg_ref) = @_;
-
-    my $Class = join '::', MODULE, $table;
-    my @orig_features = (defined $arg_ref) ? $Class->search_where(%{ $arg_ref }) : $Class->retrieve_all;
-
-    $Class = join '::', MODULE, "$table\_edits";
-    my @edited_features = (defined $arg_ref) ? $Class->search_where(%{ $arg_ref }) : $Class->retrieve_all;
-
-    my %all_features = ();
-    $all_features{ $_->get($primary_key{$table}) } = 1 foreach ((@orig_features, @edited_features));
-
-    return %all_features;
-}
-
-sub selectrow_hashref {
     my ($arg_ref) = @_;
 
-    #$arg_ref->{edits} = 1 if ($arg_ref->{table} =~ /edits/);
-    $arg_ref->{obj} = selectrow($arg_ref);
+    my $Class = join '::', MODULE, $arg_ref->{table};
+    my @orig_features = (defined $arg_ref->{where}) ? $Class->search_where(%{ $arg_ref->{where} }) : $Class->retrieve_all;
 
-    my $hashref = {};
-    $hashref = makerow_hashref($arg_ref) if (defined $arg_ref->{obj});
+    $Class = join '::', MODULE, "$arg_ref->{table}\_edits";
+    $arg_ref->{where}->{user_id} = $arg_ref->{user_id} if(defined $arg_ref->{user_id});
+    my @edited_features = (defined $arg_ref->{where}) ? $Class->search_where(%{ $arg_ref->{where} }) : $Class->retrieve_all;
 
-    return $hashref;
+    my %all_features = ();
+    $all_features{ $_->get($primary_key{$arg_ref->{table}}) } = 1 foreach ((@orig_features, @edited_features));
+
+    return %all_features;
 }
 
 sub selectrow {
@@ -187,6 +178,18 @@ sub selectrow {
       : $Class->retrieve($arg_ref->{primary_key});
 
     return $caObj;
+}
+
+sub selectrow_hashref {
+    my ($arg_ref) = @_;
+
+    #$arg_ref->{edits} = 1 if ($arg_ref->{table} =~ /edits/);
+    $arg_ref->{obj} = selectrow($arg_ref);
+
+    my $hashref = {};
+    $hashref = makerow_hashref($arg_ref) if (defined $arg_ref->{obj});
+
+    return $hashref;
 }
 
 sub selectmax_id {

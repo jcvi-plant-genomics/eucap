@@ -13,7 +13,7 @@
 -->
   <form name="back_to_annotation" method="post" action="/cgi-bin/medicago/eucap/eucap.pl">
     <input type="hidden" name="action" value="annotate">
-    <p><input type="submit" name="back" value="Back to Main Annotation Page"></p>
+    <p><input type="submit" class="submitButton" name="back" value="Back to Main Annotation Page"></p>
   </form>
 <p class="header1">Submit Annotation for <TMPL_VAR NAME="family_name"></p>
 
@@ -33,7 +33,7 @@
   <td><p><input type="radio" name="submit_query" value="no" checked="checked"></p></td>
 </tr>
 <tr>
-  <td colspan="4"><p><input type="submit" name="submit" value="Submit Final Annotation?"></p></td>
+  <td colspan="4"><p><input type="submit" class="submitButton" name="submit" value="Submit Final Annotation?"></p></td>
 </tr>
 </tbody>
 </table>

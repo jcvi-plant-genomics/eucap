@@ -1,0 +1,48 @@
+<script type="text/javascript">
+    //// prettify all the buttons
+    $(function() {
+        $('.submitButton, .inputButton, .resetButton').button();
+    });
+</script>
+
+<form id="add_mutant_class_form" name="add_mutant_class_form" onsubmit="return add_mutant_class('add_mutant_class_form');">
+    <input type="hidden" id="action" name="action" value="add_mutant_class" />
+    <input type="hidden" id="user_id" name="user_id" value="<TMPL_VAR NAME="user_id">" />
+    <input type="hidden" id="save" name="save" value="1" />
+    <table class="contenttable">
+        <tr class="tableRowEven">
+            <td><p class="section">Add Mutant Class</p></td>
+        </tr>
+        <tr class="tableRowEven">
+            <td class="mutant_class"><p>
+                <label for="mutant_class_symbol">Mutant Class Symbol &amp;</label>
+                <input type="text" size="6" id="mutant_class_symbol" name="mutant_class_symbol" value="" class="italics" /><br />
+                <label for="mutant_class_name">Expansion: </label>
+                <textarea ROWS=1 id="mutant_class_name" name="mutant_class_name" class="italics"></textarea>
+            </p></td>
+          </tr>
+    </table>
+    <br />
+    <table width="100%" border="0" cellpadding="20px">
+    <tr height="10px">
+        <td width="10%" align="center"><p><input type="submit" class="submitButton" value="Add" /></p></td>
+        <td width="10%" align="center"><p><input type="reset" class="resetButton" onclick="clear_status('mutant');"></p></td>
+        <td width="70%" align="left"><span id="mutant_save_status" name="mutant_save_status"></span></td>
+        <td width="10%" align="right"><p><input type="button" class="inputButton" value="Close" onclick="close_dialog_and_scroll('add_mutant_class_dialog', 'mutant_class');" /></p></td>
+    </tr>
+    </table>
+</form>
+
+<script type="text/javascript">
+    // Mutant info related tooltips
+    $('#mutant_class_symbol').qtip({
+        content: '<b style="color: red;">Required</b><br />Provide an abbreviated mutant symbol',
+        position: { my: 'bottom left', at: 'top center' }
+    });
+
+    $('#mutant_class_name').qtip({
+        content: '<b style="color: red;">Required</b><br />Provide an appropriate expansion for the abbreviated mutant symbol',
+        position: { my: 'bottom left', at: 'top center' }
+    });
+</script>
+

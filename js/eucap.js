@@ -1,21 +1,21 @@
 /* Functions used for structural annotation */
-function displayCoords(abs_end5,abs_end3,rel_end5, rel_end3) {
-    document.subfeature_coords.rel_end5.value = rel_end5;
-    document.subfeature_coords.rel_end3.value = rel_end3;
-    document.subfeature_coords.abs_end5.value = abs_end5;
-    document.subfeature_coords.abs_end3.value = abs_end3;
+function displayCoords(abs_end5, abs_end3, rel_end5, rel_end3) {
+    $('#subfeature_coords input[id=rel_end5]').val(rel_end5);
+    $('#subfeature_coords input[id=rel_end3]').val(rel_end3);
+    $('#subfeature_coords input[id=abs_end5]').val(abs_end5);
+    $('#subfeature_coords input[id=abs_end3]').val(abs_end3);
     return true;
 }
 
 function setCursor() {
-    var caimg = document.getElementById('ca_image');
-    caimg.style.cursor = "pointer";
+    var caimg = $('#ca_image');
+    caimg.css('cursor', 'pointer');
     return true;
 }
 
 function restoreCursor() {
-    var caimg = document.getElementById('ca_image');
-    caimg.style.cursor = "default";
+    var caimg = $('#ca_image');
+    caimg.css('cursor', 'default');
     return true;
 }
 
@@ -151,23 +151,24 @@ function createSubFeatJSON() {
 function update_model_json(action) {
     if(action === 'struct_anno') {
         var ca_model_json = createSubFeatJSON();
-        document.getElementById('model_json').value = ca_model_json;
+        $('#model_json').val(ca_model_json);
     }
-    $('#struct_anno_form input[name=action]').val(action);
-    //document.getElementById('action').value = 'struct_anno';
+    $('#struct_anno_form input[id=action]').val(action);
+    //$('#action').val('struct_anno');
     return true;
 }
 
 /* Annotation Template JS */
 function set_action(elem) {
-    var hidden = document.getElementById('action');
-    if (elem.value == "Update Profile"){
-        hidden.value = "update_profile";
-    } else if(elem.value == "Sign Up") {
-        hidden.value = "signup_user";
+    var hidden = $('#action');
+    if (elem.val() === 'Update Profile'){
+        hidden.val('update_profile');
+    } else if(elem.val() === 'Sign Up') {
+        hidden.val('signup_user');
     }
 }
 
+// set value of DOM element by element_id and form_id
 function set_value(id, value, form_id) {
     if(form_id === undefined) {
         $('#' + id).val(value);
@@ -176,96 +177,7 @@ function set_value(id, value, form_id) {
     }
 }
 
-function clear_textarea( textarea_id ){
-    var textarea =  document.getElementById( textarea_id );
-    textarea.value='';
-    return true;
-}
-
-function add_blast_loci() {
-    var locus_box = document.getElementById('locus_list');
-    var temp = locus_box.value;
-    var  selected_loci_array = new Array();
-    if ( document.annotate.add.length > 0 ){
-        for (var i = 0; i < document.annotate.add.length; i++){
-            if ( document.annotate.add[i].checked == true ){
-                selected_loci_array.push(document.annotate.add[i].value)
-            }
-        }
-        if (selected_loci_array.length == 0){return;}
-
-        var new_loci = '';
-        if (selected_loci_array.length == 1){
-            new_loci = selected_loci_array[0];
-        }
-        else{
-            new_loci = selected_loci_array.join("\n");
-        }
-        locus_box.value = temp+new_loci+"\n";
-        return;
-    }
-    else{
-
-        if ( document.annotate.add.checked == true){
-            locus_box.value = temp+document.annotate.add.value+"\n";
-        }
-    }
-}
-
-function hide_panel(input_elem, object) {
-    var panel_elem = document.getElementById('add_panel');
-    if ( panel_elem.style.display == 'block'){
-        panel_elem.style.display = 'none';
-        input_elem.value = 'Show Add ' + object + ' Panel';
-    }
-    else{
-        panel_elem.style.display = 'block';
-        input_elem.value = 'Hide Add ' + object + ' Panel';
-    }
-}
-
-function toggle_mutant_panel(input_elem, flag) {
-    var panel_elem = document.getElementById('mutant_panel');
-    if ( panel_elem.style.display == 'block'){
-        panel_elem.style.display = 'none';
-        if(flag == 0){
-            input_elem.value = 'Add';
-        }
-        else{
-            input_elem.value = 'View/Edit';
-        }
-    }
-    else{
-        panel_elem.style.display = 'block';
-        input_elem.value = 'Hide';
-    }
-
-}
-
-/* Select/Unselect check boxes */
-function set_checkbox(elem){
-    if(elem.value == "Select All") {
-        checkAll(document.annotate.toProcess);
-    }
-    else if(elem.value == "Unselect All") {
-        uncheckAll(document.annotate.toProcess);
-    }
-    else if(elem.value == "Select All Blast Hits") {
-        checkAll(document.blastForm.add);
-    }
-    else if(elem.value = "Clear Selected Blast Hits") {
-        uncheckAll(document.blastForm.add);
-    }
-}
-
-function checkAll(elem)
-{
-    for (i = 0; i < elem.length; i++)
-        elem[i].checked = true;
-}
-
-function uncheckAll(elem)
-{
-    for (i = 0; i < elem.length; i++)
-        elem[i].checked = false;
-}
+//// prettify all the buttons
+$(function() {
+    $('.submitButton, .inputButton, .resetButton').button();
+});

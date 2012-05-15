@@ -29,19 +29,21 @@ switch ($ENV{SERVER_NAME}) {
 my $side_menu = &get_side_links('Annotation');
 my $top_menu  = &get_top_menu();
 
-# Template files/Locations
+# Template files/Location
+my $one_column_fixed_width =
+  '/usr/local/common/web' . $ENV{'WEBTIER'} . '/templates/perl/1_column_fixed_width.tpl';
 my $two_column_fixed_width =
   '/usr/local/common/web' . $ENV{'WEBTIER'} . '/templates/perl/2_column_fixed_width.tpl';
 my $two_column_fluid_width =
   '/usr/local/common/web' . $ENV{'WEBTIER'} . '/templates/perl/2_column_fluid_width.tpl';
 my $home_page = '/cgi-bin/medicago/overview.cgi';
 
-my $jcvi_template = $two_column_fixed_width;
+my $jcvi_template = $one_column_fixed_width;
 my $title         = 'Medicago truncatula Genome Project :: Community Annotation';
 my $project_name  = 'Medicago truncatula Community Annotation Portal';
 my @breadcrumb    = ({ 'link' => $ENV{REQUEST_URI}, 'menu_name' => 'EuCAP' });
 my @stylesheets =
-  qw(https://ajax.googleapis.com/ajax/libs/jqueryui/1/themes/smoothness/jquery-ui.css /medicago/eucap/include/css/eucap.css /medicago/include/css/rounded_corners.css);
+  qw(/medicago/eucap/include/css/Aristo.css /medicago/eucap/include/css/eucap.css /medicago/include/css/rounded_corners.css);
 my @javascripts =
   qw(https://ajax.googleapis.com/ajax/libs/jquery/1/jquery.min.js http://ajax.googleapis.com/ajax/libs/jqueryui/1/jquery-ui.min.js /medicago/eucap/include/js/eucap.js /medicago/eucap/include/js/json.js /medicago/include/js/rounded_corners.js);
 my $left_content = '
@@ -58,15 +60,15 @@ my $left_content = '
 <br />
 <font>
     <span style="color: red;">Warning:</span>  This site uses <a href="http://en.wikipedia.org/wiki/Ajax_(programming)">AJAX</a>.
-    Please don&apos;t press ymy browser&apos;s back button!
+    Please don&apos;t press your browser&apos;s back button!
 </font>';
 
 my $jcvi_vars = {};
 $jcvi_vars->{site}         = $site;
 $jcvi_vars->{home_page}    = $home_page;
 $jcvi_vars->{project_name} = $project_name;
-$jcvi_vars->{side_menu}    = $side_menu;
-$jcvi_vars->{left_content} = $left_content;
+#$jcvi_vars->{side_menu}    = $side_menu;
+#$jcvi_vars->{left_content} = $left_content;
 $jcvi_vars->{stylesheets}  = \@stylesheets;
 $jcvi_vars->{javascripts}  = \@javascripts;
 $jcvi_vars->{breadcrumb}   = \@breadcrumb;
