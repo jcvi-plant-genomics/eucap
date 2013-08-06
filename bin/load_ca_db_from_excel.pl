@@ -61,23 +61,25 @@ while (<$fh>) {
     chomp;
     next if (/^Locus/);    #skip header line
     my (
-        $locus,               $gene_name,           $gene_description,
-        $alt_gene_name,       $genbank_genomic_acc, $genbank_cdna_acc,
-        $genbank_protein_acc, $mutant_info,         $comment
+        $gene_locus,     $gene_symbol,    $func_annotation,
+        $alt_gene_name,  $gb_genomic_acc, $gb_cdna_acc,
+        $gb_protein_acc, $mutant_info,    $reference_pub,  
+        $comment
     ) = split(/\t/);
+    
     my $original_annotation = get_original_annotation($locus);
-    my $new_locus_row       = CA::loci->insert(
+    my $new_locus_obj = do('insert', 'loci', 
         {
-            locus_name                => $locus,
-            original_annotation       => $original_annotation,
+            gene_locus                => $locus,
+            orig_func_annotation      => $original_annotation,
             user_id                   => $user_id,
             family_id                 => $family_id,
             gene_name                 => $gene_name || q{},
             gene_description          => $gene_description || q{},
             alt_gene_name             => $alt_gene_name || q{},
-            genbank_genomic_acc       => $genbank_genomic_acc || q{},
-            genbank_cdna_acc          => $genbank_cdna_acc || q{},
-            genbank_protein_acc       => $genbank_protein_acc || q{},
+            gb_genomic_acc            => $genbank_genomic_acc || q{},
+            gb_cdna_acc               => $genbank_cdna_acc || q{},
+            gb_protein_acc            => $genbank_protein_acc || q{},
             mutant_info               => $mutant_info || q{},
             comment                   => $comment || q{},
             has_structural_annotation => 0,
@@ -88,11 +90,11 @@ close($fh);
 
 sub get_original_annotation {
     my ($locus) = @_;
-    print "$locus\t";
-
+    
     #may have to change depending on your gff group name for the loci
-    my ($locus_feature_obj) = $gff_db->get_feature_by_name($locus);
-    my ($notes)             = $locus_feature_obj->notes;
-    print "$notes\n";
-    return $notes;
+    my ($locus_feature_obj) = $gff_db->get_features_by_name(-name => $locus, -type => 'gene');
+    my ($notes)             = $locus_feature_obj->notes if(defined $locus_feature_obj);
+    
+    warn "[debug] $locus\t$notes\n";
+    (defined $notes) ? return $notes : return "";
 }

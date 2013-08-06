@@ -4,7 +4,7 @@
 
 =item *
 
-C<installed into: /opt/www/medicago/cgi-bin/medicago/eucap/lib/5.10.1>
+C<installed into: /opt/www/medicago/cgi-bin/eucap/lib/5.10.1>
 
 =item *
 
@@ -26,7 +26,7 @@ C<EXE_FILES: >
 
 =item *
 
-C<installed into: /opt/www/medicago/cgi-bin/medicago/eucap/lib/5.10.1>
+C<installed into: /opt/www/medicago/cgi-bin/eucap/lib/5.10.1>
 
 =item *
 
@@ -48,7 +48,7 @@ C<EXE_FILES: >
 
 =item *
 
-C<installed into: /opt/www/medicago/cgi-bin/medicago/eucap/lib/5.10.1>
+C<installed into: /opt/www/medicago/cgi-bin/eucap/lib/5.10.1>
 
 =item *
 
@@ -70,7 +70,7 @@ C<EXE_FILES: >
 
 =item *
 
-C<installed into: /opt/www/medicago/cgi-bin/medicago/eucap/lib/5.10.1>
+C<installed into: /opt/www/medicago/cgi-bin/eucap/lib/5.10.1>
 
 =item *
 
@@ -92,7 +92,7 @@ C<EXE_FILES: >
 
 =item *
 
-C<installed into: /opt/www/medicago/cgi-bin/medicago/eucap/lib/5.10.1>
+C<installed into: /opt/www/medicago/cgi-bin/eucap/lib/5.10.1>
 
 =item *
 

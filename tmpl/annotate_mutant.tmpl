@@ -1,188 +1,384 @@
+<TMPL_IF NAME="annotate_mutant_loop">
+	<TMPL_LOOP NAME="annotate_mutant_loop">
+		<TMPL_IF NAME="is_mutant_edit"><p class="section">Edit <i><TMPL_VAR NAME="mutant_symbol"></i> Mutant <img class="edit_mutant_info" id="edit_mutant_info" style="vertical-align: super;" src="/eucap/include/images/info.png" /></p>
+		<form id="mutant_annotate" name="mutant_annotate" onsubmit="return save_mutant(<TMPL_VAR NAME="mutant_id">);">
+		<input type="hidden" id="action" name="action" value="save_mutant">
+		<input type="hidden" id="user_id" name="user_id" value="<TMPL_VAR NAME="user_id">">
+		</TMPL_IF>
+		      <table class="table table-condensed panel_background" width="100%">
+		            <TMPL_IF NAME="is_mutant_edit">
+		            <tr>
+		            <td colspan="3">
+		              <p align="right" id="mod_date" name="mod_date">Last Modified date: <b><TMPL_VAR NAME="mutant_mod_date"></b></p>
+		            </td>
+		            </tr>
+		            </TMPL_IF>
+		          <tr>
+		            <input type="hidden" id="mutant_id" name="mutant_id" value="<TMPL_VAR NAME="mutant_id">">
+		            <input type="hidden" id="mutant_mod_date" name="mutant_mod_date" value="<TMPL_VAR NAME="mutant_mod_date">">
+		            <td class="mutant_<TMPL_VAR NAME="mutant_id"><TMPL_IF NAME="mutant_symbol_edit"> tableRowEdit</TMPL_IF>"><p>
+		                <label for="mutant_symbol">Mutant Symbol: </label>
+		                <input type="text" id="mutant_symbol" name="mutant_symbol" value="<TMPL_IF NAME="is_mutant_edit"><TMPL_VAR NAME="mutant_symbol"><TMPL_ELSE><TMPL_IF NAME="mutant_symbol"><TMPL_VAR NAME="mutant_symbol"><TMPL_ELSE>Search mutants...</TMPL_IF></TMPL_IF>" onfocus="if(this.value == 'Search mutants...') this.value = '';" onblur="if(this.value == '') this.value = 'Search mutants...';" class="italics">&nbsp;<span width="16px" id="mutant_autocmp_status" name="mutant_autocmp_status"></span><br /><br />
+		            </p></td>
+
+		            <TMPL_UNLESS NAME="is_mutant_edit">
+		            <script type="text/javascript">
+		                $(function() {
+		                    $("#mutant_symbol").autocomplete({
+		                        source: "/cgi-bin/eucap/eucap.pl?action=get_mutant_info&edits=1&user_id=<TMPL_VAR NAME="user_id">",
+		                        delay: 200,
+		                        minLength: 1,
+		                        search: function(event, ui) {
+		                            clear_element('annotate_alleles');
+
+		                            if ($(this).val().length < 3) {
+		                                $('#mutant_id').val("");
+		                                $('#mutant_class_id').val("");
+		                                $('#mutant_phenotype').val("");
+		                                $('#mapping_data').val("");
+		                                $('#mutant_reference_lab').val("");
+		                                $('#mutant_reference_pub').importTags('');
+		                                $('#mutant_class_symbol').val("");
+		                                $('#mutant_class_name').val("");
+
+		                                $('#get_alleles').prop('disabled', true);
+		                            }
+		                            $('#mutant_autocmp_status').html('<img src="/eucap/include/images/loading.gif" />');
+		                        },
+		                        focus: function(event, ui) {
+		                            $('#mutant_phenotype').val(ui.item.phenotype);
+		                        },
+		                        select: function(event, ui) {
+		                            $('#mutant_id').val(ui.item.id);
+		                            $('#mapping_data').val(ui.item.mapping_data);
+		                            $('#mutant_reference_lab').val(ui.item.reference_lab);
+		                            $('#mutant_reference_pub').importTags(ui.item.reference_pub);
+
+		                            $('#mutant_class_id').val(ui.item.mutant_class_id);
+		                            $('#mutant_class_symbol').val(ui.item.mutant_class_symbol);
+		                            $('#mutant_class_name').val(ui.item.mutant_class_name);
+		                            $('#has_alleles').val(ui.item.has_alleles);
+
+		                            var has_alleles_val = "Edit";
+		                            if(ui.item.has_alleles == 0) {
+		                                has_alleles_val = "Add";
+		                            }
+
+		                            $('#disp_get_alleles').html(
+		                                '<input type="button" class="btn" id="get_alleles" name="get_alleles"'
+		                                + ' value="' + has_alleles_val
+		                                + '" onclick="perform_action(\'annotate_alleles\', \'mutant_id\', '
+		                                + ui.item.id + ')" />'
+		                            );
+		                            $('#get_alleles').prop('disabled', true);
+		                        },
+		                        change: function(event, ui) {
+		                            $('#mutant_autocmp_status').html("");
+		                            if($('#mutant_class_symbol').val().length === 0 && $(this).val().length >= 3 && $(this).val() !== 'Search mutants...') {
+		                                var class_symbol = $(this).val();
+		                                class_symbol = class_symbol.replace(/\d+$/g, '');
+		                                $('#mutant_class_symbol').val(class_symbol);
+
+		                                $('#mutant_id').val("");
+		                                $('#mapping_data').val("")
+		                                $('#mutant_reference_lab').val("");
+		                                $('#mutant_reference_pub').importTags('');
+
+		                                $('#mutant_class_id').val("");
+		                                $('#mutant_class_name').val("");
+		                                $('#has_alleles').val("");
+
+		                                $('#get_alleles').prop('disabled', true);
+		                            }
+		                        },
+		                        close: function(event, ui) {
+		                            $('#mutant_autocmp_status').html("");
+		                        }
+		                    });
+		                });
+
+		                $('#mutant_symbol').keyup(function() {
+		                    if($(this).val().length == 0 && $(this).val() !== 'Search mutants...') {
+		                        clear_element('annotate_alleles');
+
+		                        $('#mutant_autocmp_status').html("");
+		                        $('#mutant_id').val("");
+		                        $('#mutant_class_id').val("");
+		                        $('#mutant_phenotype').val("");
+		                        $('#mapping_data').val("");
+		                        $('#mutant_reference_lab').val("");
+		                        $('#mutant_reference_pub').importTags('');
+		                        $('#mutant_class_symbol').val("");
+		                        $('#mutant_class_name').val("");
+
+		                        $('#disp_get_alleles').html("No");
+		                    }
+		                });
+		        	</script>
+		        	</TMPL_UNLESS>
+
+		            <td class="mutant_<TMPL_VAR NAME="mutant_id"><TMPL_IF NAME="mutant_phenotype_edit"> tableRowEdit</TMPL_IF>"><p>
+		                <label for="mutant_phenotype">Mutant Phenotype: </label>
+		                <textarea ROWS=4 id="mutant_phenotype" name="mutant_phenotype" class="italics"><TMPL_IF NAME="mutant_phenotype"><TMPL_VAR NAME="mutant_phenotype"></TMPL_IF></textarea>
+		            </p></td>
+		          </tr>
+
+		          <tr>
+		            <td class="mutant_class_<TMPL_VAR NAME="mutant_class_id"><TMPL_IF NAME="mutant_class_symbol_edit"> tableRowEdit</TMPL_IF>"><p>
+		                <input type="hidden" id="mutant_class_id" name="mutant_class_id" value="<TMPL_VAR NAME="mutant_class_id">" />
+		                <label for="mutant_class_symbol">Mutant Class Symbol &amp;</label>
+		                <input readonly="readonly" type="text" size="6" id="mutant_class_symbol" name="mutant_class_symbol" value="<TMPL_IF NAME="mutant_class_symbol"><TMPL_VAR NAME="mutant_class_symbol"></TMPL_IF>" class="italics" /><br />
+		                <label for="mutant_class_name">Expansion: </label>
+		                <textarea ROWS=1 id="mutant_class_name" name="mutant_class_name" class="italics"><TMPL_IF NAME="mutant_class_name"><TMPL_VAR NAME="mutant_class_name"></TMPL_IF></textarea>
+		            </p></td>
+
+		            <td class="mutant_<TMPL_VAR NAME="mutant_id"><TMPL_IF NAME="genetic_bg_edit"> tableRowEdit</TMPL_IF>"><p>
+		                <label for="genetic_bg">Genetic Background: </label>
+		                <textarea id="genetic_bg" name="genetic_bg"><TMPL_IF NAME="genetic_bg"><TMPL_VAR NAME="genetic_bg"></TMPL_IF></textarea>
+		            </p></td>
+		          </tr>
+
+		          <tr>
+		            <td class="mutant_<TMPL_VAR NAME="mutant_id"><TMPL_IF NAME="mapping_data_edit"> tableRowEdit</TMPL_IF>"><p>
+		                <label for="mapping_data">Mapping Data: </label>
+		                <textarea id="mapping_data" name="mapping_data"><TMPL_IF NAME="mapping_data"><TMPL_VAR NAME="mapping_data"></TMPL_IF></textarea>
+		            </p></td>
+
+		            <td class="mutant_<TMPL_VAR NAME="mutant_id"><TMPL_IF NAME="has_alleles_edit"> tableRowEdit</TMPL_IF>"><p>
+		                <label for="alleles">Has Alleles?</label>
+		                <input type="hidden" id="has_alleles" name="has_alleles" value="<TMPL_VAR NAME="has_alleles">">
+		                <span id="disp_get_alleles" name="disp_get_alleles">
+		                    <TMPL_IF NAME="mutant_id">
+		                    <input type="button" class="btn" id="get_alleles" name="get_alleles" value="<TMPL_IF NAME="has_alleles">Edit<TMPL_ELSE>Add</TMPL_IF>" onclick="perform_action('annotate_alleles', 'mutant_id', <TMPL_VAR NAME="mutant_id">);">
+		                    <TMPL_ELSE>
+		                    No
+		                    </TMPL_IF>
+		                </span>
+		            </p></td>
+		          </tr>
+
+		          <tr>
+		            <td class="mutant_<TMPL_VAR NAME="mutant_id"><TMPL_IF NAME="mutant_reference_lab_edit"> tableRowEdit</TMPL_IF>"><p>
+		                <label for="mutant_reference_lab">Reference Lab: </label>
+		                <textarea ROWS=2 id="mutant_reference_lab" name="mutant_reference_lab"><TMPL_IF NAME="mutant_reference_lab"><TMPL_VAR NAME="mutant_reference_lab"></TMPL_IF></textarea>
+		            </p></td>
+
+		            <td class="mutant_<TMPL_VAR NAME="mutant_id"><TMPL_IF NAME="mutant_reference_pub_edit"> tableRowEdit</TMPL_IF>"><p>
+		                <label for="mutant_reference_pub">Reference Publication(s): </label>
+		                <textarea ROWS=2 id="mutant_reference_pub" name="mutant_reference_pub"><TMPL_IF NAME="mutant_reference_pub"><TMPL_VAR NAME="mutant_reference_pub"></TMPL_IF></textarea>
+		            </p></td>
+		          </tr>
+		      </table>
+		<TMPL_IF NAME="is_mutant_edit">
+		    <br />
+		    <table width="100%" border="0" cellpadding="20px">
+		    <tr height="10px">
+		        <td width="10%" align="center"><p><input type="submit" class="btn btn-primary" value="Save Annotation" /></p></td>
+		        <td width="10%" align="center"><p><input type="reset" class="btn" onclick="clear_status('mutant', undefined);"></p></td>
+		        <td width="70%" align="left"><span id="mutant_save_status" name="mutant_save_status"></span></td>
+		        <td width="10%" align="right"><p><input type="button" class="btn" value="Close" onclick="close_panel_and_scroll('annotate_mutant', 'mutant_table');" /></p></td>
+		    </tr>
+		    </table>
+		</form>
+		</TMPL_IF>
+	</TMPL_LOOP>
+<TMPL_ELSE>
+	<TMPL_IF NAME="is_mutant_edit"><p class="section">Edit <i><TMPL_VAR NAME="mutant_symbol"></i> Mutant <img class="edit_mutant_info" id="edit_mutant_info" style="vertical-align: super;" src="/eucap/include/images/info.png" /></p>
+	<form id="mutant_annotate" name="mutant_annotate" onsubmit="return save_mutant(<TMPL_VAR NAME="mutant_id">);">
+	<input type="hidden" id="action" name="action" value="save_mutant">
+	<input type="hidden" id="user_id" name="user_id" value="<TMPL_VAR NAME="user_id">">
+	</TMPL_IF>
+	      <table class="table" width="100%">
+	            <TMPL_IF NAME="is_mutant_edit">
+	            <tr>
+	            <td align="right" colspan="3">
+	              <p id="mod_date" name="mod_date">Last Modified date: <b><TMPL_VAR NAME="mutant_mod_date"></b></p>
+	            </td>
+	            </tr>
+	            </TMPL_IF>
+	          <tr>
+	            <input type="hidden" id="mutant_id" name="mutant_id" value="<TMPL_VAR NAME="mutant_id">">
+	            <input type="hidden" id="mutant_mod_date" name="mutant_mod_date" value="<TMPL_VAR NAME="mutant_mod_date">">
+	            <td class="mutant_<TMPL_VAR NAME="mutant_id"><TMPL_IF NAME="mutant_symbol_edit"> tableRowEdit</TMPL_IF>"><p>
+	                <label for="mutant_symbol">Mutant Symbol: </label>
+	                <input type="text" id="mutant_symbol" name="mutant_symbol" value="<TMPL_IF NAME="is_mutant_edit"><TMPL_VAR NAME="mutant_symbol"><TMPL_ELSE><TMPL_IF NAME="mutant_symbol"><TMPL_VAR NAME="mutant_symbol"><TMPL_ELSE>Search mutants...</TMPL_IF></TMPL_IF>" onfocus="if(this.value == 'Search mutants...') this.value = '';" onblur="if(this.value == '') this.value = 'Search mutants...';" class="italics">&nbsp;<span width="16px" id="mutant_autocmp_status" name="mutant_autocmp_status"></span><br /><br />
+	            </p></td>
+
+	            <TMPL_UNLESS NAME="is_mutant_edit">
+	            <script type="text/javascript">
+	                $(function() {
+	                    $("#mutant_symbol").autocomplete({
+	                        source: "/cgi-bin/eucap/eucap.pl?action=get_mutant_info&edits=1&user_id=<TMPL_VAR NAME="user_id">",
+	                        delay: 200,
+	                        minLength: 1,
+	                        search: function(event, ui) {
+	                            clear_element('annotate_alleles');
+
+	                            if ($(this).val().length < 3) {
+	                                $('#mutant_id').val("");
+	                                $('#mutant_class_id').val("");
+	                                $('#mutant_phenotype').val("");
+	                                $('#mapping_data').val("");
+	                                $('#mutant_reference_lab').val("");
+	                                $('#mutant_reference_pub').importTags('');
+	                                $('#mutant_class_symbol').val("");
+	                                $('#mutant_class_name').val("");
+
+	                                $('#get_alleles').prop('disabled', true);
+	                            }
+	                            $('#mutant_autocmp_status').html('<img src="/eucap/include/images/loading.gif" />');
+	                        },
+	                        focus: function(event, ui) {
+	                            $('#mutant_phenotype').val(ui.item.phenotype);
+	                        },
+	                        select: function(event, ui) {
+	                            $('#mutant_id').val(ui.item.id);
+	                            $('#mapping_data').val(ui.item.mapping_data);
+	                            $('#mutant_reference_lab').val(ui.item.reference_lab);
+	                            $('#mutant_reference_pub').importTags(ui.item.reference_pub);
+
+	                            $('#mutant_class_id').val(ui.item.mutant_class_id);
+	                            $('#mutant_class_symbol').val(ui.item.mutant_class_symbol);
+	                            $('#mutant_class_name').val(ui.item.mutant_class_name);
+	                            $('#has_alleles').val(ui.item.has_alleles);
+
+	                            var has_alleles_val = "Edit";
+	                            if(ui.item.has_alleles == 0) {
+	                                has_alleles_val = "Add";
+	                            }
+
+	                            $('#disp_get_alleles').html(
+	                                '<input type="button" class="btn" id="get_alleles" name="get_alleles"'
+	                                + ' value="' + has_alleles_val
+	                                + '" onclick="perform_action(\'annotate_alleles\', \'mutant_id\', '
+	                                + ui.item.id + ')" />'
+	                            );
+	                            $('#get_alleles').prop('disabled', true);
+	                        },
+	                        change: function(event, ui) {
+	                            $('#mutant_autocmp_status').html("");
+	                            if($('#mutant_class_symbol').val().length === 0 && $(this).val().length >= 3 && $(this).val() !== 'Search mutants...') {
+	                                var class_symbol = $(this).val();
+	                                class_symbol = class_symbol.replace(/\d+$/g, '');
+	                                $('#mutant_class_symbol').val(class_symbol);
+
+	                                $('#mutant_id').val("");
+	                                $('#mapping_data').val("")
+	                                $('#mutant_reference_lab').val("");
+	                                $('#mutant_reference_pub').importTags('');
+
+	                                $('#mutant_class_id').val("");
+	                                $('#mutant_class_name').val("");
+	                                $('#has_alleles').val("");
+
+	                                $('#get_alleles').prop('disabled', true);
+	                            }
+	                        },
+	                        close: function(event, ui) {
+	                            $('#mutant_autocmp_status').html("");
+	                        }
+	                    });
+	                });
+
+	                $('#mutant_symbol').keyup(function() {
+	                    if($(this).val().length == 0 && $(this).val() !== 'Search mutants...') {
+	                        clear_element('annotate_alleles');
+
+	                        $('#mutant_autocmp_status').html("");
+	                        $('#mutant_id').val("");
+	                        $('#mutant_class_id').val("");
+	                        $('#mutant_phenotype').val("");
+	                        $('#mapping_data').val("");
+	                        $('#mutant_reference_lab').val("");
+	                        $('#mutant_reference_pub').importTags('');
+	                        $('#mutant_class_symbol').val("");
+	                        $('#mutant_class_name').val("");
+
+	                        $('#disp_get_alleles').html("No");
+	                    }
+	                });
+	        	</script>
+	        	</TMPL_UNLESS>
+
+	            <td class="mutant_<TMPL_VAR NAME="mutant_id"><TMPL_IF NAME="mutant_phenotype_edit"> tableRowEdit</TMPL_IF>"><p>
+	                <label for="mutant_phenotype">Mutant Phenotype: </label>
+	                <textarea ROWS=4 id="mutant_phenotype" name="mutant_phenotype" class="italics"><TMPL_IF NAME="mutant_phenotype"><TMPL_VAR NAME="mutant_phenotype"></TMPL_IF></textarea>
+	            </p></td>
+	          </tr>
+
+	          <tr>
+	            <td class="mutant_class_<TMPL_VAR NAME="mutant_class_id"><TMPL_IF NAME="mutant_class_symbol_edit"> tableRowEdit</TMPL_IF>"><p>
+	                <input type="hidden" id="mutant_class_id" name="mutant_class_id" value="<TMPL_VAR NAME="mutant_class_id">" />
+	                <label for="mutant_class_symbol">Mutant Class Symbol &amp;</label>
+	                <input readonly="readonly" type="text" size="6" id="mutant_class_symbol" name="mutant_class_symbol" value="<TMPL_IF NAME="mutant_class_symbol"><TMPL_VAR NAME="mutant_class_symbol"></TMPL_IF>" class="italics" /><br />
+	                <label for="mutant_class_name">Expansion: </label>
+	                <textarea ROWS=1 id="mutant_class_name" name="mutant_class_name" class="italics"><TMPL_IF NAME="mutant_class_name"><TMPL_VAR NAME="mutant_class_name"></TMPL_IF></textarea>
+	            </p></td>
+
+	            <td class="mutant_<TMPL_VAR NAME="mutant_id"><TMPL_IF NAME="genetic_bg_edit"> tableRowEdit</TMPL_IF>"><p>
+	                <label for="genetic_bg">Genetic Background: </label>
+	                <textarea id="genetic_bg" name="genetic_bg"><TMPL_IF NAME="genetic_bg"><TMPL_VAR NAME="genetic_bg"></TMPL_IF></textarea>
+	            </p></td>
+	          </tr>
+
+	          <tr>
+	            <td class="mutant_<TMPL_VAR NAME="mutant_id"><TMPL_IF NAME="mapping_data_edit"> tableRowEdit</TMPL_IF>"><p>
+	                <label for="mapping_data">Mapping Data: </label>
+	                <textarea id="mapping_data" name="mapping_data"><TMPL_IF NAME="mapping_data"><TMPL_VAR NAME="mapping_data"></TMPL_IF></textarea>
+	            </p></td>
+
+	            <td class="mutant_<TMPL_VAR NAME="mutant_id"><TMPL_IF NAME="has_alleles_edit"> tableRowEdit</TMPL_IF>"><p>
+	                <label for="alleles">Has Alleles?</label>
+	                <input type="hidden" id="has_alleles" name="has_alleles" value="<TMPL_VAR NAME="has_alleles">">
+	                <span id="disp_get_alleles" name="disp_get_alleles">
+	                    <TMPL_IF NAME="mutant_id">
+	                    <input type="button" class="btn" id="get_alleles" name="get_alleles" value="<TMPL_IF NAME="has_alleles">Edit<TMPL_ELSE>Add</TMPL_IF>" onclick="perform_action('annotate_alleles', 'mutant_id', <TMPL_VAR NAME="mutant_id">);">
+	                    <TMPL_ELSE>
+	                    No
+	                    </TMPL_IF>
+	                </span>
+	            </p></td>
+	          </tr>
+
+	          <tr>
+	            <td class="mutant_<TMPL_VAR NAME="mutant_id"><TMPL_IF NAME="mutant_reference_lab_edit"> tableRowEdit</TMPL_IF>"><p>
+	                <label for="mutant_reference_lab">Reference Lab: </label>
+	                <textarea ROWS=2 id="mutant_reference_lab" name="mutant_reference_lab"><TMPL_IF NAME="mutant_reference_lab"><TMPL_VAR NAME="mutant_reference_lab"></TMPL_IF></textarea>
+	            </p></td>
+
+	            <td class="mutant_<TMPL_VAR NAME="mutant_id"><TMPL_IF NAME="mutant_reference_pub_edit"> tableRowEdit</TMPL_IF>"><p>
+	                <label for="mutant_reference_pub">Reference Publication(s): </label>
+	                <textarea ROWS=2 id="mutant_reference_pub" name="mutant_reference_pub"><TMPL_IF NAME="mutant_reference_pub"><TMPL_VAR NAME="mutant_reference_pub"></TMPL_IF></textarea>
+	            </p></td>
+	          </tr>
+	      </table>
+	<TMPL_IF NAME="is_mutant_edit">
+	    <br />
+	    <table width="100%" border="0" cellpadding="20px">
+	    <tr height="10px">
+	        <td width="10%" align="center"><p><input type="submit" class="btn btn-primary" value="Save Annotation" /></p></td>
+	        <td width="10%" align="center"><p><input type="reset" class="btn" onclick="clear_status('mutant', undefined);"></p></td>
+	        <td width="70%" align="left"><span id="mutant_save_status" name="mutant_save_status"></span></td>
+	        <td width="10%" align="right"><p><input type="button" class="btn" value="Close" onclick="close_panel_and_scroll('annotate_mutant', 'mutant_table');" /></p></td>
+	    </tr>
+	    </table>
+	</form>
+	</TMPL_IF>
+</TMPL_IF>
+
 <script type="text/javascript">
-    //// prettify all the buttons
-    $(function() {
-        $('.submitButton, .inputButton, .resetButton').button();
-    });
-</script>
+    $( document ).ready(function() {
+        // autocomplete reference_pub from TextPressoDB
+        $('#mutant_reference_pub').tagsInput({
+            autocomplete_url: '/cgi-bin/eucap/eucap.pl?action=get_pmids',
+            minChars: 3,
+            delimiter: ';',
+            defaultText: '',
+            onChange: function() {
+                markup_pmids('mutant');
+            }
+        });
 
-<TMPL_IF NAME="is_mutant_edit"><p class="section">Edit <i><TMPL_VAR NAME="mutant_symbol"></i> Mutant <img id="edit_mutant_info" style="vertical-align: super;" src="/medicago/eucap/include/images/info.png" /></p>
-<form id="mutant_annotate" name="mutant_annotate" onsubmit="return save_mutant(<TMPL_VAR NAME="mutant_id">);">
-<input type="hidden" id="action" name="action" value="save_mutant">
-<input type="hidden" id="user_id" name="user_id" value="<TMPL_VAR NAME="user_id">">
-</TMPL_IF>
-      <table class="contenttable" width="100%">
-            <TMPL_IF NAME="is_mutant_edit">
-            <tr>
-            <td align="right" colspan="3">
-              <p id="mod_date" name="mod_date">Last Modified date: <b><TMPL_VAR NAME="mutant_mod_date"></b></p>
-            </td>
-            </tr>
-            </TMPL_IF>
-          <tr class="tableRowEven">
-            <input type="hidden" id="mutant_id" name="mutant_id" value="<TMPL_VAR NAME="mutant_id">">
-            <input type="hidden" id="mutant_mod_date" name="mutant_mod_date" value="<TMPL_VAR NAME="mutant_mod_date">">
-            <td class="mutant_<TMPL_VAR NAME="mutant_id"><TMPL_IF NAME="mutant_symbol_edit"> tableRowEdit</TMPL_IF>"><p>
-                <label for="mutant_symbol">Mutant Symbol: </label>
-                <input type="text" id="mutant_symbol" name="mutant_symbol" value="<TMPL_IF NAME="is_mutant_edit"><TMPL_VAR NAME="mutant_symbol"><TMPL_ELSE><TMPL_IF NAME="mutant_symbol"><TMPL_VAR NAME="mutant_symbol"><TMPL_ELSE>Search mutants...</TMPL_IF></TMPL_IF>" onfocus="if(this.value == 'Search mutants...') this.value = '';" onblur="if(this.value == '') this.value = 'Search mutants...';" class="italics">&nbsp;<span width="16px" id="mutant_autocmp_status" name="mutant_autocmp_status"></span><br /><br />
-            </p></td>
-
-            <TMPL_UNLESS NAME="is_mutant_edit">
-            <script type="text/javascript">
-                $(function() {
-                    $("#mutant_symbol").autocomplete({
-                        source: "/cgi-bin/medicago/eucap/eucap.pl?action=get_mutant_info&edits=1&user_id=<TMPL_VAR NAME="user_id">",
-                        delay: 200,
-                        minLength: 1,
-                        search: function(event, ui) {
-                            clear_element('annotate_alleles');
-
-                            if ($(this).val().length < 3) {
-                                $('#mutant_id').val("");
-                                $('#mutant_class_id').val("");
-                                $('#mutant_phenotype').val("");
-                                $('#mapping_data').val("");
-                                $('#mutant_reference_lab').val("");
-                                $('#mutant_reference_pub').val("");
-                                $('#mutant_class_symbol').val("");
-                                $('#mutant_class_name').val("");
-
-                                $('#get_alleles').prop('disabled', true);
-                            }
-                            //$(this).val( $(this).val().toUpperCase() );
-                            $('#mutant_autocmp_status').html('<img src="/medicago/eucap/include/images/loading.gif" />');
-                        },
-                        focus: function(event, ui) {
-                            $('#mutant_phenotype').val(ui.item.phenotype);
-                        },
-                        select: function(event, ui) {
-                            $('#mutant_id').val(ui.item.id);
-                            $('#mapping_data').val(ui.item.mapping_data);
-                            $('#mutant_reference_lab').val(ui.item.reference_lab);
-                            $('#mutant_reference_pub').val(ui.item.reference_pub);
-
-                            $('#mutant_class_id').val(ui.item.mutant_class_id);
-                            $('#mutant_class_symbol').val(ui.item.mutant_class_symbol);
-                            $('#mutant_class_name').val(ui.item.mutant_class_name);
-                            $('#has_alleles').val(ui.item.has_alleles);
-
-                            var has_alleles_val = "Edit";
-                            if(ui.item.has_alleles == 0) {
-                                has_alleles_val = "Add";
-                            }
-
-                            $('#disp_get_alleles').html(
-                                '<input type="button" class="inputButton" id="get_alleles" name="get_alleles"'
-                                + ' value="' + has_alleles_val
-                                + '" onclick="perform_action(\'annotate_alleles\', \'mutant_id\', '
-                                + ui.item.id + ')" />'
-                            );
-                            $('#get_alleles').prop('disabled', true);
-                        },
-                        change: function(event, ui) {
-                            $('#mutant_autocmp_status').html("");
-                            if($('#mutant_class_symbol').val().length === 0 && $(this).val().length >= 3 && $(this).val() !== 'Search mutants...') {
-                                var class_symbol = $(this).val();
-                                class_symbol = class_symbol.replace(/\d+$/g, '');
-                                $('#mutant_class_symbol').val(class_symbol);
-
-                                $('#mutant_id').val("");
-                                $('#mapping_data').val("")
-                                $('#mutant_reference_lab').val("");
-                                $('#mutant_reference_pub').val("");
-
-                                $('#mutant_class_id').val("");
-                                $('#mutant_class_name').val("");
-                                $('#has_alleles').val("");
-
-                                $('#get_alleles').prop('disabled', true);
-                            }
-                        },
-                        close: function(event, ui) {
-                            $('#mutant_autocmp_status').html("");
-                        }
-                    });
-                });
-
-                $('#mutant_symbol').keyup(function() {
-                    if($(this).val().length == 0 && $(this).val() !== 'Search mutants...') {
-                        clear_element('annotate_alleles');
-
-                        $('#mutant_autocmp_status').html("");
-                        $('#mutant_id').val("");
-                        $('#mutant_class_id').val("");
-                        $('#mutant_phenotype').val("");
-                        $('#mapping_data').val("");
-                        $('#mutant_reference_lab').val("");
-                        $('#mutant_reference_pub').val("");
-                        $('#mutant_class_symbol').val("");
-                        $('#mutant_class_name').val("");
-
-                        $('#disp_get_alleles').html("No");
-                    }
-                });
-        </script>
-        </TMPL_UNLESS>
-
-            <td rowspan=2 class="mutant_<TMPL_VAR NAME="mutant_id"><TMPL_IF NAME="mutant_phenotype_edit"> tableRowEdit</TMPL_IF>"><p>
-                <label for="mutant_phenotype">Mutant Phenotype: </label>
-                <textarea ROWS=4 id="mutant_phenotype" name="mutant_phenotype" class="italics"><TMPL_IF NAME="mutant_phenotype"><TMPL_VAR NAME="mutant_phenotype"></TMPL_IF></textarea>
-            </p></td>
-          </tr>
-
-          <tr class="tableRowEven">
-            <td class="mutant_class_<TMPL_VAR NAME="mutant_class_id"><TMPL_IF NAME="mutant_class_symbol_edit"> tableRowEdit</TMPL_IF>"><p>
-                <input type="hidden" id="mutant_class_id" name="mutant_class_id" value="<TMPL_VAR NAME="mutant_class_id">" />
-                <label for="mutant_class_symbol">Mutant Class Symbol &amp;</label>
-                <input readonly="readonly" type="text" size="6" id="mutant_class_symbol" name="mutant_class_symbol" value="<TMPL_IF NAME="mutant_class_symbol"><TMPL_VAR NAME="mutant_class_symbol"></TMPL_IF>" class="italics" /><br />
-                <label for="mutant_class_name">Expansion: </label>
-                <textarea ROWS=1 id="mutant_class_name" name="mutant_class_name" class="italics"><TMPL_IF NAME="mutant_class_name"><TMPL_VAR NAME="mutant_class_name"></TMPL_IF></textarea>
-            </p></td>
-          </tr>
-
-          <tr class="tableRowEven">
-            <td class="mutant_<TMPL_VAR NAME="mutant_id"><TMPL_IF NAME="mapping_data_edit"> tableRowEdit</TMPL_IF>"><p>
-                <label for="mapping_data">Mapping Data: </label>
-                <textarea id="mapping_data" name="mapping_data"><TMPL_IF NAME="mapping_data"><TMPL_VAR NAME="mapping_data"></TMPL_IF></textarea>
-            </p></td>
-
-            <td class="mutant_<TMPL_VAR NAME="mutant_id"><TMPL_IF NAME="has_alleles_edit"> tableRowEdit</TMPL_IF>"><p>
-                <label for="alleles">Has Alleles?</label>
-                <input type="hidden" id="has_alleles" name="has_alleles" value="<TMPL_VAR NAME="has_alleles">">
-                <span id="disp_get_alleles" name="disp_get_alleles">
-                    <TMPL_IF NAME="mutant_id">
-                    <input type="button" class="inputButton" id="get_alleles" name="get_alleles" value="<TMPL_IF NAME="has_alleles">Edit<TMPL_ELSE>Add</TMPL_IF>" onclick="perform_action('annotate_alleles', 'mutant_id', <TMPL_VAR NAME="mutant_id">);">
-                    <TMPL_ELSE>
-                    No
-                    </TMPL_IF>
-                </span>
-            </p></td>
-          </tr>
-
-          <tr class="tableRowEven">
-            <td class="mutant_<TMPL_VAR NAME="mutant_id"><TMPL_IF NAME="mutant_reference_lab_edit"> tableRowEdit</TMPL_IF>"><p>
-                <label for="mutant_reference_lab">Reference Lab: </label>
-                <textarea ROWS=2 id="mutant_reference_lab" name="mutant_reference_lab"><TMPL_IF NAME="mutant_reference_lab"><TMPL_VAR NAME="mutant_reference_lab"></TMPL_IF></textarea>
-            </p></td>
-
-            <td class="mutant_<TMPL_VAR NAME="mutant_id"><TMPL_IF NAME="mutant_reference_pub_edit"> tableRowEdit</TMPL_IF>"><p>
-                <label for="mutant_reference_pub">Reference Publication: </label>
-                <textarea ROWS=2 id="mutant_reference_pub" name="mutant_reference_pub"><TMPL_IF NAME="mutant_reference_pub"><TMPL_VAR NAME="mutant_reference_pub"></TMPL_IF></textarea>
-            </p></td>
-          </tr>
-      </table>
-<TMPL_IF NAME="is_mutant_edit">
-    <br />
-    <table width="100%" border="0" cellpadding="20px">
-    <tr height="10px">
-        <td width="10%" align="center"><p><input type="submit" class="submitButton" value="Save Annotation" /></p></td>
-        <td width="10%" align="center"><p><input type="reset" class="resetButton" onclick="clear_status('mutant');"></p></td>
-        <td width="70%" align="left"><span id="mutant_save_status" name="mutant_save_status"></span></td>
-        <td width="10%" align="right"><p><input type="button" class="inputButton" value="Close" onclick="close_panel_and_scroll('annotate_mutant', 'mutant_table');" /></p></td>
-    </tr>
-    </table>
-</form>
-</TMPL_IF>
-    <script type="text/javascript">
         // Mutant info related tooltips
         $('#edit_mutant_info').qtip({
             content: 'Required fields:<br />' +
@@ -195,20 +391,21 @@
                 text: '<b style="color: red;">Required</b><br />' +
                 'Provide a mutant symbol<br /><br />' +
                 'Refer to summary of <br />' +
-                '<a href="/cgi-bin/medicago/annotation.cgi?page=mutant_nomenclature" target="_blank">Mutant Nomenclature Rules</a> ' +
-                '<img style="vertical-align: middle;" src="/medicago/include/images/external_link.gif" />',
+                '<a href="/cgi-bin/medicago-v35/annotation.cgi?page=mutant_nomenclature" target="_blank">Mutant Nomenclature Rules</a> ' +
+                '<img style="vertical-align: middle;" src="/medicago-v35/include/images/external_link.gif" />',
             },
-            position: { my: 'bottom left', at: 'top center' }
+            position: { my: 'left center', at: 'right center' },
+            show: 'focus', hide: 'blur',
             <TMPL_ELSE>
             content: {
                 text: '<b style="color: red;">Required</b><br />Search for a mutant symbol in our database of known mutants.<br /><br />' +
-                'Refer to the <a href="/cgi-bin/medicago/annotation.cgi?page=mutant_info" target="_blank">Mutant List</a> page ' +
-                '<img style="vertical-align: middle;" src="/medicago/include/images/external_link.gif" /> and also a<br />' +
-                'summary of <a href="/cgi-bin/medicago/annotation.cgi?page=mutant_nomenclature" target="_blank">Mutant Nomenclature Rules</a> ' +
-                '<img style="vertical-align: middle;" src="/medicago/include/images/external_link.gif" />',
+                'Refer to the <a href="/cgi-bin/medicago-v35/annotation.cgi?page=mutant_info" target="_blank">Mutant List</a> page ' +
+                '<img style="vertical-align: middle;" src="/medicago-v35/include/images/external_link.gif" /> and also a<br />' +
+                'summary of <a href="/cgi-bin/medicago-v35/annotation.cgi?page=mutant_nomenclature" target="_blank">Mutant Nomenclature Rules</a> ' +
+                '<img style="vertical-align: middle;" src="/medicago-v35/include/images/external_link.gif" />',
                 title: { text: 'Search mutants', button: true }
             },
-            position: { my: 'bottom left', at: 'top center' },
+            position: { my: 'left center', at: 'right center' },
             hide: {
                 target: $('input[type=submit]')
             }
@@ -216,25 +413,38 @@
         });
         $('#mutant_class_name').qtip({
             content: '<b style="color: red;">Required</b><br />Provide an appropriate expansion for the abbreviated mutant symbol',
-            position: { my: 'bottom left', at: 'top center' }
+            position: { my: 'left center', at: 'right center' },
+            show: 'focus', hide: 'blur',
         });
         $('#mutant_phenotype').qtip({
             content: '<b style="color: red;">Required</b><br />Verbose description of the mutant phenotype',
-            position: { my: 'bottom left', at: 'top center' }
+            position: { my: 'left center', at: 'right center' },
+            show: 'focus', hide: 'blur',
         });
         $('#mapping_data').qtip({
             content: '<b style="color: green;">Optional</b><br />If available, please summarize what is known about the chromosomal ' +
             'location of the gene, and results of any allelism tests performed',
-            position: { my: 'bottom left', at: 'top center' }
+            position: { my: 'left center', at: 'right center' },
+            show: 'focus', hide: 'blur',
         });
-        $('#mutant_reference_pub').qtip({
-            content: '<b style="color: red;">Required</b><br />Please indicated any publications on web sites.<br />If work is not ' +
+        $('#genetic_bg').qtip({
+            content: '<b style="color: green;">Optional</b><br />If known, please specify the genetic background<br /><br />' +
+            'e.g. A17 or R108, etc.',
+            position: { my: 'left center', at: 'right center' },
+            show: 'focus', hide: 'blur',
+        });
+        $('#mutant_reference_pub_tagsinput').qtip({
+            content: '<b style="color: red;">Required</b><br />Please indicated any publications (PMIDs).<br />If work is not ' +
             'published yet, please input <br /> "In Progress" or "In Press".<br /><br />' +
             'If there are multiple references, list them with a ";" separator',
-            position: { my: 'bottom left', at: 'top center' }
+            position: { my: 'left center', at: 'right center' },
         });
         $('#mutant_reference_lab').qtip({
             content: '<b style="color: green;">Optional</b><br />Name of lab where mutant was characterized',
-            position: { my: 'bottom left', at: 'top center' }
+            position: { my: 'left center', at: 'right center' },
+            show: 'focus', hide: 'blur',
         });
-    </script>
+
+        markup_pmids('mutant');
+    });
+</script>

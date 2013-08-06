@@ -1,16 +1,20 @@
-<div class="panel_background">
-<!--form enctype="multipart/form-data" id="edit_profile" name="edit_profile" action="/cgi-bin/medicago/eucap/eucap.pl" method="post"-->
+<ul class="pager">
+	<li class="previous">
+   		<a href="/cgi-bin/eucap/eucap.pl?action=dashboard">&larr; Back to Dashboard</a>
+	</li>
+</ul>
+<div class="well">
 <form id="edit_profile" name="edit_profile" enctype="multipart/form-data">
 <input type="hidden" name="action" value="update_profile" id="action">
 
-<p class="header1">Edit your profile</p>
+<p class="lead">Edit your profile</p>
 <ul id="errorBox"></ul>
 <input type="hidden" id="user_id" name="user_id" value="<TMPL_VAR NAME="user_id">">
 <input type="hidden" id="orig_username" name="orig_username" value="<TMPL_VAR NAME="username">">
 <input type="hidden" id="orig_email" name="orig_email" value="<TMPL_VAR NAME="email">">
 
 <hr />
-<table width="100%" border="0">
+<table class="table" width="100%" border="0">
 <tr>
     <td align="right">
         <p><label for="username"><b>Username:</b></label>
@@ -20,12 +24,8 @@
     &nbsp;
     </td>
     <td height="200px" rowspan="5">
-        <img id="user_photo" name="user_photo" class="rounded" src="/medicago/eucap/include/images/ca_users/<TMPL_VAR NAME="photo_file_name">" /><br />
-        <p>Please select image to upload:<br />
-        <input type="file" name="photo"></p>
-        <em>JPG|JPEG|PNG format only.<br />
-            Max dimensions: 200x200px<br />
-            Max file size: 1 MB</em><br />
+        <img id="user_photo" name="user_photo" class="rounded" src="http://www.gravatar.com/avatar/<TMPL_VAR NAME="email_hash">?d=identicon&r=PG&s=200" /><br />
+        <a href="http://www.gravatar.com" target="_blank">Change profile picture in Gravatar &gt;&gt;</a>
     </td>
 </tr>
 
@@ -72,11 +72,52 @@
 <br />
 <table border="0" cellspacing="5px">
     <tr>
-        <td><p><input type="submit" class="submitButton" id="update_profile" name="update_profile" value="Update Profile"></p></td>
-        <td><p><input type="reset" class="resetButton"></p></td>
+        <td><p><input type="submit" class="btn btn-primary" id="update_profile" name="update_profile" value="Update Profile"></p></td>
+        <td><p><input type="reset" class="btn"></p></td>
         <td><span id="update_status" name="update_status" class="success"></span></td>
     </tr>
 </table>
-<hr />
 </form>
+<hr />
+<p class="lead">Update your password</p>
+<ul id="passwd_errorBox"></ul>
+<form id="update_passwd" name="update_passwd" enctype="multipart/form-data">
+<input type="hidden" name="action" value="update_password" id="action">
+<input type="hidden" id="user_id" name="user_id" value="<TMPL_VAR NAME="user_id">">
+<table class="table" width="100%" border="0">
+<tr>
+    <td align="right">
+        <p><label for="current_passwd"><b>Current Password:</b></label>
+        <input type="password" id="current_passwd" name="current_passwd" class="required" /></p>
+    </td>
+</tr>
+
+<tr>
+    <td align="right"><p>
+    	<label for="new_passwd"><b>New Password:</b></label>
+        <input type="password" id="new_passwd" name="new_passwd" class="required" /></p>
+    </td>
+</tr>
+
+<tr>
+    <td align="right"><p>
+    	<label for="cnf_new_passwd"><b>Retype New Password:</b></label>
+        <input type="password" id="cnf_new_passwd" name="cnf_new_passwd" class="required" /></p>
+    </td>
+</tr>
+</table>
+<table border="0" cellspacing="5px">
+    <tr>
+        <td><p><input type="submit" class="btn btn-primary" id="update_passwd" name="update_passwd" value="Update Password"></p></td>
+        <td><p><input type="reset" class="btn"></p></td>
+        <td><span id="passwd_update_status" name="passwd_update_status"></span></td>
+    </tr>
+</table>
+<form>
 </div>
+
+<script type="text/javascript">
+	// Insert HTML before the page header to allow users to
+	// navigate back to the Dashboard
+	$('.csc-firstHeader').before('<p class="bodytext"><a href="/cgi-bin/eucap/eucap.pl?action=dashboard">&lt;&lt;&lt; Back to Dashboard</a></p>');
+</script>

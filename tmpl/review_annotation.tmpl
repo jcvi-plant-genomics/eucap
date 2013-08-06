@@ -1,62 +1,64 @@
-<script type="text/javascript">
-    //// prettify all the buttons
-    $(function() {
-        $('.submitButton, .inputButton, .resetButton').button();
-    });
-</script>
-
-<p class="header1">Review of Community Annotation For: <TMPL_VAR NAME="family_name"> Gene Family</p>
+    <p class="lead pull-left">Review of Community Annotation For "<TMPL_VAR NAME="family_name"> Gene Family"</p><br /><br />
+    <div class="alert alert-block">
+    	Please review the following table for accuracy of information pertaining to the <TMPL_VAR NAME="family_name"> gene family.
+    	<br />If everything looks good, please go ahead and click <strong>Submit</strong>.
+    	<br /><br />    	
+    	After reviewing the information, the Project Annotator will be in touch with you shortly and initiate the process of setting up 
+    	the gene family page on the <em>Medicago truncatula</em> Project page.<br /><br />
+    	Thank you!
+    </div>
     <input type="hidden" id="family_name" name="family_name" value="<TMPL_VAR NAME="family_name">">
-    <table class="contenttable" width="100%">
+    <table class="table table-striped table-condensed" width="100%">
+    <thead>
+	    <tr>
+		    <td colspan="4"></td>
+		    <td colspan="3"><p align="center">GenBank Accessions</p></td>
+		    <td colspan="5"></td>
+		    </tr>
+		    <tr>
+		    <td><p align="center">MTR Locus</p></td>
+		    <td><p align="center">Original Functional Annotation</p></td>
+		    <td><p align="center">Gene Symbol</p></td>
+		    <td><p align="center">Proposed Functional Annotation</p></td>
+		    <td><p align="center">Genomic</p></td>
+		    <td><p align="center">cDNA</p></td>
+		    <td><p align="center">Protein</p></td>
+		    <td><p align="center">Mutant Symbol</p></td>
+		    <td><p align="center">Reference Publication</p></td>
+		    <td><p align="center">Comment</p></td>
+		    <td><p align="center">Date Modified</p></td>
+		    <td><p align="center">Has Struct Anno?</p></td>
+	    </tr>
+    </thead>
     <tbody>
-    <tr class="tableHeader">
-    <td colspan="4"></td>
-    <td align="center" colspan="3"><p>GenBank Accessions</p></td>
-    <td colspan="5"></td>
-    </tr>
-    <tr class="tableHeader">
-    <td><p>MTR Locus</p></td>
-    <td><p>Original Functional Annotation</p></td>
-    <td><p>Gene Symbol</p></td>
-    <td><p>Proposed Functional Annotation</p></td>
-    <td><p>Genomic</p></td>
-    <td><p>cDNA</p></td>
-    <td><p>Protein</p></td>
-    <td><p>Mutant Symbol</p></td>
-    <td><p>Reference Publication</p></td>
-    <td><p>Comment</p></td>
-    <td><p>Date Modified</p></td>
-    <td><p>Has Struct Anno?</p></td>
-    </tr>
     <TMPL_LOOP NAME="review_loop">
-    <tr class="tableRowOdd">
-    <td><p><TMPL_VAR NAME="gene_locus"></p></td>
-    <td><p><TMPL_VAR NAME="orig_func_annotation"></p></td>
-    <td><p><TMPL_VAR NAME="gene_symbol"></p></td>
-    <td><p><TMPL_VAR NAME="func_annotation"></p></td>
-    <td><p><TMPL_VAR NAME="gb_genomic_acc"></p></td>
-    <td><p><TMPL_VAR NAME="gb_cdna_acc"></p></td>
-    <td><p><TMPL_VAR NAME="gb_protein_acc"></p></td>
-    <td><p><TMPL_VAR NAME="mutant_symbol"></p></td>
-    <td><p><TMPL_VAR NAME="reference_pub"></p></td>
-    <td><p><TMPL_VAR NAME="comment"></p></td>
-    <td><p><TMPL_VAR NAME="mod_date"></p></td>
-    <td align="center"><p><TMPL_IF NAME="has_structural_annot">Yes<TMPL_ELSE>No</TMPL_IF></p></td>
-    </tr>
+	    <tr>
+		    <td><p align="center"><TMPL_VAR NAME="gene_locus"></p></td>
+		    <td><p align="center"><TMPL_VAR NAME="orig_func_annotation"></p></td>
+		    <td><p align="center"><TMPL_VAR NAME="gene_symbol"></p></td>
+		    <td><p align="center"><TMPL_VAR NAME="func_annotation"></p></td>
+		    <td><p align="center"><TMPL_VAR NAME="gb_genomic_acc"></p></td>
+		    <td><p align="center"><TMPL_VAR NAME="gb_cdna_acc"></p></td>
+		    <td><p align="center"><TMPL_VAR NAME="gb_protein_acc"></p></td>
+		    <td><p align="center"><TMPL_VAR NAME="mutant_symbol"></p></td>
+		    <td><p align="center"><TMPL_VAR NAME="reference_pub"></p></td>
+		    <td><p align="center"><TMPL_VAR NAME="comment"></p></td>
+		    <td><p align="center"><TMPL_VAR NAME="mod_date"></p></td>
+		    <td align="center"><p align="center"><TMPL_IF NAME="has_structural_annot">Yes<TMPL_ELSE>No</TMPL_IF></p></td>
+	    </tr>
     </TMPL_LOOP>
+	<tr>
+        <td colspan="11"><p align="right">
+	        <input type="button" class="btn btn-primary" id="submit_annot" name="submit_annot" value="Submit Annotation">
+        </p></td>
+        <td>
+        	<input type="button" class="btn" value="Close" onclick="close_dialog_and_scroll('review_annotation', undefined);" />
+        </td>
+    </tr>
     </tbody>
-    </table>
-
-    <br />
-    <table width="100%" border="0">
-        <tr>
-        <td width="95%" align="right"><p><input type="button" class="inputButton" id="submit_annot" name="submit_annot" value="Submit Annotation"></p></td>
-        <td width="5%" align="right"><p><input type="button" class="inputButton" value="Close" onclick="close_dialog_and_scroll('review_annotation', undefined);" /></p></td>
-        </tr>
-    </table>
 
     <div id="submit-confirm" title="Finalize and Submit Annotation?" class="hide_panel" style="text-align: left;">
-        <span class="ui-icon ui-icon-alert" style="float:left; margin:0 7px 20px 0;"></span>The annotation will be submitted to administrator for review and approval.<br /><br />Are you sure?<br /><br />
+        <i class="icon-warning-sign"></i>The annotation will be submitted to administrator for review and approval.<br /><br />Are you sure?<br /><br />
         <span id="submit_status" name="submit_status"></span>
     </div>
 
@@ -72,13 +74,13 @@
                 buttons: {
                     'Submit': function() {
                         var family_name = $('#family_name').val();
-                        var url = '/cgi-bin/medicago/eucap/eucap.pl?action=submit_annotation';
+                        var url = '/cgi-bin/eucap/eucap.pl?action=submit_annotation';
                         var params = 'family_name=' + family_name;
                         var query = url + '&' + params;
                         var status_span = 'submit_status';
 
                         $('#' + status_span).removeClass('error success');
-                        $('#' + status_span).html('<img src="/medicago/eucap/include/images/loading.gif" />');
+                        $('#' + status_span).html('<img src="/eucap/include/images/loading.gif" />');
 
                         $.ajax({
                             type: 'GET',

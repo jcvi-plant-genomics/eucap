@@ -1,15 +1,8 @@
-<script type="text/javascript">
-    // prettify all the buttons
-    $(function() {
-        $('.submitButton, .inputButton, .resetButton').button();
-    });
-</script>
-
 <TMPL_IF NAME="blast_results">
 <p><TMPL_VAR NAME="total_hits"> hits for query: <TMPL_VAR NAME="query_name"> </p>
-<table class="contenttable">
+<table class="table table-striped">
   <thead>
-    <tr class="tableHeader">
+    <tr>
       <td><p><input type="checkbox" name="checkAll_blast" id="checkAll_blast" onclick="check_all( this.id, 'hit' )"/></p></td>
       <td><p>Locus Hit</p></td>
       <td><p>Length</p></td>
@@ -20,7 +13,7 @@
   </thead>
   <tbody>
   <TMPL_LOOP NAME="blast_loop">
-    <tr class="tableRowEven">
+    <tr>
       <td><p><input type="checkbox" class="hit" value="<TMPL_VAR NAME="locus">"></p></td>
       <td><p><TMPL_VAR NAME="locus"></p></td><p>
       <td><p><TMPL_VAR NAME="length"></p></td><p>
@@ -33,8 +26,8 @@
 </table>
 <table border="0" cellspacing="10px" cellpadding="5px" class="large_margin">
   <tr>
-  <td><p><input type="button" class="inputButton" name="add_loci_button" value="Add Selected Loci" onclick="add_blast_loci( 'hit' )"> </p></td>
-  <td><p><input type="button" class="inputButton" name="remove_blast_results" value="Clear Blast Results Panel" onclick="close_panel_and_scroll( 'run_blast', 'add_by_blast' )"></p></td>
+  <td><p><input type="button" class="btn btn-primary" name="add_loci_button" value="Add Selected Loci" onclick="add_blast_loci( 'hit' )"> </p></td>
+  <td><p><input type="button" class="btn" name="remove_blast_results" value="Clear Blast Results Panel" onclick="close_panel_and_scroll( 'run_blast', 'add_by_blast' )"></p></td>
 </table>
 <hr />
 </TMPL_IF>

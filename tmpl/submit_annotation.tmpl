@@ -1,28 +1,15 @@
-<!--
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN"
-"http://www.w3.org/TR/html4/strict.dtd">
-<html>
-<head>
-<title>Submit Annotation</title>
-</style>
-<script src="/medicago/js/eucap.js" type="text/javascript"></script>
-<link href="/medicago/css/eucap.css" rel="stylesheet" type="text/css">
-</head>
-
-<body>
--->
-  <form name="back_to_annotation" method="post" action="/cgi-bin/medicago/eucap/eucap.pl">
+  <form name="back_to_annotation" method="post" action="/cgi-bin/eucap/eucap.pl">
     <input type="hidden" name="action" value="annotate">
-    <p><input type="submit" class="submitButton" name="back" value="Back to Main Annotation Page"></p>
+    <p><input type="submit" class="btn" name="back" value="Back to Main Annotation Page"></p>
   </form>
-<p class="header1">Submit Annotation for <TMPL_VAR NAME="family_name"></p>
+<p class="lead">Submit Annotation for <TMPL_VAR NAME="family_name"></p>
 
 <div class="panel_background">
 <p>Do you want to submit your community annotation for this gene
   family to the community annotation curators and make you annotation
   public on our website and databases?</p>
 
-<form name="logout" action="/cgi-bin/medicago/eucap/eucap.pl" method="post" >
+<form name="logout" action="/cgi-bin/eucap/eucap.pl" method="post" >
 <input type="hidden" name="action" value="final_submit">
 <table>
 <tbody>
@@ -33,14 +20,9 @@
   <td><p><input type="radio" name="submit_query" value="no" checked="checked"></p></td>
 </tr>
 <tr>
-  <td colspan="4"><p><input type="submit" class="submitButton" name="submit" value="Submit Final Annotation?"></p></td>
+  <td colspan="4"><p><input type="submit" class="btn btn-primary" name="submit" value="Submit Final Annotation?"></p></td>
 </tr>
 </tbody>
 </table>
 </form>
 </div>
-
-<!--
-</body>
-</html>
--->

@@ -1,27 +1,19 @@
-<script type="text/javascript">
-    //// prettify all the buttons
-    $(function() {
-        $('.submitButton, .inputButton, .resetButton').button();
-    });
-</script>
-
 <p class="section">Alleles for <TMPL_VAR NAME="symbol"></p>
-<div id="add_allele" class="hide_panel panel_background large_margin">
+<div id="add_allele" class="hide_panel well">
     <p class="header3">Please input alleles (comma-separated list):</p>
     <table>
     <tbody>
       <tr>
         <td rowspan="2"><p>
-          <textarea cols="14" rows="5" name="alleles_list"
-          id="alleles_list"></textarea>
+          <textarea class="input-xxlarge" rows="5" name="alleles_list" id="alleles_list"></textarea>
         </p></td>
         <td><p>
-          <input type="button" class="inputButton" value="Add Alleles" onclick="add_from_list('alleles', 'alleles_list', 'id');">
+          <input type="button" class="btn btn-primary" value="Add Alleles" onclick="add_from_list('alleles', 'alleles_list', 'id', undefined);">
         </p></td>
       </tr>
       <tr>
         <td><p>
-          <input type="button" class="inputButton" value="reset" class="resetButton" onclick="clear_element('alleles_list')">
+          <input type="reset" id="alleles_list_reset" value="Reset" class="btn">
         </p></td>
       </tr>
     </tbody>
@@ -30,104 +22,139 @@
 
 <span id="alleles_add_status" name="alleles_add_status"></span>
 
-<table width="100%" class="contenttable">
-<tbody>
-  <tr><td colspan="5" align="right"><p>
-    <input type="button" class="inputButton" name="allele_add" name="allele_add" value="Add Allele by Symbol" onclick="toggle_panel('add_allele', undefined);">
-  </p></td></tr>
-</tbody>
-</table>
-
-<form id="alleles_annotate" name="alleles_annotate" onsubmit="return save_alleles(<TMPL_VAR NAME="mutant_id">);">
-<input type="hidden" name="action" value="save_alleles" id="action">
-<TMPL_IF NAME="alleles_loop">
-<table id="allele_table" name="allele_table" class="contenttable" width="100%">
-<tbody>
-  <tr id="allele_table_header" name="allele_table_header" class="tableHeader">
-    <td><p>Allele Name</p></td>
-    <td><p>Alternate Allele Name</p></td>
-    <td><p>Reference Lab</p></td>
-    <td><p>Has altered phenotype?</p></td>
-    <td><p>&nbsp;</p></td>
- </tr>
-
-<input type="hidden" id="mutant_id" name="mutant_id" value="<TMPL_VAR NAME="mutant_id">">
-<TMPL_LOOP NAME="alleles_loop">
-  <tr class="allele_<TMPL_VAR NAME="allele_id"> <TMPL_VAR NAME="tableRowClass">">
-    <input type="hidden" id="allele_id" name="allele_id" value="<TMPL_VAR NAME="allele_id">">
-    <td><p><input class="italics" type="text" size="10" id="allele_name_<TMPL_VAR NAME="allele_id">" name="allele_name_<TMPL_VAR NAME="allele_id">" value="<TMPL_IF NAME="allele_name"><TMPL_VAR NAME="allele_name"></TMPL_IF>"></p></td>
-
-    <td><p><input type="text" id="alt_allele_names_<TMPL_VAR NAME="allele_id">" name="alt_allele_names_<TMPL_VAR NAME="allele_id">" value="<TMPL_IF NAME="alt_allele_names"><TMPL_VAR NAME="alt_allele_names"></TMPL_IF>"></p></td>
-
-    <td><p><input type="text" id="reference_lab_<TMPL_VAR NAME="allele_id">" name="reference_lab_<TMPL_VAR NAME="allele_id">" value="<TMPL_IF NAME="reference_lab"><TMPL_VAR NAME="reference_lab"></TMPL_IF>"></p></td>
-
-    <td<TMPL_UNLESS NAME="unapproved"> colspan="2"</TMPL_UNLESS>><p><input type="text" id="altered_phenotype_<TMPL_VAR NAME="allele_id">" name="altered_phenotype_<TMPL_VAR NAME="allele_id">" value="<TMPL_VAR NAME="altered_phenotype">"></p></td>
-    <TMPL_IF NAME="unapproved">
-    <td><p>
-        <img src="/medicago/eucap/include/images/delete.png" class="delete_allele_<TMPL_VAR NAME="allele_id">" alt=" Delete Allele <TMPL_VAR NAME="allele_name">" title="Delete Allele <TMPL_VAR NAME="allele_name">" onclick="delete_feature('allele', <TMPL_VAR NAME="allele_id">, '<TMPL_VAR NAME="allele_name">');" />
-    </p></td>
-    </TMPL_IF>
-  </tr>
-</TMPL_LOOP>
-</tbody>
-</table>
-<span height="16px" style="float: right;" id="allele_delete_status" name="allele_delete_status"></span>
-<TMPL_ELSE>
-<h2>No alleles present for this mutant.</h2>
-</TMPL_IF>
-<br />
-
-<TMPL_IF NAME="deleted_alleles_loop">
-<div id="deleted_allele_panel" name="deleted_allele_panel">
-    <p class="header1">Deleted Alleles</p>
-    <table id="deleted_allele_table" name="deleted_allele_table" class="contenttable" width="100%">
-        <tbody>
-        <tr id="allele_table_header" name="allele_table_header" class="tableHeader">
-            <td><p>Allele Name</p></td>
-            <td><p>Alternate Allele Name</p></td>
-            <td><p>Reference Lab</p></td>
-            <td><p>Has altered phenotype?</p></td>
-            <td><p>&nbsp;</p></td>
-        </tr>
-        <TMPL_LOOP NAME="deleted_alleles_loop">
-          <tr class="allele_<TMPL_VAR NAME="allele_id"> <TMPL_VAR NAME="tableRowClass">">
-            <input type="hidden" id="allele_id" name="allele_id" value="<TMPL_VAR NAME="allele_id">">
-            <td><p><input type="text" size="10" id="allele_name_<TMPL_VAR NAME="allele_id">" name="allele_name_<TMPL_VAR NAME="allele_id">" value="<TMPL_IF NAME="allele_name"><TMPL_VAR NAME="allele_name"></TMPL_IF>"></p></td>
-
-            <td><p><input type="text" id="alt_allele_names_<TMPL_VAR NAME="allele_id">" name="alt_allele_names_<TMPL_VAR NAME="allele_id">" value="<TMPL_IF NAME="alt_allele_names"><TMPL_VAR NAME="alt_allele_names"></TMPL_IF>"></p></td>
-
-            <td><p><input type="text" id="reference_lab_<TMPL_VAR NAME="allele_id">" name="reference_lab_<TMPL_VAR NAME="allele_id">" value="<TMPL_IF NAME="reference_lab"><TMPL_VAR NAME="reference_lab"></TMPL_IF>"></p></td>
-
-            <td<TMPL_UNLESS NAME="unapproved"> colspan="2"</TMPL_UNLESS>><p><input type="text" id="altered_phenotype_<TMPL_VAR NAME="allele_id">" name="altered_phenotype_<TMPL_VAR NAME="allele_id">" value="<TMPL_VAR NAME="altered_phenotype">"></p></td>
-            <TMPL_IF NAME="unapproved">
-            <td><p>
-                <img src="/medicago/eucap/include/images/undelete.png" class="undelete_allele_<TMPL_VAR NAME="allele_id">" alt=" unDelete Allele <TMPL_VAR NAME="allele_name">" title="unDelete Allele <TMPL_VAR NAME="allele_name">" onclick="undelete_feature('allele', <TMPL_VAR NAME="allele_id">, '<TMPL_VAR NAME="allele_name">');" />
-            </p></td>
-            </TMPL_IF>
-          </tr>
-        </TMPL_LOOP>
-        </tbody>
-    </table>
-    <span height="16px" style="float: right;" id="allele_undelete_status" name="allele_undelete_status"></span>
+<div class="pull-right">
+    <input type="button" class="btn btn-primary" name="allele_add" name="allele_add" value="Add Allele by Symbol" onclick="toggle_panel('add_allele', undefined);">
 </div>
-<TMPL_ELSE>
-<div class="hide_panel" id="deleted_allele_panel" name="deleted_allele_panel">
-    <p class="header1">Deleted Alleles</p>
-    <table id="deleted_allele_table" name="deleted_allele_table" class="contenttable" width="100%">
-        <tbody>
-        </tbody>
-    </table>
-    <span height="16px" style="float: right;" id="allele_undelete_status" name="allele_undelete_status"></span>
-</div>
-</TMPL_IF>
-<br />
+<br /><br />
+<div>
+	<form id="alleles_annotate" name="alleles_annotate" onsubmit="return save_alleles(<TMPL_VAR NAME="mutant_id">);">
+	<input type="hidden" name="action" value="save_alleles" id="action">
+	<TMPL_IF NAME="alleles_loop">
+	<table id="allele_table" name="allele_table" class="table table-striped" width="100%">
+	<thead>
+	  <tr id="allele_table_header" name="allele_table_header">
+	    <td><p align="center">Allele Name</p></td>
+	    <td><p align="center">Alternate Allele Name</p></td>
+	    <td><p align="center">Genetic Background <img id="allele_genetic_bg" style="vertical-align: middle;" src="/eucap/include/images/info.png" /></p></td>
+	    <td><p align="center">Reference Lab</p></td>
+	    <td><p align="center">Has altered phenotype?</p></td>
+	    <td></td>
+	 </tr>
+	</thead>
 
-<table width="100%" border="0" cellpadding="20px">
-<tr height="10px">
-    <td width="10%" align="center"><p><input type="submit" class="submitButton" value="Save Alleles" /></p></td>
-    <td width="10%" align="center"><p><input type="reset" class="resetButton" onclick="clear_status('allele');"></p></td>
-    <td width="70%" align="left"><span id="alleles_save_status" name="alleles_save_status"></span></td>
-    <td width="10%" align="right"><p><input type="button" class="inputButton" value="Close" onclick="close_dialog_and_scroll('annotate_alleles', 'anchor');" /></p></td>
-</tr>
-</table>
-</form>
+	<tbody>
+	<input type="hidden" id="mutant_id" name="mutant_id" value="<TMPL_VAR NAME="mutant_id">">
+	<TMPL_LOOP NAME="alleles_loop">
+	  <tr class="allele_<TMPL_VAR NAME="allele_id"> <TMPL_VAR NAME="tableRowClass">">
+	    <input type="hidden" id="allele_id" name="allele_id" value="<TMPL_VAR NAME="allele_id">">
+	    <td><p><input class="italics input-small" type="text" size="10" id="allele_name_<TMPL_VAR NAME="allele_id">" name="allele_name_<TMPL_VAR NAME="allele_id">" value="<TMPL_IF NAME="allele_name"><TMPL_VAR NAME="allele_name"></TMPL_IF>"></p></td>
+
+	    <td><p><input type="text" class="input-medium" id="alt_allele_names_<TMPL_VAR NAME="allele_id">" name="alt_allele_names_<TMPL_VAR NAME="allele_id">" value="<TMPL_IF NAME="alt_allele_names"><TMPL_VAR NAME="alt_allele_names"></TMPL_IF>"></p></td>
+
+	    <td><p><input type="text" class="input-small" id="genetic_bg_<TMPL_VAR NAME="allele_id">" name="genetic_bg_<TMPL_VAR NAME="allele_id">" value="<TMPL_IF NAME="genetic_bg"><TMPL_VAR NAME="genetic_bg"></TMPL_IF>"></p></td>
+
+	    <td><p><input type="text" class="input-medium" id="reference_lab_<TMPL_VAR NAME="allele_id">" name="reference_lab_<TMPL_VAR NAME="allele_id">" value="<TMPL_IF NAME="reference_lab"><TMPL_VAR NAME="reference_lab"></TMPL_IF>"></p></td>
+
+	    <td<TMPL_UNLESS NAME="unapproved"> colspan="2"</TMPL_UNLESS>><p><input type="text" class="input-mini" id="altered_phenotype_<TMPL_VAR NAME="allele_id">" name="altered_phenotype_<TMPL_VAR NAME="allele_id">" value="<TMPL_VAR NAME="altered_phenotype">"></p></td>
+	    <TMPL_IF NAME="unapproved">
+	    <td><p>
+	        <img src="/eucap/include/images/delete.png" class="delete_allele_<TMPL_VAR NAME="allele_id">" alt=" Delete Allele <TMPL_VAR NAME="allele_name">" title="Delete Allele <TMPL_VAR NAME="allele_name">" onclick="delete_feature('allele', <TMPL_VAR NAME="allele_id">, '<TMPL_VAR NAME="allele_name">');" />
+	    </p></td>
+	    </TMPL_IF>
+	  </tr>
+	</TMPL_LOOP>
+	</tbody>
+	</table>
+	<span height="16px" style="float: right;" id="allele_delete_status" name="allele_delete_status"></span>
+	<TMPL_ELSE>
+	<h2>No alleles present for this mutant.</h2>
+	</TMPL_IF>
+	<br />
+
+	<TMPL_IF NAME="deleted_alleles_loop">
+	<div id="deleted_allele_panel" name="deleted_allele_panel">
+	    <p class="lead">Deleted Alleles</p>
+	    <table id="deleted_allele_table" name="deleted_allele_table" class="table table-striped" width="100%">
+	        <thead>
+	        <tr id="allele_table_header" name="allele_table_header">
+	            <td><p align="center">Allele Name</p></td>
+	            <td><p align="center">Alternate Allele Name</p></td>
+                <td><p align="center">Genetic Background</p></td>
+	            <td><p align="center">Reference Lab</p></td>
+	            <td><p align="center">Has altered phenotype?</p></td>
+	            <td></td>
+	        </tr>
+	        </thead>
+	        <tbody>
+	        <TMPL_LOOP NAME="deleted_alleles_loop">
+	          <tr class="allele_<TMPL_VAR NAME="allele_id"> <TMPL_VAR NAME="tableRowClass">">
+	            <input type="hidden" id="allele_id" name="allele_id" value="<TMPL_VAR NAME="allele_id">">
+	            <td><p><input type="text" class="italics input-small" size="10" id="allele_name_<TMPL_VAR NAME="allele_id">" name="allele_name_<TMPL_VAR NAME="allele_id">" value="<TMPL_IF NAME="allele_name"><TMPL_VAR NAME="allele_name"></TMPL_IF>"></p></td>
+
+	            <td><p><input type="text" class="input-medium" id="alt_allele_names_<TMPL_VAR NAME="allele_id">" name="alt_allele_names_<TMPL_VAR NAME="allele_id">" value="<TMPL_IF NAME="alt_allele_names"><TMPL_VAR NAME="alt_allele_names"></TMPL_IF>"></p></td>
+
+	    		<td><p><input type="text" class="input-small" id="genetic_bg_<TMPL_VAR NAME="allele_id">" name="genetic_bg_<TMPL_VAR NAME="allele_id">" value="<TMPL_IF NAME="genetic_bg"><TMPL_VAR NAME="genetic_bg"></TMPL_IF>"></p></td>
+
+	            <td><p><input type="text" class="input-medium" id="reference_lab_<TMPL_VAR NAME="allele_id">" name="reference_lab_<TMPL_VAR NAME="allele_id">" value="<TMPL_IF NAME="reference_lab"><TMPL_VAR NAME="reference_lab"></TMPL_IF>"></p></td>
+
+	            <td<TMPL_UNLESS NAME="unapproved"> colspan="2"</TMPL_UNLESS>><p><input type="text" id="altered_phenotype_<TMPL_VAR NAME="allele_id">" name="altered_phenotype_<TMPL_VAR NAME="allele_id">" value="<TMPL_VAR NAME="altered_phenotype">"></p></td>
+	            <TMPL_IF NAME="unapproved">
+	            <td><p>
+	                <img src="/eucap/include/images/undelete.png" class="undelete_allele_<TMPL_VAR NAME="allele_id">" alt=" unDelete Allele <TMPL_VAR NAME="allele_name">" title="unDelete Allele <TMPL_VAR NAME="allele_name">" onclick="undelete_feature('allele', <TMPL_VAR NAME="allele_id">, '<TMPL_VAR NAME="allele_name">');" />
+	            </p></td>
+	            </TMPL_IF>
+	          </tr>
+	        </TMPL_LOOP>
+	        </tbody>
+	    </table>
+	    <span height="16px" style="float: right;" id="allele_undelete_status" name="allele_undelete_status"></span>
+	</div>
+	<TMPL_ELSE>
+	<div class="hide_panel" id="deleted_allele_panel" name="deleted_allele_panel">
+	    <p class="lead">Deleted Alleles</p>
+	    <table id="deleted_allele_table" name="deleted_allele_table" class="table table-striped" width="100%">
+	    	<thead>
+	        <tr id="allele_table_header" name="allele_table_header">
+	            <td><p align="center">Allele Name</p></td>
+	            <td><p align="center">Alternate Allele Name</p></td>
+                <td><p align="center">Genetic Background</p></td>
+	            <td><p align="center">Reference Lab</p></td>
+	            <td><p align="center">Has altered phenotype?</p></td>
+	            <td></td>
+	        </tr>
+	    	</thead>
+	        <tbody>
+	        </tbody>
+	    </table>
+	    <span height="16px" style="float: right;" id="allele_undelete_status" name="allele_undelete_status"></span>
+	</div>
+	</TMPL_IF>
+	<br />
+
+	<table class="table" width="100%" border="0" cellpadding="20px">
+	<tr height="10px">
+	    <td width="10%" align="center"><p><input type="submit" class="btn btn-primary" value="Save Alleles" /></p></td>
+	    <td width="10%" align="center"><p><input type="reset" class="btn" onclick="clear_status('allele');"></p></td>
+	    <td width="70%" align="left"><span id="alleles_save_status" name="alleles_save_status"></span></td>
+	    <td width="10%" align="right"><p><input type="button" class="btn" value="Close" onclick="close_dialog_and_scroll('annotate_alleles', 'anchor');" /></p></td>
+	</tr>
+	</table>
+	</form>
+</div>
+
+<script type="text/javascript">
+    // Allele info related tooltips
+    $('#allele_genetic_bg').qtip({
+        content: {
+            text: '<b style="color: red;">Required</b><br />' +
+            'Provide genetic background of allele<br /><br />' +
+            'A17 or R108, etc. <br />',
+        },
+        position: { my: 'bottom left', at: 'top center' }
+    });
+
+    // set up the tag field for accepting the alleles list
+    // and the appropriate function to clear the list panel
+    $('#alleles_list').tagsInput({ defaultText: '' });
+    $('#alleles_list_reset').click(function() { $('#alleles_list').importTags(''); });
+</script>

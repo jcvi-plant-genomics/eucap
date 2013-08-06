@@ -1,20 +1,23 @@
+<TMPL_LOOP NAME="annotate_locus_loop">
 <p class="section"><TMPL_VAR NAME="gene_symbol"> Gene</p>
-<table width="100%" class="contenttable">
-<tbody>
+<table width="100%" class="table table-striped">
+<thead>
   <tr>
       <input type="hidden" id="locus_id" value="<TMPL_VAR NAME="locus_id">">
-      <td align="right" colspan="6">
-        <p>Last Modified date: <b><TMPL_VAR NAME="mod_date"></b></p>
+      <td colspan="6">
+        <p align="right">Last Modified date: <b><TMPL_VAR NAME="mod_date"></b></p>
       </td>
   </tr>
-  <tr class="tableHeader">
+</thead>
+<tbody>
+  <tr>
 	<td><p>Gene Symbol</p></td>
 	<td><p>Mutant Symbol</p></td>
 	<td><p>Gene Locus</p></td>
 	<td><p>Original Annotation</p></td>
 	<td colspan="2"><p>Proposed Annotation</p></td>
   </tr>
-  <tr class="tableRowEven">
+  <tr>
 	<td><p><TMPL_VAR NAME="gene_symbol"></p></td>
     <td><p><TMPL_IF NAME="mutant_id"><TMPL_VAR NAME="mutant_symbol"></TMPL_IF></p></td>
 	<td><p><TMPL_VAR NAME="gene_locus"></p></td>
@@ -22,7 +25,7 @@
 	<td colspan="2"><p><TMPL_IF NAME="func_annotation"><TMPL_VAR NAME="func_annotation"></TMPL_IF></p></td>
   </tr>
 
-  <tr class="tableHeader">
+  <tr>
 	<td><p>Genomic Acc</p></td>
 	<td><p>cDNA Acc</p></td>
 	<td><p>Protein Acc</p></td>
@@ -31,7 +34,7 @@
 	<td><p>Comment</p></td>
   </tr>
 
-  <tr class="tableRowEven">
+  <tr>
 	<td><p><TMPL_IF NAME="gb_genomic_acc"><TMPL_VAR NAME="gb_genomic_acc"></TMPL_IF></p></td>
 	<td><p><TMPL_IF NAME="gb_cdna_acc"><TMPL_VAR NAME="gb_cdna_acc"></TMPL_IF></p></td>
 	<td><p><TMPL_IF NAME="gb_protein_acc"><TMPL_VAR NAME="gb_protein_acc"></TMPL_IF></p></td>
@@ -42,4 +45,5 @@
 </tbody>
 </table>
 
-<br />
+<hr />
+</TMPL_LOOP>

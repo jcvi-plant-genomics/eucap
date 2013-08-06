@@ -1,23 +1,17 @@
 #!/usr/local/bin/perl
-# $Id: insert_user.pl 543 2007-07-24 19:16:27Z hamilton $
-# EuCAP - Eukaryotic Community Annotation Package - 2007
+# EuCAP - Eukaryotic Community Annotation Package
 # Accessory script for inserting users in the community annotation database
+
+# Set the perl5lib path variable
+BEGIN {
+    unshift @INC, '../', './lib';
+}
 
 use warnings;
 use strict;
-#use DBI;
 use Getopt::Long;
 use Authen::Passphrase::MD5Crypt;
-use lib '../lib/';
-use CA::CDBI;
-use CA::users;
-
-#local community annotation DB connection params
-my $CA_DB_NAME     = 'MTGCommunityAnnot';
-my $CA_DB_HOST     = 'mysql-lan-pro';
-my $CA_DB_DSN      = join(':', ('dbi:mysql', $CA_DB_NAME, $CA_DB_HOST));
-my $CA_DB_USERNAME = 'vkrishna';                                          # 'mtg_ca_user'
-my $CA_DB_PASSWORD = 'L0g!n2db';                                          # 'will be generated soon'
+use CA::DBHelper;
 
 my $name     = q{};
 my $email    = q{};
@@ -40,9 +34,8 @@ my $crypt_obj = Authen::Passphrase::MD5Crypt->new(salt_random => 1, passphrase =
 my $salt      = $crypt_obj->salt;
 my $hash      = $crypt_obj->hash_base64;
 
-=comment
 eval {
-    my $new_user_row = CA::users->insert(
+    my $new_user_row = do('insert', 'users', 
         {
             name     => $name,
             email    => $email,
@@ -53,20 +46,8 @@ eval {
     );
 };
 
-if ($@) {
-    die "Error loading user into database: $@\n\n";
-}
-=cut
+die "Error loading user into database: $@\n\n"; if ($@);
 
-print "$username, $salt, $hash\n";
-=comment
-my $dbh = DBI->connect($CA_DB_DSN, $CA_DB_USERNAME, $CA_DB_PASSWORD) or die;
-my $sth       = $dbh->prepare(
-    "insert into users (name, email, username, salt, hash) values ( ?, ?, ?, ?, ? ) ")
-  or die;
-$sth->execute($name, $email, $username, $salt, $hash) or die;
-$sth->finish;
-$dbh->disconnect;
-=cut
-
+warn "[debug] $username, $salt, $hash\n";
+print "User `$username` added successfully!\n";
 exit;

@@ -1,27 +1,49 @@
-<script type="text/javascript">
-    $(function() {
-        $('.selectBox').selectBox();
-    });
-</script>
-
 <TMPL_IF NAME="loci">
-<div id="add_by_locus" class="hide_panel panel_background large_margin">
+<ul class="pager">
+	<li class="previous">
+   		<a href="/cgi-bin/eucap/eucap.pl?action=dashboard">&larr; Back to Dashboard</a>
+	</li>
+</ul>
+
+	<script type="text/javascript">
+	    $(function() {
+	        $('.selectBox').selectBox();
+	    });
+	</script>
+
+   	<div class="alert alert-info">
+   		<button type="button" class="close" data-dismiss="alert">&times;</button>
+   		<p class="lead">Annotate Gene Family Members</p>
+   		<p>Each row of the table below corresponds to a specific member of the Gene Family.<br />
+   		Click the <button class="btn btn-mini btn-primary" type="button">Annotate</button> button next
+   		to a certain locus to edit it. Clicking on <button class="btn btn-mini" type="button">View</button>
+   		will create a modal window with a read-only view of the locus attributes.</p>
+   		<p>You can associate <i>Medtr</i> loci to the Gene family by using either of the following methods:</p>
+   		<ul class="">
+			<li><button class="btn btn-mini" type="button">Add Locus by ID</button> takes a comma separated list of <em>Medtr</em> identifiers</li>
+      		<li><button class="btn btn-mini" type="button">Add Locus by BLAST</button> allows you to BLAST your CDS/AA against the <em>Mt</em> proteome and identify homologs</li>
+   		</ul>
+   		<p>Once all the edits have been finalized, click <button class="btn btn-mini btn-info" type="button">Review Annotation</button> to see
+   		a summary of the family members. On verification, you can submit the edits for approval.</p>
+   	</div>
+
+	<div id="add_by_locus" class="hide_panel well">
     <p class="header2">Add gene family members</p>
-    <p class="header3">Please input locus identifiers (comma separated):</p>
+    <p class="header3">Please input locus identifiers (comma-separated list):</p>
 
     <table>
     <tbody>
       <tr>
         <td rowspan="2"><p>
-          <textarea cols="14" rows="5" name="loci_list" id="loci_list"></textarea>
+          <textarea class="input-xxlarge" rows="5" name="loci_list" id="loci_list"></textarea>
         </p></td>
         <td><p>
-          <input type="submit" class="submitButton" value="Add Loci" onclick="add_from_list('loci', 'loci_list', 'id');">
+          <input type="submit" class="btn btn-primary" value="Add Loci" onclick="add_from_list('loci', 'loci_list', 'id', undefined);">
         </p></td>
       </tr>
       <tr>
         <td><p>
-          <input type="reset" class="inputButton" value="Reset">
+          <input type="reset" id="loci_list_reset" class="btn" value="Reset">
         </p></td>
       </tr>
     </tbody>
@@ -29,11 +51,11 @@
     <br />
 </div>
 
-<div id="add_by_blast" class="hide_panel panel_background large_margin">
+<div id="add_by_blast" class="hide_panel well">
     <form id="run_blast_form" name="run_blast_form" onsubmit="return perform_action('run_blast', undefined, undefined);">
         <p class="header2">Add gene family members</p>
         <p class="header3">Please input protein OR nucleotide sequences
-        (in FASTA format) to identify Medicago truncatula homologs:</p>
+        (in FASTA format) to identify <em>Medicago truncatula</em> homologs:</p>
 
         <input type="hidden" id="action" name="action" value="run_blast">
         <p>Input sequence: <select class="selectBox" id="seqtype" name="seqtype">
@@ -47,10 +69,10 @@
             <option value="1e-5">1e-5</option>
             </select>
           </p>
-        <textarea cols="80" rows="5" id="fasta" name="fasta"></textarea>
+        <textarea class="input-xxlarge" rows="5" id="fasta" name="fasta"></textarea>
         <br /><br />
-        <p><input type="submit" class="submitButton" value="Find Homologs">&nbsp;
-        <input type="reset" class="resetButton" value="Reset"></p>
+        <p><input type="submit" class="btn btn-primary" value="Find Homologs">&nbsp;
+        <input type="reset" class="btn" value="Reset"></p>
         <br />
     <div id="run_blast"></div>
     </form>
@@ -61,24 +83,27 @@
 <input type="hidden" id="user_id" name="user_id" value="<TMPL_VAR NAME="user_id">">
 <input type="hidden" id="family_id" name="family_id" value="<TMPL_VAR NAME="family_id">">
 
-<table id="locus_table" name="locus_table" class="contenttable">
-    <tbody>
-    <tr><td colspan="8" align="right"><p>
-    <input type="button" class="inputButton" id="locus_add" name="locus_add" value="Add Gene by Locus" onclick="toggle_panel('add_by_locus', 'add_by_blast');">
+<div class="pull-right">
+    <input type="button" class="btn" id="locus_add" name="locus_add" value="Add Locus by ID" onclick="toggle_panel('add_by_locus', 'add_by_blast');">
     &nbsp;&nbsp;&nbsp;&nbsp;
-    <input type="button" class="inputButton" id="blast_add" name="blast_add" value="Add Gene by Blast" onclick="toggle_panel('add_by_blast', 'add_by_locus');">
+    <input type="button" class="btn" id="blast_add" name="blast_add" value="Add Locus by BLAST" onclick="toggle_panel('add_by_blast', 'add_by_locus');">
     &nbsp;&nbsp;&nbsp;&nbsp;
-    <input type="button" class="inputButton" id="review_annot" name="review_annot" value="Review Annotation" onclick="perform_action('review_annotation', 'family_id', <TMPL_VAR NAME="family_id">);">
-    </tr>
+    <input type="button" class="btn btn-info" id="review_annot" name="review_annot" value="Review Annotation" onclick="perform_action('review_annotation', 'family_id', <TMPL_VAR NAME="family_id">);">
+</div>
+<br /><br />
+<table id="locus_table" name="locus_table" class="table table-striped table-condensed">
 <TMPL_IF NAME="locus_summary_loop">
-	<tr id="locus_table_header" name="locus_table_header" class="tableHeader">
-		<td><p>Gene Symbol</p></td>
-		<td><p>MTR Locus</p></td>
-		<td><p>Original<br />Functional Annotation</p></td>
-		<td><p>Proposed<br />Functional Annotation</p</td>
-		<td><p>Comment</p></td>
-		<td colspan="3"><p>&nbsp;</p></td>
+    <thead>
+	<tr id="locus_table_header" name="locus_table_header">
+		<th><p align="center">Gene Symbol</p></th>
+		<th><p align="center">MTR Locus</p></th>
+		<th><p align="center">Original<br />Functional Annotation</p></th>
+		<th><p align="center">Proposed<br />Functional Annotation</p></th>
+		<th><p align="center">Comment</p></th>
+		<th colspan="3"></th>
 	</tr>
+	</thead>
+    <tbody>
 	<TMPL_LOOP NAME="locus_summary_loop">
 	<tr class="locus_<TMPL_VAR NAME="locus_id"> <TMPL_VAR NAME="tableRowClass">">
 		<input type="hidden" id="locus_id" name="locus_id" value="<TMPL_VAR NAME="locus_id">">
@@ -87,11 +112,11 @@
 		<td><p id="orig_func_annotation_<TMPL_VAR NAME="locus_id">"><TMPL_VAR NAME="orig_func_annotation"></p></td>
 		<td><p id="func_annotation_<TMPL_VAR NAME="locus_id">"><TMPL_VAR NAME="func_annotation"></p></td>
 		<td><p id="comment_<TMPL_VAR NAME="locus_id">"><TMPL_VAR NAME="comment"></p></td>
-        <td><p><input type="button" class="inputButton" id="view_locus_<TMPL_VAR NAME="locus_id">" value="View" onclick="perform_action('view_locus', 'locus_id', <TMPL_VAR NAME="locus_id">);" /></p></td>
-        <td<TMPL_UNLESS NAME="unapproved"> colspan="2"</TMPL_UNLESS>><p><input type="button" class="inputButton" id="annotate_locus_<TMPL_VAR NAME="locus_id">" value="Annotate" onclick="perform_action('annotate_locus', 'locus_id', <TMPL_VAR NAME="locus_id">);" /></p></td>
+        <td><p><input type="button" class="btn" id="view_locus_<TMPL_VAR NAME="locus_id">" value="View" onclick="perform_action('view_locus', 'locus_id', <TMPL_VAR NAME="locus_id">);" /></p></td>
+        <td<TMPL_UNLESS NAME="unapproved"> colspan="2"</TMPL_UNLESS>><p><input type="button" class="btn btn-primary" id="annotate_locus_<TMPL_VAR NAME="locus_id">" value="Annotate" onclick="perform_action('annotate_locus', 'locus_id', <TMPL_VAR NAME="locus_id">);" /></p></td>
         <TMPL_IF NAME="unapproved">
         <td><p>
-            <img src="/medicago/eucap/include/images/delete.png" class="delete_locus_<TMPL_VAR NAME="locus_id">" alt="Delete Gene <TMPL_VAR NAME="gene_symbol">" title="Delete Gene <TMPL_VAR NAME="gene_symbol">" onclick="delete_feature('locus', <TMPL_VAR NAME="locus_id">, '<TMPL_VAR NAME="gene_symbol">');" />
+            <img src="/eucap/include/images/delete.png" class="delete_locus_<TMPL_VAR NAME="locus_id">" alt="Delete Gene <TMPL_VAR NAME="gene_symbol">" title="Delete Gene <TMPL_VAR NAME="gene_symbol">" onclick="delete_feature('locus', <TMPL_VAR NAME="locus_id">, '<TMPL_VAR NAME="gene_symbol">');" />
         </p></td>
         </TMPL_IF>
 	</tr>
@@ -104,17 +129,19 @@
 
 <TMPL_IF NAME="deleted_locus_summary_loop">
 <div id="deleted_locus_panel" name="deleted_locus_panel">
-    <p class="header1">Deleted Loci</p>
-    <table id="deleted_locus_table" name="deleted_locus_table" class="contenttable">
-        <tbody>
-        <tr id="locus_table_header" name="locus_table_header" class="tableHeader">
-            <td><p>Gene Symbol</p></td>
-            <td><p>MTR Locus</p></td>
-            <td><p>Original<br />Functional Annotation</p></td>
-            <td><p>Proposed<br />Functional Annotation</p</td>
-            <td><p>Comment</p></td>
-            <td colspan="3"><p>&nbsp;</p></td>
+    <p class="lead">Deleted Loci</p>
+    <table id="deleted_locus_table" name="deleted_locus_table" class="table table-striped">
+        <thead>
+        <tr id="locus_table_header" name="locus_table_header">
+            <th><p align="center">Gene Symbol</p></th>
+            <th><p align="center">MTR Locus</p></th>
+            <th><p align="center">Original<br />Functional Annotation</p></th>
+            <th><p align="center">Proposed<br />Functional Annotation</p></th>
+            <th><p align="center">Comment</p></th>
+            <td colspan="3"></th>
         </tr>
+        </thead>
+        <tbody>
         <TMPL_LOOP NAME="deleted_locus_summary_loop">
         <tr class="locus_<TMPL_VAR NAME="locus_id"> <TMPL_VAR NAME="tableRowClass">">
             <input type="hidden" id="locus_id" name="locus_id" value="<TMPL_VAR NAME="locus_id">">
@@ -123,11 +150,11 @@
             <td><p id="orig_func_annotation_<TMPL_VAR NAME="locus_id">"><TMPL_VAR NAME="orig_func_annotation"></p></td>
             <td><p id="func_annotation_<TMPL_VAR NAME="locus_id">"><TMPL_VAR NAME="func_annotation"></p></td>
             <td><p id="comment_<TMPL_VAR NAME="locus_id">"><TMPL_VAR NAME="comment"></p></td>
-            <td><p><input type="button" class="inputButton" id="view_locus_<TMPL_VAR NAME="locus_id">" value="View" onclick="perform_action('view_locus', 'locus_id', <TMPL_VAR NAME="locus_id">);" /></p></td>
-            <td<TMPL_UNLESS NAME="unapproved"> colspan="2"</TMPL_UNLESS>><p><input type="button" class="inputButton" id="annotate_locus_<TMPL_VAR NAME="locus_id">" value="Annotate" onclick="perform_action('annotate_locus', 'locus_id', <TMPL_VAR NAME="locus_id">);" disabled="disabled" /></p></td>
+            <td><p><input type="button" class="btn" id="view_locus_<TMPL_VAR NAME="locus_id">" value="View" onclick="perform_action('view_locus', 'locus_id', <TMPL_VAR NAME="locus_id">);" /></p></td>
+            <td<TMPL_UNLESS NAME="unapproved"> colspan="2"</TMPL_UNLESS>><p><input type="button" class="btn btn-primary" id="annotate_locus_<TMPL_VAR NAME="locus_id">" value="Annotate" onclick="perform_action('annotate_locus', 'locus_id', <TMPL_VAR NAME="locus_id">);" disabled="disabled" /></p></td>
             <TMPL_IF NAME="unapproved">
             <td><p>
-                <img src="/medicago/eucap/include/images/undelete.png" class="undelete_locus_<TMPL_VAR NAME="locus_id">" alt="unDelete Gene <TMPL_VAR NAME="gene_symbol">" title="unDelete Gene <TMPL_VAR NAME="gene_symbol">" onclick="undelete_feature('locus', <TMPL_VAR NAME="locus_id">, '<TMPL_VAR NAME="gene_symbol">');" />
+                <img src="/eucap/include/images/undelete.png" class="undelete_locus_<TMPL_VAR NAME="locus_id">" alt="unDelete Gene <TMPL_VAR NAME="gene_symbol">" title="unDelete Gene <TMPL_VAR NAME="gene_symbol">" onclick="undelete_feature('locus', <TMPL_VAR NAME="locus_id">, '<TMPL_VAR NAME="gene_symbol">');" />
             </p></td>
             </TMPL_IF>
         </tr>
@@ -138,8 +165,18 @@
 </div>
 <TMPL_ELSE>
 <div class="hide_panel" id="deleted_locus_panel" name="deleted_locus_panel">
-    <p class="header1">Deleted Loci</p>
-    <table id="deleted_locus_table" name="deleted_locus_table" class="contenttable">
+    <p class="lead">Deleted Loci</p>
+    <table id="deleted_locus_table" name="deleted_locus_table" class="table table-striped">
+        <thead>
+        <tr id="locus_table_header" name="locus_table_header">
+            <th><p align="center">Gene Symbol</p></th>
+            <th><p align="center">MTR Locus</p></th>
+            <th><p align="center">Original<br />Functional Annotation</p></th>
+            <th><p align="center">Proposed<br />Functional Annotation</p></th>
+            <th><p align="center">Comment</p></th>
+            <td colspan="3"></th>
+        </tr>
+        </thead>
         <tbody>
         </tbody>
     </table>
@@ -150,17 +187,32 @@
 
 <span id="anchor" name="anchor"></span>
 <div id="annotate_locus" name="annotate_locus"></div>
-<div id="view_locus" name="view_locus" class="hide_panel" style="text-align: left;"></div>
 
+<div id="view_locus" name="view_locus" class="hide_panel" style="text-align: left;"></div>
 <div id="review_annotation" name="review_annotation" class="hide_panel" style="text-align: left;"></div>
+
+<script type="text/javascript">
+    // autocomplete tags from GFF DB
+    $('#loci_list').tagsInput({
+        autocomplete_url: '/cgi-bin/eucap/eucap.pl?action=get_loci&app=tagsinput',
+        minChars: 6,
+        defaultText: '',
+    });
+    $('#loci_list_reset').click(function() { $('#loci_list').importTags(''); });
+</script>
 </TMPL_IF>
 
 <TMPL_IF NAME="mutants">
-<p class="header1">(<em><TMPL_VAR NAME="mutant_class_name"></em>)</p>
+<p class="lead">(<em><TMPL_VAR NAME="mutant_class_name"></em>)</p>
+<ul class="pager">
+	<li class="previous">
+   		<a href="/cgi-bin/eucap/eucap.pl?action=dashboard&mutant_panel=1">&larr; Back to Dashboard</a>
+	</li>
+</ul>
 <input type="hidden" id="mutant_class_id" name="mutant_class_id" value="<TMPL_VAR NAME="mutant_class_id">">
 <input type="hidden" id="user_id" name="user_id" value="<TMPL_VAR NAME="user_id">">
 
-<div id="add_by_mutant" class="hide_panel panel_background large_margin">
+<div id="add_by_mutant" class="hide_panel well">
     <p class="header2">Add mutant class members</p>
     <p class="header3">Please input mutant symbol identifiers (comma-separated list):</p>
 
@@ -171,12 +223,12 @@
           <textarea cols="14" rows="5" name="mutants_list" id="mutants_list"></textarea>
         </p></td>
         <td><p>
-          <input type="submit" class="submitButton" value="Add mutants" onclick="add_from_list('mutants', 'mutants_list', 'id');">
+          <input type="submit" class="btn btn-primary" value="Add mutants" onclick="add_from_list('mutants', 'mutants_list', 'id', undefined);">
         </p></td>
       </tr>
       <tr>
         <td><p>
-          <input type="button" class="inputButton" value="Reset" onclick="clear_element('mutants_list')">
+          <input type="button" id="mutants_list_reset" class="btn" value="Reset">
         </p></td>
       </tr>
     </tbody>
@@ -186,34 +238,41 @@
 
 <span id="mutants_add_status" name="mutants_add_status"></span>
 
-<table id="mutant_table" name="mutant_table" class="contenttable">
-  <tbody>
-    <tr><td colspan="8" align="right"><p>
-    <input type="button" class="inputButton" id="mutant_add" name="mutant_add" value="Add Mutant Class Member" onclick="toggle_panel('add_by_mutant', undefined);">
-    </tr>
+<div class="pull-right">
+    <input type="button" class="btn" id="mutant_add" name="mutant_add" value="Add Mutant Class Member" onclick="toggle_panel('add_by_mutant', undefined);">
+</div>
+<br /><br />
+<table id="mutant_table" name="mutant_table" class="table table-striped">
     <TMPL_IF NAME="mutant_summary_loop">
-	<tr id="mutant_table_header" name="mutant_table_header" class="tableHeader">
-        <td align="center"><p>Mutant Symbol</p></td>
-        <td align="center"><p>Phenotype</p></td>
-        <td align="center"><p>Alleles</p></td>
-        <td align="center"><p>Mapping/Allelism Data</p></td>
-        <td align="center"><p>Reference Lab</p></td>
-        <td align="center"><p>Reference Pub</p></td>
-        <td colspan="2"><p>&nbsp;</p></td>
+    <thead>
+	<tr id="mutant_table_header" name="mutant_table_header">
+        <th><p align="center">Mutant Symbol</p></th>
+        <th><p align="center">Phenotype</p></th>
+        <th><p align="center">Alleles</p></th>
+        <th><p align="center">Mapping/Allelism Data</p></th>
+        <th><p align="center">Reference Lab</p></th>
+        <th><p align="center">Reference Publication(s)</p></th>
+        <td colspan="2"><p>&nbsp;</p></th>
+        <TMPL_IF NAME="is_admin"><th><p>User</p></th></TMPL_IF>
     </tr>
+    </thead>
+  <tbody>
     <TMPL_LOOP NAME="mutant_summary_loop">
 	<tr class="mutant_<TMPL_VAR NAME="mutant_id"> <TMPL_VAR NAME="tableRowClass">">
-        <td align="center"><p id="mutant_symbol_<TMPL_VAR NAME="mutant_id">"><em><TMPL_VAR NAME="mutant_symbol"></em></p></td>
-        <td align="center"><p id="mutant_phenotype_<TMPL_VAR NAME="mutant_id">"><em><TMPL_VAR NAME="phenotype"></em></p></td>
-        <td align="center"><p id="num_alleles_<TMPL_VAR NAME="mutant_id">"><TMPL_VAR NAME="num_alleles"></p></td>
-        <td align="center"><p id="mapping_data_<TMPL_VAR NAME="mutant_id">"><TMPL_VAR NAME="mapping_data"></p></td>
-        <td align="center"><p id="reference_lab_<TMPL_VAR NAME="mutant_id">"><TMPL_VAR NAME="reference_lab"></p></td>
-        <td align="center"><p id="reference_pub_<TMPL_VAR NAME="mutant_id">"><TMPL_VAR NAME="reference_pub"></p></td>
-        <td<TMPL_UNLESS NAME="unapproved"> colspan="2"</TMPL_UNLESS>><p><input type="button" class="inputButton" id="annotate_mutant_<TMPL_VAR NAME="mutant_id">" value="Annotate" onclick="perform_action('annotate_mutant', 'mutant_id', <TMPL_VAR NAME="mutant_id">);" /></p></td>
+        <td><p align="center" id="mutant_symbol_<TMPL_VAR NAME="mutant_id">"><em><TMPL_VAR NAME="mutant_symbol"></em></p></td>
+        <td><p align="center" id="mutant_phenotype_<TMPL_VAR NAME="mutant_id">"><em><TMPL_VAR NAME="phenotype"></em></p></td>
+        <td><p align="center" id="num_alleles_<TMPL_VAR NAME="mutant_id">"><TMPL_VAR NAME="num_alleles"></p></td>
+        <td><p align="center" id="mapping_data_<TMPL_VAR NAME="mutant_id">"><TMPL_VAR NAME="mapping_data"></p></td>
+        <td><p align="center" id="reference_lab_<TMPL_VAR NAME="mutant_id">"><TMPL_VAR NAME="reference_lab"></p></td>
+        <td><p align="center" id="reference_pub_<TMPL_VAR NAME="mutant_id">"><TMPL_VAR NAME="reference_pub"></p></td>
+        <td<TMPL_UNLESS NAME="unapproved"> colspan="2"</TMPL_UNLESS>><p"><input type="button" class="btn btn-primary" id="annotate_mutant_<TMPL_VAR NAME="mutant_id">" value="Annotate" onclick="perform_action('annotate_mutant', 'mutant_id', <TMPL_VAR NAME="mutant_id">);" /></p></td>
         <TMPL_IF NAME="unapproved">
-        <td><p>
-            <img src="/medicago/eucap/include/images/delete.png" class="delete_mutant_<TMPL_VAR NAME="mutant_id">" alt="Delete Mutant <TMPL_VAR NAME="mutant_symbol">" title="Delete Mutant <TMPL_VAR NAME="mutant_symbol">" onclick="delete_feature('mutant', <TMPL_VAR NAME="mutant_id">, '<TMPL_VAR NAME="mutant_symbol">');" />
+        <td><p">
+            <img src="/eucap/include/images/delete.png" class="delete_mutant_<TMPL_VAR NAME="mutant_id">" alt="Delete Mutant <TMPL_VAR NAME="mutant_symbol">" title="Delete Mutant <TMPL_VAR NAME="mutant_symbol">" onclick="delete_feature('mutant', <TMPL_VAR NAME="mutant_id">, '<TMPL_VAR NAME="mutant_symbol">');" />
         </p></td>
+        </TMPL_IF>
+        <TMPL_IF NAME="is_admin">
+        <td><p></p></td>
         </TMPL_IF>
     </tr>
     </TMPL_LOOP>
@@ -227,54 +286,52 @@
 <span height="16px" style="float: right;" id="mutant_delete_status" name="mutant_delete_status"></span>
 <br />
 
-<TMPL_IF NAME="deleted_mutant_summary_loop">
-<div id="deleted_mutant_panel" name="deleted_mutant_panel">
-    <p class="header1">Deleted Mutants</p>
-    <table id="deleted_mutant_table" name="deleted_mutant_table" class="contenttable">
+<div<TMPL_UNLESS NAME="deleted_mutant_summary_loop"> class="hide_panel"</TMPL_UNLESS> id="deleted_mutant_panel" name="deleted_mutant_panel">
+    <p class="lead">Deleted Mutants</p>
+    <table id="deleted_mutant_table" name="deleted_mutant_table" class="table table-striped">
+        <thead>
+        <tr id="mutant_table_header" name="mutant_table_header">
+            <th><p align="center">Mutant Symbol</p></th>
+            <th><p align="center">Phenotype</p></th>
+            <th><p align="center">Alleles</p></th>
+            <th><p align="center">Mapping/Allelism Data</p></th>
+            <th><p align="center">Reference Lab</p></th>
+            <th><p align="center">Reference Publication(s)</p></th>
+            <td colspan="2"><p>&nbsp;</p></th>
+        </tr>
+        </thead>
         <tbody>
-        <tr id="mutant_table_header" name="mutant_table_header" class="tableHeader">
-            <td align="center"><p>Mutant Symbol</p></td>
-            <td align="center"><p>Phenotype</p></td>
-            <td align="center"><p>Alleles</p></td>
-            <td align="center"><p>Mapping/Allelism Data</p></td>
-            <td align="center"><p>Reference Lab</p></td>
-            <td align="center"><p>Reference Pub</p></td>
-            <td colspan="2"><p>&nbsp;</p></td>
-        </tr>
-        <TMPL_LOOP NAME="deleted_mutant_summary_loop">
-        <tr class="mutant_<TMPL_VAR NAME="mutant_id"> <TMPL_VAR NAME="tableRowClass">">
-            <td align="center"><p id="mutant_symbol_<TMPL_VAR NAME="mutant_id">"><em><TMPL_VAR NAME="mutant_symbol"></em></p></td>
-            <td align="center"><p id="mutant_phenotype_<TMPL_VAR NAME="mutant_id">"><em><TMPL_VAR NAME="phenotype"></em></p></td>
-            <td align="center"><p id="num_alleles_<TMPL_VAR NAME="mutant_id">"><TMPL_VAR NAME="num_alleles"></p></td>
-            <td align="center"><p id="mapping_data_<TMPL_VAR NAME="mutant_id">"><TMPL_VAR NAME="mapping_data"></p></td>
-            <td align="center"><p id="reference_lab_<TMPL_VAR NAME="mutant_id">"><TMPL_VAR NAME="reference_lab"></p></td>
-            <td align="center"><p id="reference_pub_<TMPL_VAR NAME="mutant_id">"><TMPL_VAR NAME="reference_pub"></p></td>
-            <td<TMPL_UNLESS NAME="unapproved"> colspan="2"</TMPL_UNLESS>><p><input type="button" class="inputButton" id="annotate_mutant_<TMPL_VAR NAME="mutant_id">" value="Annotate" onclick="perform_action('annotate_mutant', 'mutant_id', <TMPL_VAR NAME="mutant_id">);" disabled="disabled" /></p></td>
-            <TMPL_IF NAME="unapproved">
-            <td><p>
-                <img src="/medicago/eucap/include/images/undelete.png" class="undelete_mutant_<TMPL_VAR NAME="mutant_id">" alt="unDelete Mutant <TMPL_VAR NAME="mutant_symbol">" title="unDelete Mutant <TMPL_VAR NAME="mutant_symbol">" onclick="undelete_feature('mutant', <TMPL_VAR NAME="mutant_id">, '<TMPL_VAR NAME="mutant_symbol">');" />
-            </p></td>
-            </TMPL_IF>
-        </tr>
-        </TMPL_LOOP>
+		<TMPL_IF NAME="deleted_mutant_summary_loop">
+	        <TMPL_LOOP NAME="deleted_mutant_summary_loop">
+	        <tr class="mutant_<TMPL_VAR NAME="mutant_id"> <TMPL_VAR NAME="tableRowClass">">
+	            <td><p align="center" id="mutant_symbol_<TMPL_VAR NAME="mutant_id">"><em><TMPL_VAR NAME="mutant_symbol"></em></p></td>
+	            <td><p align="center" id="mutant_phenotype_<TMPL_VAR NAME="mutant_id">"><em><TMPL_VAR NAME="phenotype"></em></p></td>
+	            <td><p align="center" id="num_alleles_<TMPL_VAR NAME="mutant_id">"><TMPL_VAR NAME="num_alleles"></p></td>
+	            <td><p align="center" id="mapping_data_<TMPL_VAR NAME="mutant_id">"><TMPL_VAR NAME="mapping_data"></p></td>
+	            <td><p align="center" id="reference_lab_<TMPL_VAR NAME="mutant_id">"><TMPL_VAR NAME="reference_lab"></p></td>
+	            <td><p align="center" id="reference_pub_<TMPL_VAR NAME="mutant_id">"><TMPL_VAR NAME="reference_pub"></p></td>
+	            <td<TMPL_UNLESS NAME="unapproved"> colspan="2"</TMPL_UNLESS>><p><input type="button" class="btn btn-primary" id="annotate_mutant_<TMPL_VAR NAME="mutant_id">" value="Annotate" onclick="perform_action('annotate_mutant', 'mutant_id', <TMPL_VAR NAME="mutant_id">);" disabled="disabled" /></p></td>
+	            <TMPL_IF NAME="unapproved">
+	            <td><p>
+	                <img src="/eucap/include/images/undelete.png" class="undelete_mutant_<TMPL_VAR NAME="mutant_id">" alt="unDelete Mutant <TMPL_VAR NAME="mutant_symbol">" title="unDelete Mutant <TMPL_VAR NAME="mutant_symbol">" onclick="undelete_feature('mutant', <TMPL_VAR NAME="mutant_id">, '<TMPL_VAR NAME="mutant_symbol">');" />
+	            </p></td>
+	            </TMPL_IF>
+	        </tr>
+	        </TMPL_LOOP>
+		</TMPL_IF>
         </tbody>
     </table>
     <span height="16px" style="float: right;" id="mutant_undelete_status" name="mutant_undelete_status"></span>
 </div>
-<TMPL_ELSE>
-<div class="hide_panel" id="deleted_mutant_panel" name="deleted_mutant_panel">
-    <p class="header1">Deleted Mutants</p>
-    <table id="deleted_mutant_table" name="deleted_mutant_table" class="contenttable">
-        <tbody>
-        </tbody>
-    </table>
-    <span height="16px" style="float: right;" id="mutant_undelete_status" name="mutant_undelete_status"></span>
-</div>
-</TMPL_IF>
-<hr />
 
 <span id="anchor" name="anchor"></span>
 <div id="annotate_mutant" name="annotate_mutant"></div>
-
 <div id="annotate_alleles" name="annotate_alleles" class="hide_panel" style="text-align: left;"></div>
+
+<script type="text/javascript">
+    // set up the tag field for accepting the mutant list
+    // and the appropriate function to clear the list panel
+    $('#mutants_list').tagsInput({ defaultText: '' });
+    $('#mutants_list_reset').click(function() { $('#mutants_list').importTags(''); });
+</script>
 </TMPL_IF>

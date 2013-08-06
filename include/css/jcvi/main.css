@@ -1,0 +1,86 @@
+div#header {
+    height: 79px;
+}
+
+div#header {
+    background: none repeat scroll 0 0 transparent;
+    clear: both;
+    display: block;
+    height: 79px;
+    margin: 0;
+    padding: 0;
+    width: 100%;
+}
+
+#whitepad {
+    background-color: #FFFFFF;
+    left: 0;
+    min-width: 200px;
+    width: 25%;
+    z-index: 2;
+}
+
+#bluepad {
+    background-color: #0081B3;
+    left: 25%;
+    width: 75%;
+    z-index: 1;
+}
+
+#whitepad, #bluepad, #headerContainer {
+    margin-top: 0;
+}
+
+#whitepad, #bluepad {
+    height: 79px;
+    position: absolute;
+    top: 0;
+}
+
+div#headerContainer {
+    background: none repeat scroll 0 0 transparent;
+    height: 79px;
+    left: 0;
+    position: absolute;
+    top: 0;
+    width: 100%;
+    z-index: 3;
+}
+
+div#headerContainerContainer {
+    margin: auto;
+    width: 955px;
+}
+
+div#logo {
+    padding-top: 20px;
+}
+
+div#logo {
+    background-color: #FFFFFF;
+    float: left;
+    height: 59px;
+    padding-left: 20px;
+    text-align: center;
+}
+
+div#curve {
+    background-color: #FFFFFF;
+    background-image: url("http://www.jcvi.org/common/images/header-curve.gif");
+    float: left;
+    height: 79px;
+    width: 153px;
+}
+
+#project, #fluidproject {
+    color: #FFFFFF;
+    display: table-cell;
+    font-size: 21px;
+    height: 79px;
+    text-align: left;
+    vertical-align: middle;
+}
+
+#project {
+    width: 22em;
+}

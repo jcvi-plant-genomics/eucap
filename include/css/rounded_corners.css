@@ -1,0 +1,59 @@
+/* @group rounded-corners pics */
+
+.rounded_wrapper {
+	position: relative;
+}
+
+.rounded_wrapper img {
+	border-width: 0;
+	border-style: none;
+}
+
+.rounded_wrapper div {
+	height: 7px;
+	position: absolute;
+	width: 100%;
+}
+
+.rounded_wrapper .tl {
+	top: 0;
+	left: 0;
+	background: url(/medicago-v35/include/images/rounded_corners/tl.gif) no-repeat left top;
+}
+
+.rounded_wrapper .tr {
+	top: 0;
+	right: 0;
+	background: url(/medicago-v35/include/images/rounded_corners/tr.gif) no-repeat right top;
+}
+
+.rounded_wrapper .br {
+	bottom: 0;
+	right: 0;
+	background: url(/medicago-v35/include/images/rounded_corners/br.gif) no-repeat right bottom;
+}
+
+.rounded_wrapper .bl {
+	bottom: 0;
+	left: 0;
+	background: url(/medicago-v35/include/images/rounded_corners/bl.gif) no-repeat left bottom;
+}
+
+/* IE6 fix */
+.ie6_width .tr {
+	right: -1px;
+}
+
+.ie6_width .br {
+	right: -1px;
+}
+
+.ie6_height .br {
+	bottom: -1px;
+}
+
+.ie6_height .bl {
+	bottom: -1px;
+}
+
+/* @end */

@@ -1,23 +1,16 @@
 #!/usr/local/bin/perl
-# $Id: insert_family.pl 543 2007-07-24 19:16:27Z hamilton $
-# EuCAP - Eukaryotic Community Annotation Package - 2007
+# EuCAP - Eukaryotic Community Annotation Package
 # Accessory script for inserting new gene family in the community annotation database
+
+# Set the perl5lib path variable
+BEGIN {
+    unshift @INC, '../', './lib';
+}
 
 use warnings;
 use strict;
-
-#use DBI;
 use Getopt::Long;
-use lib '../lib/';
-use CA::CDBI;
-use CA::family;
-
-#local community annotation DB connection params
-my $CA_DB_NAME     = 'MTGCommunityAnnot';
-my $CA_DB_HOST     = 'mysql-lan-pro';
-my $CA_DB_DSN      = join(':', ('dbi:mysql', $CA_DB_NAME, $CA_DB_HOST));
-my $CA_DB_USERNAME = 'vkrishna';                                          # 'mtg_ca_user'
-my $CA_DB_PASSWORD = 'L0g!n2db';                                          # 'will be generated soon'
+use CA::DBHelper;
 
 my $user_id           = q{};
 my $family_name       = q{};
@@ -37,28 +30,18 @@ unless ($user_id && $family_name && $gene_class_symbol && $description) {
 }
 
 eval {
-    my $new_family_row = CA::family->insert(
+    my $new_family_obj = do('insert', 'family',
         {
             user_id           => $user_id,
             family_name       => $family_name,
             gene_class_symbol => $gene_class_symbol,
             description       => $description,
         }
-    );
+    )
+
 };
 
-if ($@) {
-    die "Error loading family into database. Make sure you have created a user first!!: $@\n\n";
-}
+die "Error loading family into database. Make sure you have created the user first!!: $@\n\n"; if ($@);
 
-=comment
-my $dbh = DBI->connect($CA_DB_DSN, $CA_DB_USERNAME, $CA_DB_PASSWORD) or die;
-my $sth = $dbh->prepare(
-"INSERT INTO family (user_id, family_name, gene_class_symbol, description) VALUES (?, ?, ?, ?)"
-) or die;
-$sth->execute($user_id, $family_name, $gene_class_symbol, $description) or die;
-$sth->finish;
-$dbh->disconnect;
-=cut
-
+print "Family `$family_name` loaded successfully!\n";
 exit;

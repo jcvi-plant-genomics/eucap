@@ -4,6 +4,11 @@
 # This scripts loads the structural annotation data (in JSON format) derived from
 # parsing the GMAP output and updates the loci table (has_structural_annotation flag)
 
+# Set the perl5lib path variable
+BEGIN {
+    unshift @INC, '../', './lib';
+}
+
 use strict;
 use warnings;
 use Getopt::Long;
@@ -15,10 +20,7 @@ use Bio::DB::SeqFeature::Store;
 use Bio::SeqFeature::Generic;
 
 #Class::DBI (ORM) Classes
-use lib '../lib/';
-use CA::CDBI;
-use CA::loci;
-use CA::structural_annotation;
+use CA::DBHelper;
 
 #local GFF DB connection params
 my $GFF_DB_ADAPTOR  = 'DBI::mysql';                                         #Bio DB SeqFeature Store

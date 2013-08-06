@@ -1,49 +1,18 @@
-<table class="bodycontent">
-	<tbody>
-    <tr class="tableRowEven">
-        <td colspan="2" align="left">
-            <p class="section">Sign In</p>
-        </td>
-    </tr>
-    <tr class="tableRowOdd">
-        <td align="left">
-            <br />
-            <p class="bodytext">You need a EuCAP account to start curating Gene Families.</p>
-            <p class="bodytext">Don&apos;t have an account?
-            <a href="/cgi-bin/medicago/eucap/eucap.pl?action=signup_page">Create one.</a></p>
-            <br />
-            <br />
-            <p class="bodytext"><b>EuCAP</b> - the Community Annotation gateway:</p>
-            <ul>
-                <li>Curate gene function and structure (per family)</li>
-                <li>Annotate <i>Medicago truncatula</i> mutants <br />
-                and alleles</li>
-            </ul>
-        </td>
-        <td align="right">
-            <br />
-            <TMPL_IF NAME="error">
-                <p style="color:red"><TMPL_VAR NAME="error_string"></p>
-                <br />
-            </TMPL_IF>
-            <form action="/cgi-bin/medicago/eucap/eucap.pl" method="post">
-            <p>
-                <input type="hidden" id="action" name="action" value="dashboard">
-                <label for="username">Username: </label>
-                <input type="text" name="username" id="username">
-                <br /><br />
-                <label for="password">Password: </label>
-                <input type="password" name="password" id="password">
-                <br /><br /><br />
-                <input type="submit" class="submitButton" value="Log in">
-                &nbsp;
-                <input type="reset" class="resetButton">
-            </p>
-            </form>
-        </td>
-    </tr>
-    </tbody>
-    </table>
+	  <TMPL_IF NAME="error">
+      <div class="alert alert-error">
+      <button type="button" class="close" data-dismiss="alert">&times;</button>
+      <TMPL_VAR NAME="error_string">
+      </div>
+      </TMPL_IF>
+      <div class="hero-unit">
+        <h1>EuCAP</h1>
+        <p class="lead"><em>Medicago truncatula</em> Community Annotation gateway</p>
+        <ul>
+            <li>Curate gene function and structure</li>
+            <li>Annotate <i>Medicago truncatula</i> mutants and alleles</li>
+        </ul>
+        <p><a class="btn btn-primary btn-large" href="/cgi-bin/medicago-v35/annotation.cgi?page=community_annot">Learn more &raquo;</a></p>
+      </div>
 
 <script type="text/javascript">
   document.getElementById('username').focus();

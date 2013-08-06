@@ -129,7 +129,7 @@ my $template_file = '/opt/www/common/perl_templates/2_column_fixed_width.tpl';
 my $vars          = {
     title        => $title,
     site         => $site,
-    home_page    => '/cgi-bin/medicago/index.cgi',
+    home_page    => '/cgi-bin/medicago-v35/index.cgi',
     project_name => $project_name,
     side_menu    => $side_menu,
     main_content => $main_content,
@@ -141,7 +141,7 @@ $tt->process($template_file, $vars) || $tt->error();
 $dbh->disconnect;
 
 sub get_side_links {
-    my $file = "/opt/www/medicago/cgi-bin/medicago/medicago_links.txt";
+    my $file = "/opt/www/medicago/cgi-bin/medicago-v35/medicago_links.txt";
     open(LINK, "<$file") || die "can't open $file\n";
     my @array      = <LINK>;
     my @side_menu2 = ();

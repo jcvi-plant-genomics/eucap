@@ -1,0 +1,132 @@
+.header {
+    background: #505559;
+    height: 20px;
+    left: 0;
+    position: fixed;
+    top: 0;
+    width: 100%;
+    z-index: 314159265;
+}
+.header .wrap {
+    position: relative;
+}
+.header #logo {
+    float: left;
+}
+.header #user, .header #menu {
+    float: right;
+}
+.header #logo {
+    height: 0;
+    margin: 0 5px 0 20px;
+    overflow: hidden;
+    padding-top: 5px;
+    width: 101px;
+}
+.header #menu a {
+    float: left;
+}
+.header #menu a:hover {
+    background: #505559;
+}
+.header #menu a, .header #user a, .header #notifications a, .header #loginLink a {
+    color: rgba(255, 255, 255, 0.898);
+    display: block;
+    font-weight: bold;
+    line-height: 20px;
+    padding: 0 10px;
+    background: #505559;
+}
+.header #menu a:hover, .header #user a:hover, .header #notifications a:hover, .header #loginLink a:hover {
+    color: #FFFFFF;
+    text-decoration: none;
+}
+.header #user {
+    margin-right: 10px;
+}
+.header #user a {
+    max-width: 175px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+.header #user .userArrow {
+    margin-left: 5px;
+}
+.header #user .pic img {
+    border-radius: 3px 3px 3px 3px;
+    float: left;
+    height: 20px;
+    position: relative;
+    right: 5px;
+    width: 20px;
+}
+.header #user #userMenu {
+    background: none repeat scroll 0 0 rgba(0, 0, 0, 0.85);
+    border-radius: 0 0 3px 3px;
+    display: none;
+    min-width: 140px;
+    position: absolute;
+    right: 10px;
+    z-index: 3;
+}
+.header #user #userMenu ul {
+    list-style: none outside none;
+    margin: 0;
+}
+.header #user #userMenu ul li.myProfile a {
+    text-indent: 10px;
+}
+.header #user #userMenu ul a {
+    color: rgba(255, 255, 255, 0.75);
+    display: block;
+    font-size: 12px;
+    font-weight: bold;
+    line-height: 20px;
+    padding: 0 25px;
+    text-shadow: none;
+}
+.header #user #userMenu ul a:hover {
+    background: none repeat scroll 0 0 #000000;
+    border-radius: 0 0 3px 3px;
+    color: #FFFFFF;
+    text-decoration: none;
+}
+.header #user:hover {
+    background: none repeat scroll 0 0 rgba(0, 0, 0, 0.08);
+}
+.header #user:hover #userMenu {
+    display: block;
+}
+.header #user #carrot {
+    display: none;
+}
+
+/*
+.navigation {
+  position: relative;
+  top: 0;
+  width: 100%;
+  height: 35px;
+  text-align: center;
+  padding-top: 15px;
+  -webkit-box-shadow: 0px 0px 8px 0px #000000;
+  -moz-box-shadow: 0px 0px 8px 0px #000000;
+  box-shadow: 0px 0px 8px 0px #000000;
+  background-color: #505559;
+  z-index: 100;
+}
+
+.navigation a {
+	font-size: 14px;
+	padding-left: 15px;
+	padding-right: 15px;
+	color: white;
+	text-decoration: none;
+}
+
+.navigation a:hover {
+	color: grey;
+}
+
+*/

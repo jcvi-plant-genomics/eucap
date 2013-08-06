@@ -1,0 +1,103 @@
+.panel_background {
+    background-color: #f5f5f5 !important;
+    padding: 1em;
+}
+.large_margin {
+    margin-top: 10px;
+    margin-bottom: 10px;
+}
+.hide_panel {
+    display: none;
+}
+.show_panel {
+    display: block;
+}
+
+.error {
+    color: red;
+}
+.success {
+    color: green;
+}
+.italics {
+    font-style: italic;
+}
+
+input.error, textarea.error {
+    border: 1px solid #c00;
+}
+p.section {
+    font-family: Arial;
+    margin: 10px 0px 8px 5px;
+    font-size: 2.5em;
+    color: #AAAAAA;
+}
+
+/* css for depicting an edited row */
+tr.tableRowEdit {
+    background-color: #AD9898;
+    padding: 2px;
+}
+tr.tableRowEdit td {
+    margin: 0;
+    padding: 6px 8px 6px;
+    vertical-align: top;
+}
+#middle_content tr.tableRowEdit td p.bodytext {
+    margin-bottom: 6px;
+    padding: 0;
+}
+td.tableRowEdit {
+    background-color: #AD9898;
+}
+
+/* Form label specific styling */
+label {
+    display: inline-block;
+    vertical-align: top;
+    width: 100px;
+    font-weight: bold;
+}
+
+label.error {
+    margin-left: 10px;
+    width: auto;
+    display: inline;
+}
+
+.transparent {
+   filter:alpha(opacity=60);
+   -moz-opacity: 0.6;
+   opacity: 0.6;
+}
+
+/* override jquery UI (smoothness)
+.ui-widget-content {
+    border: 1px solid #aaaaaa;
+	background: #f5f5f5 url(../images/ui-bg_flat_75_f5f5f5_40x100.png) 50% 50% repeat-x;
+	color: #222222;
+}
+
+.ui-state-active, .ui-widget-content .ui-state-active, .ui-widget-header .ui-state-active {
+    border: 1px solid #aaaaaa;
+	background: #e6e6e6 url(../images/ui-bg_diagonals-thick_65_e6e6e6_40x40.png) 50% 50% repeat;
+	font-weight: normal;
+	color: #212121;
+}
+end override */
+
+.icon-eucap-thumb {
+    background-image: url(../images/eucap-24x24.png);
+    vertical-align: top;
+    width: 24px;
+    height: 24px;
+    background-position: 0 0;
+}
+
+.icon-eucap {
+    background-image: url(../images/eucap.png);
+    vertical-align: baseline;
+    width: 48px;
+    height: 48px;
+    background-position: 0 0;
+}
