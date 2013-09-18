@@ -1,10 +1,11 @@
 EuCAP - Eukaryotic Community Annotation Package - INSTALL
 $Id: INSTALL 546 2007-08-01 00:00:34Z hamilton $
-Rice Genome Annotation Project - http://rice.tigr.org Email: rice@tigr.org
+Medicago Genome Annotation Project - http://medicago.jcvi.org/medicago
+Email: mtruncatula@jcvi.org
 
 For more information about EuCAP, see the README and LICENSE file in the package.
 PREREQUISITES
-* Perl (version >= 5.8.8,  http://www,cpan.org) 
+* Perl (version >= 5.8.8,  http://www,cpan.org)
 * Apache (http://www.apache.org)
 * MySQL (http://www.mysql.com)
 * BioPerl (version >= 1.5.1, http://www.bioperl.org )
@@ -14,11 +15,20 @@ PREREQUISITES
   CGI::Session
   Authen::Passphrase::MD5Crypt
   HTML::Template
+
   DBI
   DBD::mysql
   Class::DBI
+  Class::DBI::AbstractSearch
+  SQL::Abstract::Limit
+
   IO::String
   JSON
+
+  Data::Difference
+  Exporter::Simple
+  Merge::HashRef
+  MIME::Base64
 
 * The file json.js needs to be present in the javascript directory in the webserver document root, it can be downloaded here: http://www.json.org/json.js
 

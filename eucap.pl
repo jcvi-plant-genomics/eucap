@@ -5,7 +5,7 @@ use strict;
 
 # Set the perl5lib path variable
 BEGIN {
-    unshift @INC, '../', './lib', './lib/5.10.1', '../textpresso';
+    unshift @INC, '../', './lib', './lib/5.16.1', '../textpresso';
 }
 
 # CGI and authentication related modules
@@ -29,6 +29,9 @@ use File::Basename;
 use Data::Dumper;
 use Time::Piece;
 use Config::IniFiles;
+
+# Parameter Validation
+use Params::Validate;
 
 # BioPerl classes
 #use Bio::DB::GFF;
@@ -84,15 +87,15 @@ my $FLAG      = 0;
 
 # actions that do not require session validation (no login necessary)
 my %actions_nologin = (
-    "signup_page"            => 1,
-      "signup_user"          => 1,
-      "validate_new_user"    => 1,
-      "check_username"       => 1,
-      "check_email"          => 1,
-      "get_loci"             => 1,
-      "get_mutant_info"      => 1,
-      "get_pmids"            => 1,
-      "retrieve_pmid_record" => 1,
+    "signup_page"          => 1,
+    "signup_user"          => 1,
+    "validate_new_user"    => 1,
+    "check_username"       => 1,
+    "check_email"          => 1,
+    "get_loci"             => 1,
+    "get_mutant_info"      => 1,
+    "get_pmids"            => 1,
+    "retrieve_pmid_record" => 1,
 );
 
 # Read the eucap.ini configuration file
@@ -116,15 +119,15 @@ my $action = $cgi->param('action');
 my $session;
 CGI::Session->name("Medicago_EuCAP");
 $session = CGI::Session->load("driver:mysql", $cgi, { Handle => $ca_dbh })
-    or die(CGI::Session->errstr . "\n");
+  or die(CGI::Session->errstr . "\n");
 
 if ($action) {
     if (not defined $actions_nologin{$action}) {
-        if($session->is_expired) {
+        if ($session->is_expired) {
             print $session->header(), $cgi->start_html(),
-                    $cgi->p("Your session timed out! Refresh the screen to start a new session!"),
-                    $cgi->end_html();
-                    exit(0);
+              $cgi->p("Your session timed out! Refresh the screen to start a new session!"),
+              $cgi->end_html();
+            exit(0);
         } elsif ($session->is_empty) {
             $session = CGI::Session->new("driver:mysql", $cgi, { Handle => $ca_dbh })
               or die(CGI::Session->errstr . "\n");
@@ -141,28 +144,21 @@ if ($action) {
 # decide what page/content is to be rendered
 if ($action eq "login_page") {
     login_page();
-}
-elsif ($action eq 'signup_page') {
+} elsif ($action eq 'signup_page') {
     signup_page($cgi);
-}
-elsif ($action eq 'signup_user') {
+} elsif ($action eq 'signup_user') {
     signup_user($cgi);
     $FLAG = 1;
-}
-elsif ($action eq 'validate_new_user') {
+} elsif ($action eq 'validate_new_user') {
     validate_new_user($cgi);
-}
-elsif ($action eq 'dashboard') {
+} elsif ($action eq 'dashboard') {
     dashboard($session, $cgi);
-}
-elsif ($action eq 'edit_profile') {
+} elsif ($action eq 'edit_profile') {
     $page_vars = edit_profile($session, $cgi);
-}
-elsif ($action eq 'update_profile') {
+} elsif ($action eq 'update_profile') {
     edit_profile($session, $cgi, 1);
     $FLAG = 1;
-}
-elsif ($action eq 'update_password') {
+} elsif ($action eq 'update_password') {
     update_password($session, $cgi);
     $FLAG = 1;
 }
@@ -170,40 +166,35 @@ elsif ($action eq 'update_password') {
 # Locus/mutant specific actions
 elsif ($action eq 'annotate') {
     annotate($session, $cgi, 'loci');
-}
-elsif ($action eq 'annotate_locus') {
-    annotate_locus($session, $cgi, $action);
+} elsif ($action eq 'annotate_locus' or $action eq 'view_locus' or $action eq 'save_locus') {
+    my $save = ($action eq 'save_locus') ? 1 : undef;
+
+    annotate_locus(
+        {
+            session => $session,
+            cgi     => $cgi,
+            action  => $action,
+            save    => $save
+        }
+    );
     $FLAG = 1;
-}
-elsif ($action eq 'view_locus') {
-    annotate_locus($session, $cgi, $action);
-    $FLAG = 1;
-}
-elsif ($action eq 'save_locus') {
-    annotate_locus($session, $cgi, $action, 1);
-    $FLAG = 1;
-}
-elsif ($action eq 'add_loci') {
+} elsif ($action eq 'add_loci') {
     add_loci($session, $cgi);
     $FLAG = 1;
-}
-elsif ($action eq 'get_loci') {
+} elsif ($action eq 'get_loci') {
     my $app        = $cgi->param('app');
     my $gene_locus = $cgi->param('term');
     my $limit      = (defined $cgi->param('limit')) ? $cgi->param('limit') : 25;
 
     get_loci({ cgi => $cgi, gene_locus => $gene_locus, limit => $limit, app => $app });
     $FLAG = 1;
-}
-elsif ($action eq 'delete_locus') {
+} elsif ($action eq 'delete_locus') {
     delete_locus($session, $cgi);
     $FLAG = 1;
-}
-elsif ($action eq 'undelete_locus') {
+} elsif ($action eq 'undelete_locus') {
     undelete_locus($session, $cgi);
     $FLAG = 1;
-}
-elsif ($action eq 'run_blast') {
+} elsif ($action eq 'run_blast') {
     run_blast($session, $cgi);
     $FLAG = 1;
 }
@@ -212,12 +203,10 @@ elsif ($action eq 'run_blast') {
 elsif ($action eq 'add_mutant_class_dialog') {
     add_mutant_class($session, $cgi);
     $FLAG = 1;
-}
-elsif ($action eq 'add_mutant_class') {
+} elsif ($action eq 'add_mutant_class') {
     add_mutant_class($session, $cgi, 1);
     $FLAG = 1;
-}
-elsif ($action eq 'annotate_mutant_class') {
+} elsif ($action eq 'annotate_mutant_class') {
     annotate_mutant_class(
         {
             session => $session,
@@ -225,8 +214,7 @@ elsif ($action eq 'annotate_mutant_class') {
         }
     );
     $FLAG = 1;
-}
-elsif ($action eq 'save_mutant_class') {
+} elsif ($action eq 'save_mutant_class') {
     annotate_mutant_class(
         {
             session => $session,
@@ -235,12 +223,10 @@ elsif ($action eq 'save_mutant_class') {
         }
     );
     $FLAG = 1;
-}
-elsif ($action eq 'delete_mutant_class') {
+} elsif ($action eq 'delete_mutant_class') {
     delete_mutant_class($session, $cgi);
     $FLAG = 1;
-}
-elsif ($action eq 'undelete_mutant_class') {
+} elsif ($action eq 'undelete_mutant_class') {
     undelete_mutant_class($session, $cgi);
     $FLAG = 1;
 }
@@ -248,12 +234,10 @@ elsif ($action eq 'undelete_mutant_class') {
 # Mutant-specific actions
 elsif ($action eq 'annotate_mutants') {
     annotate($session, $cgi, 'mutants');
-}
-elsif ($action eq 'add_mutants') {
+} elsif ($action eq 'add_mutants') {
     add_mutants($session, $cgi);
     $FLAG = 1;
-}
-elsif ($action eq 'annotate_mutant') {
+} elsif ($action eq 'annotate_mutant') {
     annotate_mutant(
         {
             session => $session,
@@ -261,8 +245,7 @@ elsif ($action eq 'annotate_mutant') {
         }
     );
     $FLAG = 1;
-}
-elsif ($action eq 'save_mutant') {
+} elsif ($action eq 'save_mutant') {
     annotate_mutant(
         {
             session => $session,
@@ -271,22 +254,27 @@ elsif ($action eq 'save_mutant') {
         }
     );
     $FLAG = 1;
-}
-elsif ($action eq 'delete_mutant') {
+} elsif ($action eq 'delete_mutant') {
     delete_mutant($session, $cgi);
     $FLAG = 1;
-}
-elsif ($action eq 'undelete_mutant') {
+} elsif ($action eq 'undelete_mutant') {
     undelete_mutant($session, $cgi);
     $FLAG = 1;
-}
-elsif ($action eq 'get_mutant_info') {
+} elsif ($action eq 'get_mutant_info') {
     my $mutant_sym = $cgi->param('term');
     my $limit      = (defined $cgi->param('limit')) ? $cgi->param('limit') : 10;
     my $edits      = (defined $cgi->param('edits')) ? $cgi->param('edits') : undef;
     my $user_id    = (defined $cgi->param('user_id')) ? $cgi->param('user_id') : undef;
 
-    get_mutant_info({ cgi => $cgi, symbol => $mutant_sym, limit => $limit, user_id => $user_id, edits => $edits });
+    get_mutant_info(
+        {
+            cgi     => $cgi,
+            symbol  => $mutant_sym,
+            limit   => $limit,
+            user_id => $user_id,
+            edits   => $edits
+        }
+    );
     $FLAG = 1;
 }
 
@@ -294,20 +282,16 @@ elsif ($action eq 'get_mutant_info') {
 elsif ($action eq 'annotate_alleles') {
     annotate_alleles($session, $cgi);
     $FLAG = 1;
-}
-elsif ($action eq 'save_alleles') {
+} elsif ($action eq 'save_alleles') {
     annotate_alleles($session, $cgi, 1);
     $FLAG = 1;
-}
-elsif ($action eq 'add_alleles') {
+} elsif ($action eq 'add_alleles') {
     add_alleles($session, $cgi);
     $FLAG = 1;
-}
-elsif ($action eq 'delete_allele') {
+} elsif ($action eq 'delete_allele') {
     delete_allele($session, $cgi);
     $FLAG = 1;
-}
-elsif ($action eq 'undelete_allele') {
+} elsif ($action eq 'undelete_allele') {
     undelete_allele($session, $cgi);
     $FLAG = 1;
 }
@@ -316,53 +300,47 @@ elsif ($action eq 'undelete_allele') {
 elsif ($action eq 'struct_anno') {
     structural_annotation($session, $cgi);
     $FLAG = 1;
-}
-elsif ($action eq 'submit_struct_anno') {
+} elsif ($action eq 'submit_struct_anno') {
     submit_structural_annotation($session, $cgi);
     $FLAG = 1;
-}
-elsif ($action eq 'review_annotation') {
+} elsif ($action eq 'review_annotation') {
     review_annotation($session, $cgi);
     $FLAG = 1;
-}
-elsif ($action eq 'submit_annotation') {
+} elsif ($action eq 'submit_annotation') {
     submit_annotation($session, $cgi);
     $FLAG = 1;
-}
-elsif ($action eq 'final_submit') {
+} elsif ($action eq 'final_submit') {
     final_submit($session, $cgi);
-}
-elsif ($action eq 'check_username') {
+} elsif ($action eq 'check_username') {
     my $username = $cgi->param('username');
     my $user_id  = (defined $cgi->param('user_id')) ? $cgi->param('user_id') : undef;
     my $ignore   = (defined $cgi->param('ignore')) ? $cgi->param('ignore') : undef;
 
     check_username($cgi, $username, $user_id, $ignore);
     $FLAG = 1;
-}
-elsif ($action eq 'check_email') {
+} elsif ($action eq 'check_email') {
     my $email = $cgi->param('email');
     my $ignore = (defined $cgi->param('ignore')) ? $cgi->param('ignore') : undef;
 
     check_email($cgi, $email, $ignore);
     $FLAG = 1;
 }
+
 # publication specific actions
 elsif ($action eq 'get_pmids') {
     my $pmid = $cgi->param('term');
 
-    get_pmids({ cgi => $cgi, pmid => $pmid }) if($pmid !~ /\D+/);
+    get_pmids({ cgi => $cgi, pmid => $pmid }) if ($pmid !~ /\D+/);
     $FLAG = 1;
-}
-elsif ($action eq 'retrieve_pmid_record') {
+} elsif ($action eq 'retrieve_pmid_record') {
     my $pmid = $cgi->param('term');
 
-    retrieve_pmid_record({ cgi => $cgi, pmid => $pmid }) if($pmid !~ /\D+/);
+    retrieve_pmid_record({ cgi => $cgi, pmid => $pmid }) if ($pmid !~ /\D+/);
     $FLAG = 1;
-}
-elsif ($action eq 'logout') {
+} elsif ($action eq 'logout') {
     logout($session, $cgi);
 }
+
 #else {    # logged in and fall through the actions - then log out
 #    logout($session, $cgi, 'Sorry! System error. Please report issue to site administrator.');
 #}
@@ -404,10 +382,9 @@ sub init {
         #store user_id as a CGI::session param
         my $anno_ref = {};
         if ($username eq "admin") {
-            $anno_ref->{is_admin} = 1;
+            $anno_ref->{is_admin}         = 1;
             $anno_ref->{is_family_editor} = 1;
-        }
-        else {
+        } else {
             $anno_ref->{user_id} = $user->user_id;
             my @fams = selectall_array('family', { user_id => $anno_ref->{user_id} });
             $anno_ref->{is_family_editor} = (scalar @fams >= 1) ? 1 : undef;
@@ -416,8 +393,7 @@ sub init {
         $session->param('anno_ref', $anno_ref);
         $session->flush;
         return 0;
-    }
-    else {
+    } else {
         login_page(1, "Password does not match! Please check and try again.");
         $session->delete();
         $session->flush;
@@ -470,9 +446,9 @@ sub logout {
 
 sub dashboard {
     my ($session, $cgi) = @_;
-    my $title    = "Annotator Dashboard";
-    my $body_tmpl     = HTML::Template->new(filename => "./tmpl/dashboard.tmpl");
-    my $anno_ref = $session->param('anno_ref');
+    my $title     = "Annotator Dashboard";
+    my $body_tmpl = HTML::Template->new(filename => "./tmpl/dashboard.tmpl");
+    my $anno_ref  = $session->param('anno_ref');
 
     my $user_id = (defined $anno_ref->{is_admin}) ? 0 : $anno_ref->{user_id};
     $anno_ref = update_session(
@@ -490,8 +466,7 @@ sub dashboard {
     if (scalar @fams == 0)
     {    # if the user does not have any associated gene families, disable this seciton
         $disabled = 1;
-    }
-    else {    # loop through all gene families for the current user_id
+    } else {    # loop through all gene families for the current user_id
         foreach my $fam (@fams) {
             my $family_id = $fam->family_id;
 
@@ -521,10 +496,10 @@ sub dashboard {
 
     ## Populate the 'Annotate Gene Loci' section of the Dashboard accordion menu
     my $locus_select_list = [];
-    my %all_loci        = selectall_id(
+    my %all_loci          = selectall_id(
         {
-            table      => 'loci',
-            user_id    => $user_id,
+            table   => 'loci',
+            user_id => $user_id,
         }
     );
 
@@ -538,15 +513,16 @@ sub dashboard {
     my $locus_summary_loop         = [];
     my $deleted_locus_summary_loop = [];
     foreach my $locus_id (sort { $a <=> $b } keys %all_loci) {
-        ($anno_ref, $pick_edits{loci}, $unapproved_loci{$locus_id}, $deleted_loci{$locus_id}) = get_feat_info(
+        ($anno_ref, $pick_edits{loci}, $unapproved_loci{$locus_id}, $deleted_loci{$locus_id}) =
+          get_feat_info(
             {
-                table      => 'loci',
-                locus_id   => $locus_id,
-                user_id    => $user_id,
-                anno_ref   => $anno_ref,
+                table       => 'loci',
+                locus_id    => $locus_id,
+                user_id     => $user_id,
+                anno_ref    => $anno_ref,
                 extra_flags => 1
             }
-        );
+          );
 
         ++$i;
         my $select_row = {
@@ -561,17 +537,17 @@ sub dashboard {
 
         my $summary_row = {};
 
-        if(defined $unapproved_loci{$locus_id} or defined $deleted_loci{$locus_id}) {
+        if (defined $unapproved_loci{$locus_id} or defined $deleted_loci{$locus_id}) {
             $summary_row->{locus_id}   = $locus_id;
             $summary_row->{gene_locus} = $anno_ref->{loci}->{$locus_id}->{gene_locus};
             $summary_row->{orig_func_annotation} =
               $anno_ref->{loci}->{$locus_id}->{orig_func_annotation};
-            $summary_row->{gene_symbol}     = $anno_ref->{loci}->{$locus_id}->{gene_symbol};
-            $summary_row->{tableRowClass}   = "info"
+            $summary_row->{gene_symbol}   = $anno_ref->{loci}->{$locus_id}->{gene_symbol};
+            $summary_row->{tableRowClass} = "info"
               if (  defined $anno_ref->{is_admin}
                 and defined $anno_ref->{loci}->{$locus_id}->{is_edit});
 
-            if(defined $deleted_loci{$locus_id}) {
+            if (defined $deleted_loci{$locus_id}) {
                 push @$deleted_locus_summary_loop, $summary_row;
             } else {
                 push @$locus_summary_loop, $summary_row;
@@ -595,7 +571,13 @@ sub dashboard {
     my %deleted_mutant_class    = ();
     my %unapproved_mutant_class = ();
     foreach my $mutant_class_id (sort { $a <=> $b } keys %mutant_class_ids) {
-        ($anno_ref, $pick_edits{mutant_class}, $unapproved_mutant_class{$mutant_class_id}, $deleted_mutant_class{$mutant_class_id}) = get_feat_info(
+        (
+            $anno_ref,
+            $pick_edits{mutant_class},
+            $unapproved_mutant_class{$mutant_class_id},
+            $deleted_mutant_class{$mutant_class_id}
+          )
+          = get_feat_info(
             {
                 table           => 'mutant_class',
                 mutant_class_id => $mutant_class_id,
@@ -603,7 +585,7 @@ sub dashboard {
                 anno_ref        => $anno_ref,
                 extra_flags     => 1
             }
-        );
+          );
 
         my ($mutant_class_sym, $mutant_class_name) = (
             $anno_ref->{mutant_class}->{$mutant_class_id}->{symbol},
@@ -627,8 +609,7 @@ sub dashboard {
 
         if (defined $deleted_mutant_class{$mutant_class_id}) {
             push @$deleted_mutant_class_list, $row;
-        }
-        else {
+        } else {
             push @$mutant_class_list, $row;
         }
     }
@@ -640,9 +621,13 @@ sub dashboard {
         disabled                  => $disabled,
     );
 
-    $body_tmpl->param(family_panel => 1) if(not defined $cgi->param('loci_panel') and not defined $cgi->param('mutant_panel'));
-    $body_tmpl->param(loci_panel   => 1) if ((defined $cgi->param('loci_panel') or $disabled) and not defined $cgi->param('mutant_panel'));
-    $body_tmpl->param(mutant_panel => 1) if (defined $cgi->param('mutant_panel') and not defined $cgi->param('loci_panel'));
+    $body_tmpl->param(family_panel => 1)
+      if (not defined $cgi->param('loci_panel') and not defined $cgi->param('mutant_panel'));
+    $body_tmpl->param(loci_panel => 1)
+      if ((defined $cgi->param('loci_panel') or $disabled)
+        and not defined $cgi->param('mutant_panel'));
+    $body_tmpl->param(mutant_panel => 1)
+      if (defined $cgi->param('mutant_panel') and not defined $cgi->param('loci_panel'));
 
     delete $anno_ref->{family};
     delete $anno_ref->{family_id};
@@ -675,17 +660,17 @@ sub dashboard {
       "/eucap/include/css/jquery.selectBox.css";
 
     push @{ $page_vars->{breadcrumb} }, ({ 'link' => $ENV{REQUEST_URI}, 'menu_name' => $title });
-    $page_vars->{title}       = "EuCAP :: $title";
-    $page_vars->{page_header} = "Annotator Dashboard";
-    $page_vars->{is_family_editor} = 1 if(defined $anno_ref->{is_family_editor});
+    $page_vars->{title}            = "EuCAP :: $title";
+    $page_vars->{page_header}      = "Annotator Dashboard";
+    $page_vars->{is_family_editor} = 1 if (defined $anno_ref->{is_family_editor});
 
     $page_vars->{user_info} = {
-            'username'     => $username,
-            'name'         => $anno_ref->{users}->{$user_id}->{name},
-            'organization' => $anno_ref->{users}->{$user_id}->{organization},
-            'email'        => $anno_ref->{users}->{$user_id}->{email},
-            'url'          => $anno_ref->{users}->{$user_id}->{url},
-            'email_hash'   => md5_hex($anno_ref->{users}->{$user_id}->{email}),
+        'username'     => $username,
+        'name'         => $anno_ref->{users}->{$user_id}->{name},
+        'organization' => $anno_ref->{users}->{$user_id}->{organization},
+        'email'        => $anno_ref->{users}->{$user_id}->{email},
+        'url'          => $anno_ref->{users}->{$user_id}->{url},
+        'email_hash'   => md5_hex($anno_ref->{users}->{$user_id}->{email}),
     };
     $page_vars->{main_content} = $body_tmpl->output;
 }
@@ -734,15 +719,16 @@ sub annotate {
         foreach my $locus_id (sort { $a <=> $b } keys %all_loci) {
             my %pick_edits = ();
 
-            ($anno_ref, $pick_edits{loci}, $unapproved_loci{$locus_id}, $deleted_loci{$locus_id}) = get_feat_info(
+            ($anno_ref, $pick_edits{loci}, $unapproved_loci{$locus_id}, $deleted_loci{$locus_id}) =
+              get_feat_info(
                 {
-                    table      => 'loci',
-                    locus_id   => $locus_id,
-                    user_id    => $user_id,
-                    anno_ref   => $anno_ref,
+                    table       => 'loci',
+                    locus_id    => $locus_id,
+                    user_id     => $user_id,
+                    anno_ref    => $anno_ref,
                     extra_flags => 1
                 }
-            );
+              );
 
             if (defined $anno_ref->{loci}->{$locus_id}->{mutant_id}
                 and $anno_ref->{loci}->{$locus_id}->{mutant_id} ne "")
@@ -751,15 +737,20 @@ sub annotate {
 
                 ($anno_ref, $pick_edits{mutant_info}) = get_feat_info(
                     {
-                        table      => 'mutant_info',
-                        mutant_id  => $mutant_id,
-                        user_id    => $user_id,
-                        anno_ref   => $anno_ref,
+                        table     => 'mutant_info',
+                        mutant_id => $mutant_id,
+                        user_id   => $user_id,
+                        anno_ref  => $anno_ref,
                     }
                 );
 
-                $anno_ref->{mutant_info}->{$mutant_id}->{has_alleles} =
-                  count_features({ table => 'alleles', where => { mutant_id => $mutant_id }, user_id => $user_id });
+                $anno_ref->{mutant_info}->{$mutant_id}->{has_alleles} = count_features(
+                    {
+                        table   => 'alleles',
+                        where   => { mutant_id => $mutant_id },
+                        user_id => $user_id
+                    }
+                );
 
                 my $mutant_class_id = $anno_ref->{mutant_info}->{$mutant_id}->{mutant_class_id};
 
@@ -799,8 +790,7 @@ sub annotate {
 
             if (defined $deleted_loci{$locus_id}) {
                 push(@$deleted_locus_summary_loop, $summary_row);
-            }
-            else {
+            } else {
                 push(@$locus_summary_loop, $summary_row);
             }
         }
@@ -817,8 +807,7 @@ sub annotate {
             'Community Annotation for <em>'
           . $anno_ref->{family}->{$family_id}->{family_name}
           . '</em> Gene Family';
-    }
-    elsif ($feature eq "mutants") {
+    } elsif ($feature eq "mutants") {
         $user_id = $anno_ref->{user_id};
 
         $username =
@@ -855,18 +844,24 @@ sub annotate {
         my %deleted_mutant_info    = ();
         my %unapproved_mutant_info = ();
         foreach my $mutant_id (sort { $a <=> $b } keys %mutant_ids) {
-            ($anno_ref, $pick_edits{mutant_info}, $unapproved_mutant_info{$mutant_id}, $deleted_mutant_info{$mutant_id}) = get_feat_info(
+            (
+                $anno_ref,
+                $pick_edits{mutant_info},
+                $unapproved_mutant_info{$mutant_id},
+                $deleted_mutant_info{$mutant_id}
+              )
+              = get_feat_info(
                 {
-                    table      => 'mutant_info',
-                    mutant_id  => $mutant_id,
-                    user_id    => $user_id,
-                    anno_ref   => $anno_ref,
+                    table       => 'mutant_info',
+                    mutant_id   => $mutant_id,
+                    user_id     => $user_id,
+                    anno_ref    => $anno_ref,
                     extra_flags => 1
                 }
-            );
+              );
 
-            $anno_ref->{mutant_info}->{$mutant_id}->{has_alleles} =
-              count_features({ table => 'alleles', where => { mutant_id => $mutant_id }, user_id => $user_id });
+            $anno_ref->{mutant_info}->{$mutant_id}->{has_alleles} = count_features(
+                { table => 'alleles', where => { mutant_id => $mutant_id }, user_id => $user_id });
         }
         $session->param('anno_ref', $anno_ref);
         $session->flush;
@@ -888,9 +883,10 @@ sub annotate {
             $row->{num_alleles}   = $anno_ref->{mutant_info}->{$mutant_id}->{has_alleles};
             $row->{mapping_data}  = $anno_ref->{mutant_info}->{$mutant_id}->{mapping_data};
             $row->{reference_lab} = $anno_ref->{mutant_info}->{$mutant_id}->{reference_lab};
-            $row->{reference_pub} = join ";<br />", (split /;/, $anno_ref->{mutant_info}->{$mutant_id}->{reference_pub});
+            $row->{reference_pub} = join ";<br />",
+              (split /;/, $anno_ref->{mutant_info}->{$mutant_id}->{reference_pub});
             $row->{tableRowClass} = "tableRowEven";
-            $row->{unapproved}    = 1 if (defined $unapproved_mutant_info{$mutant_id});
+            $row->{unapproved} = 1 if (defined $unapproved_mutant_info{$mutant_id});
 
 =commemt
             if ($m == 0) {
@@ -905,8 +901,7 @@ sub annotate {
 
             if (defined $deleted_mutant_info{$mutant_id}) {
                 push(@$deleted_mutant_summary_loop, $row);
-            }
-            else {
+            } else {
                 push(@$mutant_summary_loop, $row);
             }
 
@@ -950,14 +945,14 @@ sub annotate {
     $page_vars->{title} = "EuCAP :: $title";
 
     my $panel_select = ($feature eq "mutants") ? "&mutant_panel=1" : "";
-    $page_vars->{is_family_editor} = 1 if(defined $anno_ref->{is_family_editor});
+    $page_vars->{is_family_editor} = 1 if (defined $anno_ref->{is_family_editor});
     $page_vars->{user_info} = {
-            'username'     => $username,
-            'name'         => $anno_ref->{users}->{$user_id}->{name},
-            'organization' => $anno_ref->{users}->{$user_id}->{organization},
-            'email'        => $anno_ref->{users}->{$user_id}->{email},
-            'url'          => $anno_ref->{users}->{$user_id}->{url},
-            'email_hash'   => md5_hex($anno_ref->{users}->{$user_id}->{email}),
+        'username'     => $username,
+        'name'         => $anno_ref->{users}->{$user_id}->{name},
+        'organization' => $anno_ref->{users}->{$user_id}->{organization},
+        'email'        => $anno_ref->{users}->{$user_id}->{email},
+        'url'          => $anno_ref->{users}->{$user_id}->{url},
+        'email_hash'   => md5_hex($anno_ref->{users}->{$user_id}->{email}),
     };
     $page_vars->{main_content} = $body_tmpl->output;
 }

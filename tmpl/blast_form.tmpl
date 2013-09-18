@@ -1,0 +1,26 @@
+<div id="add_by_blast" class="hide_panel panel_background large_margin">
+    <form id="run_blast_form" name="run_blast_form" onsubmit="return perform_action('run_blast', undefined, undefined);">
+        <p class="lead">Add loci by BLAST sequence similarity</p>
+        <p class="header3">Please input protein OR nucleotide sequences
+        (in FASTA format) to identify Medicago truncatula homologs:</p>
+
+        <input type="hidden" id="action" name="action" value="run_blast">
+        <p>Input sequence: <select class="selectBox" id="seqtype" name="seqtype">
+            <option selected="selected" value="protein">Protein</option>
+            <option value="dna">Nucleotide</option>
+            </select>
+          E value: <select class="selectBox" id="evalue" name="evalue">
+            <option value="1e-50">1e-50</option>
+            <option selected="selected" value="1e-20">1e-20</option>
+            <option value="1e-10">1e-10</option>
+            <option value="1e-5">1e-5</option>
+            </select>
+          </p>
+        <textarea class="input-xxlarge" rows="5" id="fasta" name="fasta"></textarea>
+        <br /><br />
+        <p><input type="submit" class="btn btn-primary" value="Find Homologs">&nbsp;
+        <input type="reset" class="btn" value="Reset"></p>
+        <br />
+    <div id="run_blast"></div>
+    </form>
+</div>

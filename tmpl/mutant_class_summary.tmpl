@@ -1,0 +1,83 @@
+            <form id="annotate_mutant_class_form" name="annotate_mutant_class_form" action="/cgi-bin/eucap/eucap.pl" method="POST">
+	            <input type="hidden" id="action" name="action" value="annotate_mutants">
+	            <input type="hidden" id="mutant_class_id" name="mutant_class_id" value="">
+
+	            <table id="mutant_class_table" name="mutant_class_table" width=100% class="table table-striped table-condensed" cellpadding="5px">
+                <thead>
+	                <tr id="mutant_class_table_header" name="mutant_class_table_header">
+	                    <th><p align="center">Mutant Class</p></th>
+	                    <th><p align="center">Symbol Expansion</p></th>
+	                    <th><p align="center">Number of mutants</p></th>
+	                    <th><p align="center">Edit Mutant Class</p></th>
+	                    <td colspan="2"></th>
+	                </tr>
+                </thead>
+	            <tbody>
+	                <tr>
+	                    <td colspan="6"><p align="center">
+	                    <input type="button" class="btn btn-info" id="add_mut_class" value="Add Mutant Class" onclick="perform_action('add_mutant_class_dialog', 'user_id', <TMPL_VAR NAME="user_id">);" />
+	                    </p></td>
+	                </tr>
+	            <TMPL_IF NAME="mutant_class_list">
+	            	<TMPL_LOOP NAME="mutant_class_list">
+	                <tr>
+	                    <td><p align="center" align="center" id="mutant_class_symbol_<TMPL_VAR NAME="mutant_class_id">"><em><TMPL_VAR NAME="mutant_class_symbol"></em></p></td>
+	                    <td><p align="center" id="mutant_class_name_<TMPL_VAR NAME="mutant_class_id">"><em><TMPL_VAR NAME="mutant_class_name"></em></p></td>
+	                    <td><p align="center"><TMPL_VAR NAME="num_mutants"></p></td>
+	                    <td><p align="center">
+	                        <input type="button" class="btn" id="annotate_mutant_class_<TMPL_VAR NAME="mutant_class_id">" value="Edit" onclick="set_value('mutant_class_id', <TMPL_VAR NAME="mutant_class_id">, 'annotate_mutant_class_form'); return perform_action('annotate_mutant_class', 'user_id', <TMPL_VAR NAME="user_id">);" />
+	                    </p></td>
+	                    <td<TMPL_UNLESS NAME="unapproved"> colspan="2"</TMPL_UNLESS>><p align="center">
+	                        <input type="submit" class="btn btn-primary" id="annotate_mutant_class_members_<TMPL_VAR NAME="mutant_class_id">" value="Annotate" onclick="set_value('mutant_class_id', <TMPL_VAR NAME="mutant_class_id">, 'annotate_mutant_class_form');" />
+	                    </p></td>
+	                    <TMPL_IF NAME="unapproved">
+	                    <td><p align="center">
+	                        <img src="/eucap/include/images/delete.png" class="delete_mutant_class_<TMPL_VAR NAME="mutant_class_id">" alt="Delete Mutant Class<TMPL_VAR NAME="mutant_class_symbol">" title="Delete Mutant Class <TMPL_VAR NAME="mutant_class_symbol">" onclick="delete_feature('mutant_class', <TMPL_VAR NAME="mutant_class_id">, '<TMPL_VAR NAME="mutant_class_symbol">');" />
+	                    </p></td>
+	                    </TMPL_IF>
+	                </tr>
+		            </TMPL_LOOP>
+	            </TMPL_IF>
+	            </tbody>
+	            </table>
+	            <span height="16px" style="float: right;" id="mutant_class_delete_status" name="mutant_class_delete_status"></span>
+	            <br />
+
+	            <div<TMPL_UNLESS NAME="deleted_mutant_class_list"> class="hide_panel"</TMPL_UNLESS> id="deleted_mutant_class_panel" name="deleted_class_mutant_panel">
+		            <p class="lead">Deleted Mutant Classes</p>
+		            <table width=100% class="table table-striped" cellpadding="5px">
+		            	<thead>
+			                <tr id="mutant_class_table_header" name="mutant_class_table_header">
+			                    <th><p align="center">Mutant Class</p></th>
+			                    <th><p align="center">Symbol Expansion</p></th>
+			                    <th><p align="center">Number of mutants</p></th>
+			                    <th><p align="center">Edit Mutant Class</p></th>
+			                    <td colspan="2"></th>
+			                </tr>
+		                </thead>
+			            <TMPL_IF NAME="deleted_mutant_class_list">
+			            <tbody>
+			            	<TMPL_LOOP NAME="deleted_mutant_class_list">
+			                <tr>
+			                    <td><p align="center" id="mutant_class_symbol_<TMPL_VAR NAME="mutant_class_id">"><em><TMPL_VAR NAME="mutant_class_symbol"></em></p></td>
+			                    <td><p align="center" id="mutant_class_name_<TMPL_VAR NAME="mutant_class_id">"><em><TMPL_VAR NAME="mutant_class_name"></em></p></td>
+			                    <td><p align="center"><TMPL_VAR NAME="num_mutants"></p></td>
+			                    <td><p align="center">
+			                        <input type="button" class="btn" id="annotate_mutant_class_<TMPL_VAR NAME="mutant_class_id">" value="Edit" onclick="set_value('mutant_class_id', <TMPL_VAR NAME="mutant_class_id">, 'annotate_mutant_class_form'); perform_action('annotate_mutant_class', user_id, <TMPL_VAR NAME="user_id">);" disabled="disabled" />
+
+			                    <td<TMPL_UNLESS NAME="unapproved"> colspan="2"</TMPL_UNLESS>><p align="center">
+			                        <input type="submit" class="btn btn-primary" id="annotate_mutant_class_members<TMPL_VAR NAME="mutant_class_id">" value="Annotate" onclick="set_value('mutant_class_id', <TMPL_VAR NAME="mutant_class_id">, 'annotate_mutant_class_form');" disabled="disabled" />
+			                    </p></td>
+			                    <TMPL_IF NAME="unapproved">
+			                    <td><p align="center">
+			                        <img src="/eucap/include/images/undelete.png" class="undelete_mutant_class_<TMPL_VAR NAME="mutant_class_id">" alt="unDelete mutant_class <TMPL_VAR NAME="mutant_class_symbol">" title="unDelete mutant_class <TMPL_VAR NAME="mutant_class_symbol">" onclick="undelete_feature('mutant_class', <TMPL_VAR NAME="mutant_class_id">, '<TMPL_VAR NAME="mutant_class_symbol">');" />
+			                    </p></td>
+			                    </TMPL_IF>
+			                </tr>
+			            	</TMPL_LOOP>
+		            	</TMPL_IF>
+		            	</tbody>
+		            </table>
+	            </div>
+            </form>
+            <span height="16px" style="float: right;" id="mutant_class_undelete_status" name="mutant_class_undelete_status"></span>

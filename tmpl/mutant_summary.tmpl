@@ -1,0 +1,81 @@
+<table id="mutant_table" name="mutant_table" class="table table-striped">
+    <TMPL_IF NAME="mutant_summary_loop">
+    <thead>
+	<tr id="mutant_table_header" name="mutant_table_header">
+        <th><p align="center">Mutant Symbol</p></th>
+        <th><p align="center">Phenotype</p></th>
+        <th><p align="center">Alleles</p></th>
+        <th><p align="center">Mapping/Allelism Data</p></th>
+        <th><p align="center">Reference Lab</p></th>
+        <th><p align="center">Reference Publication(s)</p></th>
+        <td colspan="2"><p>&nbsp;</p></th>
+        <TMPL_IF NAME="is_admin"><th><p>User</p></th></TMPL_IF>
+    </tr>
+    </thead>
+  <tbody>
+    <TMPL_LOOP NAME="mutant_summary_loop">
+	<tr class="mutant_<TMPL_VAR NAME="mutant_id"> <TMPL_VAR NAME="tableRowClass">">
+        <td><p align="center" id="mutant_symbol_<TMPL_VAR NAME="mutant_id">"><em><TMPL_VAR NAME="mutant_symbol"></em></p></td>
+        <td><p align="center" id="mutant_phenotype_<TMPL_VAR NAME="mutant_id">"><em><TMPL_VAR NAME="phenotype"></em></p></td>
+        <td><p align="center" id="num_alleles_<TMPL_VAR NAME="mutant_id">"><TMPL_VAR NAME="num_alleles"></p></td>
+        <td><p align="center" id="mapping_data_<TMPL_VAR NAME="mutant_id">"><TMPL_VAR NAME="mapping_data"></p></td>
+        <td><p align="center" id="reference_lab_<TMPL_VAR NAME="mutant_id">"><TMPL_VAR NAME="reference_lab"></p></td>
+        <td><p align="center" id="reference_pub_<TMPL_VAR NAME="mutant_id">"><TMPL_VAR NAME="reference_pub"></p></td>
+        <td<TMPL_UNLESS NAME="unapproved"> colspan="2"</TMPL_UNLESS>><p"><input type="button" class="btn btn-primary" id="annotate_mutant_<TMPL_VAR NAME="mutant_id">" value="Annotate" onclick="perform_action('annotate_mutant', 'mutant_id', <TMPL_VAR NAME="mutant_id">);" /></p></td>
+        <TMPL_IF NAME="unapproved">
+        <td><p">
+            <img src="/eucap/include/images/delete.png" class="delete_mutant_<TMPL_VAR NAME="mutant_id">" alt="Delete Mutant <TMPL_VAR NAME="mutant_symbol">" title="Delete Mutant <TMPL_VAR NAME="mutant_symbol">" onclick="delete_feature('mutant', <TMPL_VAR NAME="mutant_id">, '<TMPL_VAR NAME="mutant_symbol">');" />
+        </p></td>
+        </TMPL_IF>
+        <TMPL_IF NAME="is_admin">
+        <td><p></p></td>
+        </TMPL_IF>
+    </tr>
+    </TMPL_LOOP>
+    <TMPL_ELSE>
+    <tr><td colspan="8">
+    <h2>No mutants annotated in this mutant class.</h2>
+    </td></tr>
+    </TMPL_IF>
+  </tbody>
+</table>
+<span height="16px" style="float: right;" id="mutant_delete_status" name="mutant_delete_status"></span>
+<br />
+
+<div<TMPL_UNLESS NAME="deleted_mutant_summary_loop"> class="hide_panel"</TMPL_UNLESS> id="deleted_mutant_panel" name="deleted_mutant_panel">
+    <p class="lead">Deleted Mutants</p>
+    <table id="deleted_mutant_table" name="deleted_mutant_table" class="table table-striped">
+        <thead>
+        <tr id="mutant_table_header" name="mutant_table_header">
+            <th><p align="center">Mutant Symbol</p></th>
+            <th><p align="center">Phenotype</p></th>
+            <th><p align="center">Alleles</p></th>
+            <th><p align="center">Mapping/Allelism Data</p></th>
+            <th><p align="center">Reference Lab</p></th>
+            <th><p align="center">Reference Publication(s)</p></th>
+            <td colspan="2"><p>&nbsp;</p></th>
+        </tr>
+        </thead>
+        <tbody>
+		<TMPL_IF NAME="deleted_mutant_summary_loop">
+	        <TMPL_LOOP NAME="deleted_mutant_summary_loop">
+	        <tr class="mutant_<TMPL_VAR NAME="mutant_id"> <TMPL_VAR NAME="tableRowClass">">
+	            <td><p align="center" id="mutant_symbol_<TMPL_VAR NAME="mutant_id">"><em><TMPL_VAR NAME="mutant_symbol"></em></p></td>
+	            <td><p align="center" id="mutant_phenotype_<TMPL_VAR NAME="mutant_id">"><em><TMPL_VAR NAME="phenotype"></em></p></td>
+	            <td><p align="center" id="num_alleles_<TMPL_VAR NAME="mutant_id">"><TMPL_VAR NAME="num_alleles"></p></td>
+	            <td><p align="center" id="mapping_data_<TMPL_VAR NAME="mutant_id">"><TMPL_VAR NAME="mapping_data"></p></td>
+	            <td><p align="center" id="reference_lab_<TMPL_VAR NAME="mutant_id">"><TMPL_VAR NAME="reference_lab"></p></td>
+	            <td><p align="center" id="reference_pub_<TMPL_VAR NAME="mutant_id">"><TMPL_VAR NAME="reference_pub"></p></td>
+	            <td<TMPL_UNLESS NAME="unapproved"> colspan="2"</TMPL_UNLESS>><p><input type="button" class="btn btn-primary" id="annotate_mutant_<TMPL_VAR NAME="mutant_id">" value="Annotate" onclick="perform_action('annotate_mutant', 'mutant_id', <TMPL_VAR NAME="mutant_id">);" disabled="disabled" /></p></td>
+	            <TMPL_IF NAME="unapproved">
+	            <td><p>
+	                <img src="/eucap/include/images/undelete.png" class="undelete_mutant_<TMPL_VAR NAME="mutant_id">" alt="unDelete Mutant <TMPL_VAR NAME="mutant_symbol">" title="unDelete Mutant <TMPL_VAR NAME="mutant_symbol">" onclick="undelete_feature('mutant', <TMPL_VAR NAME="mutant_id">, '<TMPL_VAR NAME="mutant_symbol">');" />
+	            </p></td>
+	            </TMPL_IF>
+	        </tr>
+	        </TMPL_LOOP>
+		</TMPL_IF>
+        </tbody>
+    </table>
+    <span height="16px" style="float: right;" id="mutant_undelete_status" name="mutant_undelete_status"></span>
+</div>

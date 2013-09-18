@@ -108,3 +108,47 @@ C<EXE_FILES: >
 
 =back
 
+=head2 Mon Sep 16 16:16:15 2013: C<Module> L<MIME::Base64|MIME::Base64>
+
+=over 4
+
+=item *
+
+C<installed into: /opt/www/medicago/cgi-bin/eucap/lib/5.16.1>
+
+=item *
+
+C<LINKTYPE: dynamic>
+
+=item *
+
+C<VERSION: 3.14>
+
+=item *
+
+C<EXE_FILES: >
+
+=back
+
+=head2 Mon Sep 16 16:20:30 2013: C<Module> L<SQL::Abstract::Limit|SQL::Abstract::Limit>
+
+=over 4
+
+=item *
+
+C<installed into: /opt/www/medicago/cgi-bin/eucap/lib/5.16.1>
+
+=item *
+
+C<LINKTYPE: dynamic>
+
+=item *
+
+C<VERSION: 0.141>
+
+=item *
+
+C<EXE_FILES: >
+
+=back
+

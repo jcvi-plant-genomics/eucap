@@ -1,0 +1,81 @@
+			<div class="pull-right">
+			    <input type="button" class="btn" id="locus_add" name="locus_add" value="Add Locus by ID" onclick="toggle_panel('add_by_locus', 'add_by_blast');">
+			    &nbsp;&nbsp;&nbsp;&nbsp;
+			    <input type="button" class="btn" id="blast_add" name="blast_add" value="Add Locus by BLAST" onclick="toggle_panel('add_by_blast', 'add_by_locus');">
+			</div>
+			<br /><br />
+			<div id="locus_table" name="locus_table" class="locus_select_panel">
+	            <TMPL_IF NAME="locus_select_list">
+	               <select id="locus_id" multiple="multiple" class="multiselect"><TMPL_LOOP NAME="locus_select_list">
+	                   <option <TMPL_IF NAME="disabled">disabled="disabled"</TMPL_IF> value="<TMPL_VAR NAME="locus_id">"><TMPL_VAR NAME="gene_locus"> <TMPL_VAR NAME="func_annotation"> <TMPL_IF NAME="gene_symbol">(<TMPL_VAR NAME="gene_symbol">)</TMPL_IF></option></TMPL_LOOP>
+	               </select><br />
+	               <p><input type="submit" class="btn btn-primary" value="Annotate" onclick="perform_action('annotate_locus', 'locus_id', '');" />&nbsp;&nbsp;
+	               <input type="reset" id="reset_loci_select" class="btn" value="Reset" /></p>
+	            </TMPL_IF>
+	        </div>
+			<br />
+			<div<TMPL_UNLESS NAME="locus_summary_loop"> class="hide_panel"</TMPL_UNLESS> id="locus_panel" name="locus_panel">
+				<!-- Table listing loci which are unapproved as of yet -->
+			    <p class="lead">Unapproved Loci</p>
+	        	<table id="locus_summary_table" name="locus_summary_table" class="table table-striped table-condensed">
+	        	<thead>
+					<tr id="locus_table_header" name="locus_table_header">
+						<th><p>Gene Symbol</p></th>
+						<th><p>MTR Locus</p></th>
+						<th><p>Original<br />Functional Annotation</p></th>
+						<th><p>&nbsp;</p></th>
+					</tr>
+				</thead>
+			    <tbody>
+	            <TMPL_IF NAME="locus_summary_loop">
+		            <TMPL_LOOP NAME="locus_summary_loop">
+					<tr class="locus_<TMPL_VAR NAME="locus_id"> <TMPL_VAR NAME="tableRowClass">">
+						<input type="hidden" id="locus_id" name="locus_id" value="<TMPL_VAR NAME="locus_id">">
+						<td><p id="gene_symbol_<TMPL_VAR NAME="locus_id">"><TMPL_VAR NAME="gene_symbol"></p></td>
+						<td><p id="gene_locus_<TMPL_VAR NAME="locus_id">"><TMPL_VAR NAME="gene_locus"></p></td>
+						<td><p id="orig_func_annotation_<TMPL_VAR NAME="locus_id">"><TMPL_VAR NAME="orig_func_annotation"></p></td>
+				        <td><p>
+				            <img src="/eucap/include/images/delete.png" class="delete_locus_<TMPL_VAR NAME="locus_id">" alt="Delete Gene <TMPL_VAR NAME="gene_symbol">" title="Delete Gene <TMPL_VAR NAME="gene_symbol">" onclick="delete_feature('locus', <TMPL_VAR NAME="locus_id">, '<TMPL_VAR NAME="gene_symbol">');" />
+				        </p></td>
+					</tr>
+					</TMPL_LOOP>
+			    </tbody>
+				</TMPL_IF>
+				</table>
+				<span height="16px" style="float: right;" id="locus_delete_status" name="locus_delete_status"></span>
+			</div>
+			<br />
+
+			<div<TMPL_UNLESS NAME="deleted_locus_summary_loop"> class="hide_panel"</TMPL_UNLESS> id="deleted_locus_panel" name="deleted_locus_panel">
+				<!--
+					 Table lists loci that have been deleted by user
+					 Note: Only unapproved loci can be deleted
+				-->
+			    <p class="lead">Deleted Loci</p>
+			    <table id="deleted_locus_table" name="deleted_locus_table" class="table table-striped table-condensed">
+			    	<thead>
+			        <tr id="locus_table_header" name="locus_table_header">
+			            <th><p>Gene Symbol</p></th>
+			            <th><p>MTR Locus</p></th>
+			            <th><p>Original<br />Functional Annotation</p></th>
+			            <th><p>&nbsp;</p></th>
+			        </tr>
+			        </thead>
+			        <tbody>
+					<TMPL_IF NAME="deleted_locus_summary_loop">
+				        <TMPL_LOOP NAME="deleted_locus_summary_loop">
+				        <tr class="locus_<TMPL_VAR NAME="locus_id"> <TMPL_VAR NAME="tableRowClass">">
+				            <input type="hidden" id="locus_id" name="locus_id" value="<TMPL_VAR NAME="locus_id">">
+				            <td><p id="gene_symbol_<TMPL_VAR NAME="locus_id">"><TMPL_VAR NAME="gene_symbol"></p></td>
+				            <td><p id="gene_locus_<TMPL_VAR NAME="locus_id">"><TMPL_VAR NAME="gene_locus"></p></td>
+				            <td><p id="orig_func_annotation_<TMPL_VAR NAME="locus_id">"><TMPL_VAR NAME="orig_func_annotation"></p></td>
+				            <td><p>
+				                <img src="/eucap/include/images/undelete.png" class="undelete_locus_<TMPL_VAR NAME="locus_id">" alt="unDelete Gene <TMPL_VAR NAME="gene_symbol">" title="unDelete Gene <TMPL_VAR NAME="gene_symbol">" onclick="undelete_feature('locus', <TMPL_VAR NAME="locus_id">, '<TMPL_VAR NAME="gene_symbol">');" />
+				            </p></td>
+				        </tr>
+				        </TMPL_LOOP>
+				    </TMPL_IF>
+			        </tbody>
+			    </table>
+			    <span height="16px" style="float: right;" id="locus_undelete_status" name="locus_undelete_status"></span>
+			</div>

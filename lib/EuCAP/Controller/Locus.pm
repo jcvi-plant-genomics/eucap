@@ -19,7 +19,7 @@ sub add_loci {
     my $track     = 0;
     my @locus_ids = ();
   LOCUS: foreach my $gene_locus (@new_loci) {
-        my $locus_id  = undef;
+        my $locus_id = undef;
         $gene_locus =~ s/\s+//gs;
 
         #next unless ($gene_locus =~ /^Medtr[1-8]g\d+|^\S+_\d+|^contig_\d+_\d+/);
@@ -48,14 +48,14 @@ sub add_loci {
                     # input locus list
                     $locus_edits_obj->delete;
                     goto INSERT if (not defined $anno_ref->{is_admin});
-                } elsif($locus_edits_obj->family_id != $anno_ref->{family_id}) {
-                    if(not defined $anno_ref->{is_admin}) {
+                } elsif ($locus_edits_obj->family_id != $anno_ref->{family_id}) {
+                    if (not defined $anno_ref->{is_admin}) {
                         do(
                             'update',
                             'loci_edits',
                             {
-                                obj        => $locus_edits_obj,
-                                family_id  => $anno_ref->{family_id},
+                                obj       => $locus_edits_obj,
+                                family_id => $anno_ref->{family_id},
                             }
                         );
 
@@ -64,8 +64,7 @@ sub add_loci {
                 }
                 next LOCUS;
             }
-        }
-        else {
+        } else {
             my $is_deleted       = 'N';
             my $locus_edits_objs = selectall_iter('loci_edits');
             while (my $locus_edits_obj = $locus_edits_objs->next()) {
@@ -81,15 +80,14 @@ sub add_loci {
                 if ($is_deleted eq 'Y') {
                     $locus_edits_obj->delete;
                     goto INSERT if (not defined $anno_ref->{is_admin});
-                }
-                elsif($locus_edits_obj->family_id != $anno_ref->{family_id}) {
-                    if(not defined $anno_ref->{is_admin}) {
+                } elsif ($locus_edits_obj->family_id != $anno_ref->{family_id}) {
+                    if (not defined $anno_ref->{is_admin}) {
                         do(
                             'update',
                             'loci_edits',
                             {
-                                obj        => $locus_edits_obj,
-                                family_id  => $anno_ref->{family_id},
+                                obj       => $locus_edits_obj,
+                                family_id => $anno_ref->{family_id},
                             }
                         );
 
@@ -105,8 +103,7 @@ sub add_loci {
         if (not defined $anno_ref->{is_admin}) {
             $locus_id = max_id({ table => 'loci' }) if (not defined $locus_id);
             warn "gene_locus: $gene_locus; locus_id: $locus_id";
-        }
-        else {    # else, insert new 'loci' row, get $locus_id and continue
+        } else {    # else, insert new 'loci' row, get $locus_id and continue
             $new_locus_obj = do(
                 'insert', 'loci',
                 {
@@ -147,8 +144,7 @@ sub add_loci {
                     is_deleted => $is_deleted
                 }
             );
-        }
-        else {
+        } else {
             $new_locus_obj->set(
                 gene_locus           => $gene_locus,
                 orig_func_annotation => $orig_func_annotation,
@@ -164,7 +160,7 @@ sub add_loci {
             );
         }
 
-        TRACK:$track++;
+      TRACK: $track++;
 
         push @locus_ids, $locus_id;
 
@@ -186,17 +182,17 @@ sub add_loci {
 }
 
 sub annotate_locus {
-    my ($session, $cgi, $action, $save) = @_;
+    my ($arg_ref) = @_;
 
-    my $locus_id = $cgi->param('locus_id');
+    my $locus_id = $arg_ref->{cgi}->param('locus_id');
 
     #gene_locus info should already be in the session.
-    my $anno_ref = $session->param('anno_ref');
+    my $anno_ref = $arg_ref->{session}->param('anno_ref');
     my $user_id  = $anno_ref->{user_id};
     my $username = $anno_ref->{users}->{$user_id}->{username};
 
-    if ($save) {
-        my $response     = {};
+    if ($arg_ref->{save}) {
+        my $response   = {};
         my $save_edits = {};
 
         # hashref to store a flag for each type of feature (loci, mutant_info, mutant_class)
@@ -217,7 +213,8 @@ sub annotate_locus {
               selectrow_hashref({ table => 'loci', where => { locus_id => $locus_id } });
         }
 
-        my $locus_edits_hashref = cgi_to_hashref({ cgi => $cgi, table => 'loci', id => undef });
+        my $locus_edits_hashref =
+          cgi_to_hashref({ cgi => $arg_ref->{cgi}, table => 'loci', id => undef });
 
         my $e_flag = undef;
         ($locus_edits_hashref, $save_edits->{loci}, $e_flag) = cmp_db_hashref(
@@ -233,13 +230,14 @@ sub annotate_locus {
         $anno_ref->{loci}->{$locus_id} =
           (defined $save_edits->{loci}) ? $locus_edits_hashref : $locus_hashref;
 
-        my $cgi_params = cgi_to_hashref({ cgi => $cgi, table => 'cgi_mutant_info', id => undef });
+        my $cgi_params =
+          cgi_to_hashref({ cgi => $arg_ref->{cgi}, table => 'cgi_mutant_info', id => undef });
 
-        #$anno_ref->{loci}->{$locus_id}->{has_structural_annot} = $cgi_params->{has_structural_annot};
+      #$anno_ref->{loci}->{$locus_id}->{has_structural_annot} = $cgi_params->{has_structural_annot};
 
-        # Storing mutant_info - Check if req mutant_info fields have been passed:
-        # if true: get mutant_id from param or max(mutant_id) + 1 from db or increment if it already exists in the edits table
-        # else: undef the 'mutant_id' associated with current locus_id (if any) and remove mutant_edits from anno_ref
+# Storing mutant_info - Check if req mutant_info fields have been passed:
+# if true: get mutant_id from param or max(mutant_id) + 1 from db or increment if it already exists in the edits table
+# else: undef the 'mutant_id' associated with current locus_id (if any) and remove mutant_edits from anno_ref
         my ($mutant_id, $mutant_class_id);
         if (    $cgi_params->{mutant_symbol} ne ""
             and $cgi_params->{mutant_class_symbol}  ne ""
@@ -251,15 +249,14 @@ sub annotate_locus {
                 {
                     save       => 1,
                     locus_id   => $locus_id,
-                    cgi        => $cgi,
-                    session    => $session,
+                    cgi        => $arg_ref->{cgi},
+                    session    => $arg_ref->{session},
                     anno_ref   => $anno_ref,
                     result     => $response,
                     save_edits => $save_edits,
                 }
             );
-        }
-        else {
+        } else {
             if ($anno_ref->{loci}->{$locus_id}->{mutant_id} ne "") {
                 my $mutant_id = $anno_ref->{loci}->{$locus_id}->{mutant_id};
 
@@ -307,8 +304,7 @@ sub annotate_locus {
                 $anno_ref->{loci}->{$locus_id}->{is_edit} = undef;
 
                 $response->{'locus_edits'} = undef;
-            }
-            else {
+            } else {
 
                 # if not admin, update/insert into edits tables
                 my $locus_edits_obj =
@@ -323,8 +319,7 @@ sub annotate_locus {
                             obj     => $locus_edits_obj,
                         }
                     );
-                }
-                else {
+                } else {
                     $locus_edits_obj = do(
                         'insert',
                         'loci_edits',
@@ -344,12 +339,12 @@ sub annotate_locus {
             $response->{'mod_date'} = $anno_ref->{loci}->{$locus_id}->{mod_date};
         }
 
-        $session->param('anno_ref', $anno_ref);
-        $session->flush;
+        $arg_ref->{session}->param('anno_ref', $anno_ref);
+        $arg_ref->{session}->flush;
 
         # HTML header
-        #print $session->header(-type => 'text/plain');
-        print $session->header(-type => 'application/json');
+        #print $arg_ref->{session}->header(-type => 'text/plain');
+        print $arg_ref->{session}->header(-type => 'application/json');
 
         $response->{'updated'} = (
                  defined $save_edits->{loci}
@@ -361,17 +356,17 @@ sub annotate_locus {
         #: print 'No changes to update.';
 
         print JSON::to_json($response);
-    }
-    else {
+    } else {
+
         #output the session
         #$row = $anno_ref->{loci}->{$locus_id};
         my $annotate_locus_loop = [];
         my @locus_ids = split /,/, $locus_id;
 
         my $body_tmpl =
-        ($action =~ /annotate_locus/)
-        ? HTML::Template->new(filename => "./tmpl/annotate_locus.tmpl")
-        : HTML::Template->new(filename => "./tmpl/view_locus.tmpl", die_on_bad_params => 0);
+          ($arg_ref->{action} eq "annotate_locus")
+          ? HTML::Template->new(filename => "./tmpl/annotate_locus.tmpl")
+          : HTML::Template->new(filename => "./tmpl/view_locus.tmpl", die_on_bad_params => 0);
 
         foreach my $locus_id (sort { $a <=> $b } @locus_ids) {
             my $locus_row = {};
@@ -394,7 +389,7 @@ sub annotate_locus {
                 locus_id => $locus_id,
             };
 
-            if ($action eq "annotate_locus") {
+            if ($arg_ref->{action} eq "annotate_locus") {
                 if (defined $anno_ref->{is_admin}) {
                     $locus_row->{gene_symbol_edit} = 1
                       if (defined $anno_ref->{loci}->{$locus_id}->{gene_symbol_edit});
@@ -427,14 +422,14 @@ sub annotate_locus {
                 }
             } else {
                 my $annotate_mutant_loop = [];
-                my $mutant_row = {};
+                my $mutant_row           = {};
 
                 $mutant_row->{user_id} = $anno_ref->{user_id};
                 push @$annotate_mutant_loop, $mutant_row;
                 $locus_row->{annotate_mutant_loop} = $annotate_mutant_loop;
             }
 
-            $body_tmpl->param(username => $username) if ($action eq "annotate_locus");
+            $body_tmpl->param(username => $username) if ($arg_ref->{action} eq "annotate_locus");
 
             push @$annotate_locus_loop, $locus_row;
         }
@@ -444,7 +439,7 @@ sub annotate_locus {
         #delete $row->{is_edit};         # hack: ignore the 'is_edit' hashref key
 
         # HTML header
-        print $session->header(-type => 'text/plain');
+        print $arg_ref->{session}->header(-type => 'text/plain');
 
         print $body_tmpl->output;
     }
@@ -485,8 +480,7 @@ sub delete_locus {
                     is_deleted => $is_deleted
                 }
             );
-        }
-        else {    # otherwise, create a new edits_obj, with empty `edits` field
+        } else {    # otherwise, create a new edits_obj, with empty `edits` field
             $is_deleted      = 'Y';
             $locus_edits_obj = do(
                 'insert',
@@ -501,8 +495,7 @@ sub delete_locus {
             );
         }
         $response->{deleted} = 1;
-    }
-    else {    # delete locus_obj and locus_edits_obj if 'admin'
+    } else {    # delete locus_obj and locus_edits_obj if 'admin'
         $locus_obj->delete if (defined $locus_obj);
 
         my $locus_edits_objs = selectall_iter('loci_edits', { locus_id => $locus_id });
@@ -565,8 +558,7 @@ sub undelete_locus {
         if (scalar keys %{$locus_edits_hashref} == 0) {
             $locus_edits_obj->delete;
             $anno_ref->{loci}->{$locus_id} = $locus_hashref;
-        }
-        else {
+        } else {
             $anno_ref->{loci}->{$locus_id} = $locus_edits_hashref;
         }
     }

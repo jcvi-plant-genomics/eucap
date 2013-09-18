@@ -1,0 +1,92 @@
+<table id="locus_table" name="locus_table" class="table table-striped table-condensed">
+<TMPL_IF NAME="locus_summary_loop">
+    <thead>
+	<tr id="locus_table_header" name="locus_table_header">
+		<th><p align="center">Gene Symbol</p></th>
+		<th><p align="center">MTR Locus</p></th>
+		<th><p align="center">Original<br />Functional Annotation</p></th>
+		<th><p align="center">Proposed<br />Functional Annotation</p></th>
+		<th><p align="center">Comment</p></th>
+		<th colspan="3"></th>
+	</tr>
+	</thead>
+    <tbody>
+	<TMPL_LOOP NAME="locus_summary_loop">
+	<tr class="locus_<TMPL_VAR NAME="locus_id"> <TMPL_VAR NAME="tableRowClass">">
+		<input type="hidden" id="locus_id" name="locus_id" value="<TMPL_VAR NAME="locus_id">">
+		<td><p class="gene_symbol_<TMPL_VAR NAME="locus_id">"><TMPL_VAR NAME="gene_symbol"></p></td>
+		<td><p class="gene_locus_<TMPL_VAR NAME="locus_id">"><TMPL_VAR NAME="gene_locus"></p></td>
+		<td><p class="orig_func_annotation_<TMPL_VAR NAME="locus_id">"><TMPL_VAR NAME="orig_func_annotation"></p></td>
+		<td><p class="func_annotation_<TMPL_VAR NAME="locus_id">"><TMPL_VAR NAME="func_annotation"></p></td>
+		<td><p class="comment_<TMPL_VAR NAME="locus_id">"><TMPL_VAR NAME="comment"></p></td>
+        <td><p><input type="button" class="btn" id="view_locus_<TMPL_VAR NAME="locus_id">" value="View" onclick="perform_action('view_locus', 'locus_id', <TMPL_VAR NAME="locus_id">);" /></p></td>
+        <td<TMPL_UNLESS NAME="unapproved"> colspan="2"</TMPL_UNLESS>><p><input type="button" class="btn btn-primary" id="annotate_locus_<TMPL_VAR NAME="locus_id">" value="Annotate" onclick="perform_action('annotate_locus', 'locus_id', <TMPL_VAR NAME="locus_id">);" /></p></td>
+        <TMPL_IF NAME="unapproved">
+        <td><p>
+            <img src="/eucap/include/images/delete.png" class="delete_locus_<TMPL_VAR NAME="locus_id">" alt="Delete Gene <TMPL_VAR NAME="gene_symbol">" title="Delete Gene <TMPL_VAR NAME="gene_symbol">" onclick="delete_feature('locus', <TMPL_VAR NAME="locus_id">, '<TMPL_VAR NAME="gene_symbol">');" />
+        </p></td>
+        </TMPL_IF>
+	</tr>
+	</TMPL_LOOP>
+    </tbody>
+</table>
+<span height="16px" style="float: right;" id="locus_delete_status" name="locus_delete_status"></span>
+</TMPL_IF>
+<br />
+
+<TMPL_IF NAME="deleted_locus_summary_loop">
+<div id="deleted_locus_panel" name="deleted_locus_panel">
+    <p class="lead">Deleted Loci</p>
+    <table id="deleted_locus_table" name="deleted_locus_table" class="table table-striped">
+        <thead>
+        <tr id="locus_table_header" name="locus_table_header">
+            <th><p align="center">Gene Symbol</p></th>
+            <th><p align="center">MTR Locus</p></th>
+            <th><p align="center">Original<br />Functional Annotation</p></th>
+            <th><p align="center">Proposed<br />Functional Annotation</p></th>
+            <th><p align="center">Comment</p></th>
+            <td colspan="3"></th>
+        </tr>
+        </thead>
+        <tbody>
+        <TMPL_LOOP NAME="deleted_locus_summary_loop">
+        <tr class="locus_<TMPL_VAR NAME="locus_id"> <TMPL_VAR NAME="tableRowClass">">
+            <input type="hidden" id="locus_id" name="locus_id" value="<TMPL_VAR NAME="locus_id">">
+            <td><p id="gene_symbol_<TMPL_VAR NAME="locus_id">"><TMPL_VAR NAME="gene_symbol"></p></td>
+            <td><p id="gene_locus_<TMPL_VAR NAME="locus_id">"><TMPL_VAR NAME="gene_locus"></p></td>
+            <td><p id="orig_func_annotation_<TMPL_VAR NAME="locus_id">"><TMPL_VAR NAME="orig_func_annotation"></p></td>
+            <td><p id="func_annotation_<TMPL_VAR NAME="locus_id">"><TMPL_VAR NAME="func_annotation"></p></td>
+            <td><p id="comment_<TMPL_VAR NAME="locus_id">"><TMPL_VAR NAME="comment"></p></td>
+            <td><p><input type="button" class="btn" id="view_locus_<TMPL_VAR NAME="locus_id">" value="View" onclick="perform_action('view_locus', 'locus_id', <TMPL_VAR NAME="locus_id">);" /></p></td>
+            <td<TMPL_UNLESS NAME="unapproved"> colspan="2"</TMPL_UNLESS>><p><input type="button" class="btn btn-primary" id="annotate_locus_<TMPL_VAR NAME="locus_id">" value="Annotate" onclick="perform_action('annotate_locus', 'locus_id', <TMPL_VAR NAME="locus_id">);" disabled="disabled" /></p></td>
+            <TMPL_IF NAME="unapproved">
+            <td><p>
+                <img src="/eucap/include/images/undelete.png" class="undelete_locus_<TMPL_VAR NAME="locus_id">" alt="unDelete Gene <TMPL_VAR NAME="gene_symbol">" title="unDelete Gene <TMPL_VAR NAME="gene_symbol">" onclick="undelete_feature('locus', <TMPL_VAR NAME="locus_id">, '<TMPL_VAR NAME="gene_symbol">');" />
+            </p></td>
+            </TMPL_IF>
+        </tr>
+        </TMPL_LOOP>
+        </tbody>
+    </table>
+    <span height="16px" style="float: right;" id="locus_undelete_status" name="locus_undelete_status"></span>
+</div>
+<TMPL_ELSE>
+<div class="hide_panel" id="deleted_locus_panel" name="deleted_locus_panel">
+    <p class="lead">Deleted Loci</p>
+    <table id="deleted_locus_table" name="deleted_locus_table" class="table table-striped">
+        <thead>
+        <tr id="locus_table_header" name="locus_table_header">
+            <th><p align="center">Gene Symbol</p></th>
+            <th><p align="center">MTR Locus</p></th>
+            <th><p align="center">Original<br />Functional Annotation</p></th>
+            <th><p align="center">Proposed<br />Functional Annotation</p></th>
+            <th><p align="center">Comment</p></th>
+            <td colspan="3"></th>
+        </tr>
+        </thead>
+        <tbody>
+        </tbody>
+    </table>
+    <span height="16px" style="float: right;" id="locus_undelete_status" name="locus_undelete_status"></span>
+</div>
+</TMPL_IF>

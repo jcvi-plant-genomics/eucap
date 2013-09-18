@@ -15,38 +15,38 @@
     <tbody>
       <tr>
         <td class="locus_<TMPL_VAR NAME="locus_id"><TMPL_IF NAME="gene_symbol_edit"> tableRowEdit</TMPL_IF>" colspan="2"><p><label for="gene_symbol">* Gene Symbol: </label>
-        <input type="text" class="gene_symbol" value="<TMPL_IF NAME="gene_symbol"><TMPL_VAR NAME="gene_symbol"></TMPL_IF>"></p></td>
+        <input type="text" id="gene_symbol" name="gene_symbol" value="<TMPL_IF NAME="gene_symbol"><TMPL_VAR NAME="gene_symbol"></TMPL_IF>"></p></td>
         <td class="locus_<TMPL_VAR NAME="locus_id"><TMPL_IF NAME="func_annotation_edit"> tableRowEdit</TMPL_IF>"><p><label for="func_annotation">Proposed Functional Annotation:</label>
-        <textarea class="func_annotation"><TMPL_IF NAME="func_annotation"><TMPL_VAR NAME="func_annotation"></TMPL_IF></textarea></p></td>
+        <textarea id="func_annotation"><TMPL_IF NAME="func_annotation"><TMPL_VAR NAME="func_annotation"></TMPL_IF></textarea></p></td>
       </tr>
 
       <tr>
         <td colspan="2"><p><label for="gene_locus">MTR Locus: </label>
-        <input readonly="readonly" class="gene_locus" value="<TMPL_IF NAME="gene_locus"><TMPL_VAR NAME="gene_locus"></TMPL_IF>" />
+        <input readonly="readonly" id="gene_locus" name="gene_locus" value="<TMPL_IF NAME="gene_locus"><TMPL_VAR NAME="gene_locus"></TMPL_IF>" />
         </p></td>
         <td><p><label for="orig_func_annotation">Original Annotation: </label>
-        <textarea readonly="readonly" class="orig_func_annotation"><TMPL_IF NAME="orig_func_annotation"><TMPL_VAR NAME="orig_func_annotation"></TMPL_IF></textarea></p></td>
+        <textarea readonly="readonly" id="orig_func_annotation" name="orig_func_annotation"><TMPL_IF NAME="orig_func_annotation"><TMPL_VAR NAME="orig_func_annotation"></TMPL_IF></textarea></p></td>
       </tr>
 
       <tr>
         <td rowspan="3" width="5%"><p id="gb_acc"><b>GenBank<br />Accessions</b></p></td>
         <td class="locus_<TMPL_VAR NAME="locus_id"><TMPL_IF NAME="gb_genomic_acc_edit"> tableRowEdit</TMPL_IF>"><p><label for="gb_genomic_acc">Genomic: </label>
-        <input type="text" class="gb_genomic_acc" value="<TMPL_IF NAME="gb_genomic_acc"><TMPL_VAR NAME="gb_genomic_acc"></TMPL_IF>"></p></td>
+        <input type="text" id="gb_genomic_acc" name="gb_genomic_acc" value="<TMPL_IF NAME="gb_genomic_acc"><TMPL_VAR NAME="gb_genomic_acc"></TMPL_IF>"></p></td>
         <td class="locus_<TMPL_VAR NAME="locus_id"><TMPL_IF NAME="reference_pub_edit"> tableRowEdit</TMPL_IF>"><p><label for="reference_pub">Reference Publication: </label>
-        <textarea id="reference_pub" class="reference_pub"><TMPL_IF NAME="reference_pub"><TMPL_VAR NAME="reference_pub"></TMPL_IF></textarea>
+        <textarea id="reference_pub" name="reference_pub"><TMPL_IF NAME="reference_pub"><TMPL_VAR NAME="reference_pub"></TMPL_IF></textarea>
         </p></td>
       </tr>
 
       <tr>
         <td class="locus_<TMPL_VAR NAME="locus_id"><TMPL_IF NAME="gb_cdna_acc_edit"> tableRowEdit</TMPL_IF>"><p><label for="gb_cdna_acc">cDNA: </label>
-        <input type="text" class="gb_cdna_acc" value="<TMPL_IF NAME="gb_cdna_acc"><TMPL_VAR NAME="gb_cdna_acc"></TMPL_IF>"></p></td>
+        <input type="text" id="gb_cdna_acc" name="gb_cdna_acc" value="<TMPL_IF NAME="gb_cdna_acc"><TMPL_VAR NAME="gb_cdna_acc"></TMPL_IF>"></p></td>
         <td class="locus_<TMPL_VAR NAME="locus_id"><TMPL_IF NAME="comment_edit"> tableRowEdit</TMPL_IF>"><p><label for="comment">Comment: </label>
-        <textarea ROWS=1 class="comment"><TMPL_IF NAME="comment"><TMPL_VAR NAME="comment"></TMPL_IF></textarea></p></td>
+        <textarea ROWS=1 id="comment" name="comment"><TMPL_IF NAME="comment"><TMPL_VAR NAME="comment"></TMPL_IF></textarea></p></td>
       </tr>
 
       <tr>
         <td class="locus_<TMPL_VAR NAME="locus_id"><TMPL_IF NAME="gb_protein_acc_edit"> tableRowEdit</TMPL_IF>"><p><label for="gb_protein_acc">Protein: </label>
-        <input type="text" class="gb_protein_acc" value="<TMPL_IF NAME="gb_protein_acc"><TMPL_VAR NAME="gb_protein_acc"></TMPL_IF>"></p></td>
+        <input type="text" id="gb_protein_acc" name="gb_protein_acc" value="<TMPL_IF NAME="gb_protein_acc"><TMPL_VAR NAME="gb_protein_acc"></TMPL_IF>"></p></td>
         <td><p><label for="structural_annot">Has Struct Annotation?</label>
         <input type="hidden" id="has_structural_annot" name="has_structural_annot" value="<TMPL_VAR NAME="has_structural_annot">">
         <TMPL_IF NAME="has_structural_annot"><input type="button" class="btn" id="structural_annot" name="structural_annot" value="View/Edit" onclick="perform_action('struct_anno', 'locus_id', <TMPL_VAR NAME="locus_id">);"><TMPL_ELSE>No</TMPL_IF></p></td>
