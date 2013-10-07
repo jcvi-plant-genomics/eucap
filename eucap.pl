@@ -44,7 +44,7 @@ use Bio::Graphics::Feature;
 use DBI;
 
 # GFFDB Modules
-use GFF::DBHelper;
+use JCVI::DBHelper;
 
 # Textpresso modules
 use Textpresso::Helper;
@@ -392,6 +392,7 @@ sub init {
 
         $session->param('anno_ref', $anno_ref);
         $session->flush;
+
         return 0;
     } else {
         login_page(1, "Password does not match! Please check and try again.");
@@ -441,6 +442,7 @@ sub logout {
     my ($session, $cgi) = @_;
     $session->clear(["~logged_in"]);
     $session->flush;
+
     login_page(1, "Logged out - Thank you");
 }
 

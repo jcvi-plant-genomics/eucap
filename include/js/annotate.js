@@ -402,12 +402,12 @@ function save_locus(locus_id) {
     req_locus_fields['gb_protein_acc'] = 1;
     var track = 0;
     $.each(params_arr, function(i, params_arr){
-    	alert(params_arr.name + " " + params_arr.value);
+    	//alert(params_arr.name + " " + params_arr.value);
         if(req_locus_fields[params_arr.name] === 1 && params_arr.value !== "") {
             track += 1;
         }
     });
-    alert(track);
+    //alert(track);
 
     if(track >= 1) {
         $('#gene_symbol').removeClass('ui-state-error');
@@ -518,7 +518,7 @@ function save_locus(locus_id) {
 
         $('#gene_symbol').addClass('ui-state-error');
         $('#reference_pub').addClass('ui-state-error');
-        $('#gb_genomic_acc, #gb_cdna_acc, #gb_protein_acc').addClass('ui-state-error');        
+        $('#gb_genomic_acc, #gb_cdna_acc, #gb_protein_acc').addClass('ui-state-error');
     }
     return false;
 }

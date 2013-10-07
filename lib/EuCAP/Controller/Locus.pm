@@ -4,6 +4,8 @@ use strict;
 use EuCAP::DBHelper;
 use EuCAP::Controller::Mutant;
 
+use JCVI::DBHelper;
+
 use base 'Exporter';
 our (@ISA, @EXPORT);
 
@@ -116,7 +118,8 @@ sub add_loci {
         }
 
       INSERT:
-        my $orig_func_annotation = GFF::DBHelper::get_original_annotation($gene_locus);
+        my $orig_func_annotation = get_original_annotation($gene_locus);
+        my $gb_protein_acc = get_genbank_accession($gene_locus);
 
         $anno_ref->{loci}->{$locus_id}->{gene_locus}           = $gene_locus;
         $anno_ref->{loci}->{$locus_id}->{orig_func_annotation} = $orig_func_annotation;
@@ -124,7 +127,7 @@ sub add_loci {
         $anno_ref->{loci}->{$locus_id}->{func_annotation}      = q{};
         $anno_ref->{loci}->{$locus_id}->{gb_genomic_acc}       = q{};
         $anno_ref->{loci}->{$locus_id}->{gb_cdna_acc}          = q{};
-        $anno_ref->{loci}->{$locus_id}->{gb_protein_acc}       = q{};
+        $anno_ref->{loci}->{$locus_id}->{gb_protein_acc}       = $gb_protein_acc;
         $anno_ref->{loci}->{$locus_id}->{reference_pub}        = q{};
         $anno_ref->{loci}->{$locus_id}->{mod_date}             = timestamp();
         $anno_ref->{loci}->{$locus_id}->{comment}              = q{};
@@ -152,7 +155,7 @@ sub add_loci {
                 func_annotation      => q{},
                 gb_genomic_acc       => q{},
                 gb_cdna_acc          => q{},
-                gb_protein_acc       => q{},
+                gb_protein_acc       => $gb_protein_acc,
                 reference_pub        => q{},
                 mod_date             => $anno_ref->{loci}->{$locus_id}->{mod_date},
                 comment              => q{},

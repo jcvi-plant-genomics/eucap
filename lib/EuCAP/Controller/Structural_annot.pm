@@ -2,7 +2,7 @@ package EuCAP::Controller::Structural_annot;
 
 use strict;
 use EuCAP::DBHelper;
-use GFF::DBHelper;
+use JCVI::DBHelper;
 
 use base 'Exporter';
 our (@ISA, @EXPORT);
@@ -60,6 +60,7 @@ sub structural_annotation {
         $ca_model_ds = $json_handler->decode($ca_model_json);
     }
     my $ca_model_feature = create_ca_model_feature($ca_model_ds);
+    print STDERR Dumper($gff_locus_obj);
     my ($url, $map, $map_name) = create_ca_image_and_map(
         {
             locus_obj        => $gff_locus_obj,
