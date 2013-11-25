@@ -14,12 +14,8 @@ my %cfg = ();
 tie %cfg, 'Config::IniFiles', (-file => 'eucap.ini');
 
 # Build the Project Annotatotr (PA) and Admin email addresses
-my $email_domain = $cfg{'email'}{'domain'};
-my $PA           = $cfg{'email'}{'pa'};
-my $admin        = $cfg{'email'}{'admin'};
-
-my $PA_address    = $PA . "\@" . $email_domain;
-my $admin_address = $admin . "\@" . $email_domain;
+my $PA_address    = $cfg{'email'}{'pa'};
+my $admin_address = $cfg{'email'}{'admin'};
 
 sub review_annotation {
     my ($session, $cgi) = @_;

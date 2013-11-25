@@ -1,4 +1,4 @@
-package GFF::DBHelper;
+package AnnotDB::DBHelper;
 
 use strict;
 
@@ -11,25 +11,29 @@ our (@ISA, @EXPORT);
 @ISA    = qw(Exporter);
 @EXPORT = qw(get_loci get_original_annotation get_annotation_db_features get_ends_from_feature);
 
-# Read the eucap.ini configuration file
-my %cfg = ();
-tie %cfg, 'Config::IniFiles', (-file => 'eucap.ini');
-
-#local GFF DB connection params
-my $GFF_DB_ADAPTOR  = 'DBI::mysql';
-my $GFF_DB_HOST     = $cfg{'gffdb'}{'hostname'};
-my $GFF_DB_NAME     = $cfg{'gffdb'}{'database'};
-my $GFF_DB_USERNAME = $cfg{'gffdb'}{'username'};
-my $GFF_DB_PASSWORD = $cfg{'gffdb'}{'password'};
-my $GFF_DB_DSN      = join(':', ('dbi:mysql', $GFF_DB_NAME, $GFF_DB_HOST));
-
-#need this db connection for base annotation data
+my ($GFF_DB_ADAPTOR, $GFF_DB_DSN, $GFF_DB_USERNAME, $GFF_DB_PASSWORD) = getConfig();
 my $gff_dbh = Bio::DB::SeqFeature::Store->new(
     -adaptor => $GFF_DB_ADAPTOR,
     -dsn     => $GFF_DB_DSN,
     -user    => $GFF_DB_USERNAME,
     -pass    => $GFF_DB_PASSWORD,
 ) or die("cannot access Bio::DB::SeqFeature::Store database");
+
+sub getConfig {
+    # Read the eucap.ini configuration file
+    my %cfg = ();
+    tie %cfg, 'Config::IniFiles', (-file => 'eucap.ini');
+
+    #local GFF DB connection params
+    my $GFF_DB_ADAPTOR  = 'DBI::mysql';
+    my $GFF_DB_HOST     = $cfg{'annotdb'}{'hostname'};
+    my $GFF_DB_NAME     = $cfg{'annotdb'}{'database'};
+    my $GFF_DB_USERNAME = $cfg{'annotdb'}{'username'};
+    my $GFF_DB_PASSWORD = $cfg{'annotdb'}{'password'};
+    my $GFF_DB_DSN      = join(':', ('dbi:mysql', $GFF_DB_NAME, $GFF_DB_HOST));
+
+    return ($GFF_DB_ADAPTOR, $GFF_DB_DSN, $GFF_DB_USERNAME, $GFF_DB_PASSWORD);
+}
 
 sub get_loci {
     my ($arg_ref) = @_;
@@ -87,13 +91,13 @@ sub get_original_annotation {
 }
 
 sub get_annotation_db_features {
-    my ($gene_locus) = @_;
+    my ($arg_ref) = @_;
 
-    my ($gff_locus_obj) = $gff_dbh->get_features_by_name(-name => $gene_locus, -types => 'gene');
+    my ($gff_locus_obj) = $gff_dbh->get_features_by_name(-name => $arg_ref->{locus}, -types => 'gene');
     my ($end5, $end3) = get_ends_from_feature($gff_locus_obj);
     my $segment = $gff_dbh->segment($gff_locus_obj->seq_id, $end5, $end3);
     my @gene_models = $segment->features(
-        -name  => "$gene_locus*",
+        -name  => $arg_ref->{locus} . "*",
         -types => 'mRNA',
     );
 

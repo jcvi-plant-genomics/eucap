@@ -392,7 +392,8 @@ function save_locus(locus_id) {
     }
 
     var status_span = "locus_save_status_" + locus_id;
-    var params_arr = $('#locus_annotate').serializeArray();
+    var form_id = '#locus_annotate_' + locus_id;
+    var params_arr = $(form_id).serializeArray();
 
     var req_locus_fields = new Array();
     req_locus_fields['gene_symbol'] = 1;
@@ -410,9 +411,9 @@ function save_locus(locus_id) {
     //alert(track);
 
     if(track >= 1) {
-        $('#gene_symbol').removeClass('ui-state-error');
-        $('#reference_pub').removeClass('ui-state-error');
-        $('#gb_genomic_acc, #gb_cdna_acc, #gb_protein_acc').removeClass('ui-state-error');
+        $(form_id + ' #gene_symbol').removeClass('ui-state-error');
+        $(form_id + ' #reference_pub').removeClass('ui-state-error');
+        $(form_id + ' #gb_genomic_acc, #gb_cdna_acc, #gb_protein_acc').removeClass('ui-state-error');
 
         var req_mutant_info_fields = new Array();
         req_mutant_info_fields['mutant_symbol'] = 1;
@@ -423,19 +424,19 @@ function save_locus(locus_id) {
         track = 0;
 
         $.each(params_arr, function(i, params_arr){
-            if(req_mutant_info_fields[params_arr.name] === 1 && params_arr.value !== "") {
+            if(req_mutant_info_fields[params_arr.name] === 1 && (params_arr.value !== "" || params_arr.value != "Search mutants...")) {
                 track += 1;
             }
         });
 
         if(track === 5 || track === 0) {
-            $('#mutant_symbol').removeClass('ui-state-error');
-            $('#mutant_class_symbol').removeClass('ui-state-error');
-            $('#mutant_class_name').removeClass('ui-state-error');
-            $('#mutant_phenotype').removeClass('ui-state-error');
-            $('#mutant_reference_pub').removeClass('ui-state-error');
+            $(form_id + ' #mutant_symbol').removeClass('ui-state-error');
+            $(form_id + ' #mutant_class_symbol').removeClass('ui-state-error');
+            $(form_id + ' #mutant_class_name').removeClass('ui-state-error');
+            $(form_id + ' #mutant_phenotype').removeClass('ui-state-error');
+            $(form_id + ' #mutant_reference_pub').removeClass('ui-state-error');
 
-            var params = $('#locus_annotate').serialize();
+            var params = $('#locus_annotate_' + locus_id).serialize();
             var query = url + '&' + params;
             $('#' + status_span).removeClass('ui-state-error');
             $('#' + status_span).addClass('success');
@@ -505,20 +506,20 @@ function save_locus(locus_id) {
              $('#' + status_span).addClass('error');
              $('#' + status_span).html('Mutant Symbol, Class Symbol, Expansion, Phenotype and Publication are mandatory! Please fill out these fields.');
 
-             $('#mutant_symbol').addClass('ui-state-error');
-             $('#mutant_class_symbol').addClass('ui-state-error');
-             $('#mutant_class_name').addClass('ui-state-error');
-             $('#mutant_phenotype').addClass('ui-state-error');
-             $('#mutant_reference_pub').addClass('ui-state-error');
+             $(form_id + ' #mutant_symbol').addClass('ui-state-error');
+             $(form_id + ' #mutant_class_symbol').addClass('ui-state-error');
+             $(form_id + ' #mutant_class_name').addClass('ui-state-error');
+             $(form_id + ' #mutant_phenotype').addClass('ui-state-error');
+             $(form_id + ' #mutant_reference_pub').addClass('ui-state-error');
         }
     } else {
         $('#' + status_span).removeClass('success');
         $('#' + status_span).addClass('ui-state-error');
         $('#' + status_span).html('Gene Symbol and Reference Publication or Any one of the GenBank Accessions are mandatory! Please fill out these fields.');
 
-        $('#gene_symbol').addClass('ui-state-error');
-        $('#reference_pub').addClass('ui-state-error');
-        $('#gb_genomic_acc, #gb_cdna_acc, #gb_protein_acc').addClass('ui-state-error');
+        $(form_id + ' #gene_symbol').addClass('ui-state-error');
+        $(form_id + ' #reference_pub').addClass('ui-state-error');
+        $(form_id + ' #gb_genomic_acc, #gb_cdna_acc, #gb_protein_acc').addClass('ui-state-error');
     }
     return false;
 }
@@ -863,7 +864,7 @@ function perform_action(action, param_name, param, modal) {
         });
     } else {
         $('#' + action).addClass('well');
-        var m = (action === 'run_blast') ? 'Searching' : 'Loading';
+        var m = (action.match(/^run/)) ? 'Searching' : 'Loading';
         $('#' + action).html('<img src="' + load_gif + '" /><p class="bodytext">' + m + '</p>');
     }
 
@@ -923,9 +924,9 @@ function toggle_panel(panel_id, other_panel_id) {
 }
 
 // toggle mutant panel based on flag
-function toggle_mutant_panel(input_elem_id, flag) {
-    var panel_elem = $('#mutant_panel');
-    var input_elem = $('#' + input_elem_id);
+function toggle_mutant_panel(locus_id, flag) {
+    var panel_elem = $('#mutant_panel_' + locus_id);
+    var input_elem = $('#hide_panel_' + locus_id);
     if(panel_elem.css('display') === 'block') {
         panel_elem.css('display', 'none');
         if(flag === 0) {

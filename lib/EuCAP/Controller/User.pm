@@ -8,7 +8,42 @@ use base 'Exporter';
 our (@ISA, @EXPORT);
 
 @ISA    = qw(Exporter);
-@EXPORT = qw(check_email check_username update_password edit_profile);
+@EXPORT = qw(login_page check_email check_username update_password edit_profile logout);
+
+sub login_page {
+    my ($arg_ref) = @_;
+    my $body_tmpl = HTML::Template->new(filename => "./tmpl/login.tmpl");
+    if ($arg_ref->{is_error_msg}) {
+        $body_tmpl->param(error        => 1);
+        $body_tmpl->param(error_string => $arg_ref->{error_string});
+    }
+    print $arg_ref->{cgi}->header(-type => 'text/html');
+
+    my $title = "Eukaryotic Community Annotation Package";
+
+    my $page_vars = {};
+    $page_vars->{login}       = 1;
+    $page_vars->{title}       = "EuCAP :: $title";
+    $page_vars->{page_header} = $title;
+
+    $page_vars->{main_content} = $body_tmpl->output;
+
+    return $page_vars;
+}
+
+sub logout {
+    my ($session, $cgi) = @_;
+    $session->clear(["~logged_in"]);
+    $session->flush;
+
+    my $page_vars = login_page({
+        'cgi' => $cgi,
+        'is_error_msg' => 1,
+        'error_string' => 'Logged out - Thank you!'
+    });
+
+    return $page_vars;
+}
 
 sub check_email {
     my ($cgi, $email, $ignore) = @_;
@@ -60,34 +95,34 @@ sub check_username {
 
 sub update_password {
     my ($session, $cgi) = @_;
-        
+
     my $user_id  = $cgi->param('user_id');
     my $password = $cgi->param('current_passwd');
     my $new_password = $cgi->param('new_passwd');
-    
+
     my $user     = selectrow({ table => 'users', where => { user_id => $user_id } });
 
     my $salt      = $user->salt;
     my $hash      = $user->hash;
     my $crypt_obj = Authen::Passphrase::MD5Crypt->new(salt => $salt, hash_base64 => $hash);
-    
+
     my $response = {};
     if ($crypt_obj->match($password)) {
         my $user_info = {};
         my $new_crypt_obj =
           Authen::Passphrase::MD5Crypt->new(salt_random => 1, passphrase => $new_password)
           or die;
-          
+
         $user_info->{salt} = $new_crypt_obj->salt;
         $user_info->{hash} = $new_crypt_obj->hash_base64;
-        
-        do('update', 'users', 
+
+        do('update', 'users',
             {
                 'hashref' => $user_info,
                 'obj'     => $user,
             }
         );
-        
+
         $response->{'update_status'} = 'Password updated!';
         $response->{'error'} = undef;
     }
@@ -151,7 +186,7 @@ sub edit_profile {
     }
     else {
         my $page_vars = {};
-        
+
         my $body_tmpl = HTML::Template->new(filename => "./tmpl/edit_profile.tmpl");
         $body_tmpl->param(
             user_id         => $user_id,
@@ -188,7 +223,7 @@ sub edit_profile {
                 'email_hash'   => md5_hex($anno_ref->{users}->{$user_id}->{email}),
         };
         $page_vars->{main_content} = $body_tmpl->output;
-        
+
         return $page_vars;
     }
 }

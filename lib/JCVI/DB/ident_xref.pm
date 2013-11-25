@@ -1,6 +1,6 @@
-package JCVI::DB::ident_xref;
+package AnnotDB::DB::ident_xref;
 
-use base 'JCVI::DB::CDBI';
+use base 'AnnotDB::DB::CDBI';
 
 __PACKAGE__->set_up_table('ident_xref');
 

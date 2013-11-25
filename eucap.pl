@@ -8,6 +8,10 @@ BEGIN {
     unshift @INC, '../', './lib', './lib/5.16.1', '../textpresso';
 }
 
+# Read the eucap.ini configuration file
+my %cfg = ();
+tie %cfg, 'Config::IniFiles', (-file => 'eucap.ini');
+
 # CGI and authentication related modules
 use CGI;
 use CGI::Carp qw( fatalsToBrowser );
@@ -33,18 +37,11 @@ use Config::IniFiles;
 # Parameter Validation
 use Params::Validate;
 
-# BioPerl classes
-#use Bio::DB::GFF;
-use Bio::DB::SeqFeature::Store;
-use Bio::SeqFeature::Generic;
-use Bio::Graphics;
-use Bio::Graphics::Feature;
-
 # DB related modules
 use DBI;
 
-# GFFDB Modules
-use JCVI::DBHelper;
+# Annotation Database helper module
+use AnnotDB::DBHelper;
 
 # Textpresso modules
 use Textpresso::Helper;
@@ -98,10 +95,6 @@ my %actions_nologin = (
     "retrieve_pmid_record" => 1,
 );
 
-# Read the eucap.ini configuration file
-my %cfg = ();
-tie %cfg, 'Config::IniFiles', (-file => 'eucap.ini');
-
 # Local community annotation DB connection params
 my $CA_DB_NAME = $cfg{'eucap'}{'database'};
 my $CA_SERVER  = 'eucap-' . $ENV{'WEBTIER'};
@@ -143,9 +136,11 @@ if ($action) {
 # Based on the hidden CGI parameter 'action',
 # decide what page/content is to be rendered
 if ($action eq "login_page") {
-    login_page();
+    $page_vars = login_page({
+        'cgi' => $cgi,
+    });
 } elsif ($action eq 'signup_page') {
-    signup_page($cgi);
+    $page_vars = signup_page($cgi);
 } elsif ($action eq 'signup_user') {
     signup_user($cgi);
     $FLAG = 1;
@@ -338,9 +333,8 @@ elsif ($action eq 'get_pmids') {
     retrieve_pmid_record({ cgi => $cgi, pmid => $pmid }) if ($pmid !~ /\D+/);
     $FLAG = 1;
 } elsif ($action eq 'logout') {
-    logout($session, $cgi);
+    $page_vars = logout($session, $cgi);
 }
-
 #else {    # logged in and fall through the actions - then log out
 #    logout($session, $cgi, 'Sorry! System error. Please report issue to site administrator.');
 #}
@@ -361,7 +355,9 @@ sub init {
     }
 
     unless ($action) {
-        login_page();
+        $page_vars = login_page({
+            'cgi' => $cgi,
+        });
         goto PROCESS_TMPL;
     }
 
@@ -369,7 +365,11 @@ sub init {
     my $password = $cgi->param('password');
     my $user     = selectrow({ table => 'users', where => { username => $username } });
     if (!$user) {
-        login_page(1, "User name not found. Please check and try again.");
+        $page_vars = login_page({
+            'cgi' => $cgi,
+            'is_error_msg' => 1,
+            'error_string' => "User name not found. Please check and try again."
+        });
         goto PROCESS_TMPL;
     }
 
@@ -395,55 +395,15 @@ sub init {
 
         return 0;
     } else {
-        login_page(1, "Password does not match! Please check and try again.");
+        $page_vars = login_page({
+            'cgi' => $cgi,
+            'is_error_msg' => 1,
+            'error_string' => "Password does not match! Please check and try again."
+        });
         $session->delete();
         $session->flush;
         goto PROCESS_TMPL;
     }
-}
-
-sub login_page {
-    my ($is_err_msgor, $error_string) = @_;
-    my $body_tmpl = HTML::Template->new(filename => "./tmpl/login.tmpl");
-    if ($is_err_msgor) {
-        $body_tmpl->param(error        => 1);
-        $body_tmpl->param(error_string => $error_string);
-    }
-    print $cgi->header(-type => 'text/html');
-
-    my $title = "Eukaryotic Community Annotation Package";
-
-    $page_vars->{login}       = 1;
-    $page_vars->{title}       = "EuCAP :: $title";
-    $page_vars->{page_header} = $title;
-
-    $page_vars->{main_content} = $body_tmpl->output;
-}
-
-sub signup_page {
-    my ($cgi) = @_;
-    my $body_tmpl = HTML::Template->new(filename => "./tmpl/signup_page.tmpl");
-
-    print $cgi->header(-type => 'text/html');
-    my $title = "Account Sign Up";
-
-    push @{ $page_vars->{javascripts} }, "/eucap/include/js/jquery.validate.min.js",
-      "/eucap/include/js/jquery.form.js", "/eucap/include/js/signup_page.js";
-    push @{ $page_vars->{breadcrumb} }, ({ 'link' => $ENV{REQUEST_URI}, 'menu_name' => $title });
-
-    $page_vars->{login}       = 1;
-    $page_vars->{title}       = "EuCAP :: $title";
-    $page_vars->{page_header} = "EuCAP Account Sign Up";
-
-    $page_vars->{main_content} = $body_tmpl->output;
-}
-
-sub logout {
-    my ($session, $cgi) = @_;
-    $session->clear(["~logged_in"]);
-    $session->flush;
-
-    login_page(1, "Logged out - Thank you");
 }
 
 sub dashboard {

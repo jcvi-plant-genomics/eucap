@@ -1,5 +1,5 @@
 <TMPL_LOOP NAME="annotate_locus_loop">
-<form id="locus_annotate" name="locus_annotate" onsubmit="return save_locus(<TMPL_VAR NAME="locus_id">);">
+<form id="locus_annotate_<TMPL_VAR NAME="locus_id">" name="locus_annotate_<TMPL_VAR NAME="locus_id">" onsubmit="return save_locus(<TMPL_VAR NAME="locus_id">);">
 	<legend>
 		Edit <TMPL_VAR NAME="gene_symbol"> Gene <img class="edit_gene_info" style="vertical-align: super;" src="/eucap/include/images/info.png" />
 		<div class="pull-right">
@@ -53,10 +53,10 @@
       </tr>
 
       <tr><td class="locus_<TMPL_VAR NAME="locus_id"><TMPL_IF NAME="mutant_id_edit"> tableRowEdit</TMPL_IF>" colspan="3">
-      <p><input type="button" class="btn" id="hide_panel" name="hide_panel" value="<TMPL_IF NAME="mutant_id">Hide<TMPL_ELSE>Add</TMPL_IF>"
-      onclick="toggle_mutant_panel('hide_panel', <TMPL_IF NAME="mutant_id">1<TMPL_ELSE>0</TMPL_IF>);">
+      <p><input type="button" class="btn" id="hide_panel_<TMPL_VAR NAME="locus_id">" name="hide_panel_<TMPL_VAR NAME="locus_id">" value="<TMPL_IF NAME="mutant_id">Hide<TMPL_ELSE>Add</TMPL_IF>"
+      onclick="toggle_mutant_panel(<TMPL_VAR NAME="locus_id">, <TMPL_IF NAME="mutant_id">1<TMPL_ELSE>0</TMPL_IF>);">
       Mutant Information <img name="edit_mutant_info" id="edit_mutant_info" style="vertical-align: middle;" src="/eucap/include/images/info.png" /></p>
-        <div class="large_margin" style="display:<TMPL_IF NAME="mutant_id">block<TMPL_ELSE>none</TMPL_IF>;" id="mutant_panel">
+        <div class="large_margin" style="display:<TMPL_IF NAME="mutant_id">block<TMPL_ELSE>none</TMPL_IF>;" id="mutant_panel_<TMPL_VAR NAME="locus_id">">
             <TMPL_INCLUDE NAME="annotate_mutant.tmpl">
         </div>
       </td></tr>
@@ -72,12 +72,9 @@
     </table>
 </form>
 
-<hr />
-</TMPL_LOOP>
-
 <script type="text/javascript">
     // autocomplete reference_pub from TextPressoDB
-    $('#reference_pub').tagsInput({
+    $('#locus_annotate_<TMPL_VAR NAME="locus_id"> #reference_pub').tagsInput({
         autocomplete_url: '/cgi-bin/eucap/eucap.pl?action=get_pmids',
         minChars: 3,
         delimiter: ';',
@@ -88,40 +85,40 @@
     });
 
     // Gene Info related tooltips
-    $('.edit_gene_info').qtip({
+    $('#locus_annotate_<TMPL_VAR NAME="locus_id"> #edit_gene_info').qtip({
         content: 'Required fields:<br />' +
         '<ul>' + '<li>Gene Symbol</li>' + '<li>At least one GenBank Accession</li>' + '<li>Reference publication</li>' + '</ul>',
         position: { my: 'top left', at: 'right center' },
     });
-    $('.gene_symbol').qtip({
+    $('#locus_annotate_<TMPL_VAR NAME="locus_id"> #gene_symbol').qtip({
         content: '<b style="color: red;">Required</b><br />Example: ZIP1, RopGEF3',
         position: { my: 'left center', at: 'right center' },
         show: 'focus', hide: 'blur',
     });
-    $('.func_annotation').qtip({
+    $('#locus_annotate_<TMPL_VAR NAME="locus_id"> #func_annotation').qtip({
         content: '<b style="color: green;">Optional</b><br />Functional annotation, as suggested <br />by Community Annotator (<TMPL_VAR NAME="username">)',
         position: { my: 'left center', at: 'right center' },
         show: 'focus', hide: 'blur',
     });
-    $('.gene_locus').qtip({
+    $('#locus_annotate_<TMPL_VAR NAME="locus_id"> #gene_locus').qtip({
         content: 'Official IMGAG Gene locus identifier',
         position: { my: 'left center', at: 'right center' },
     });
-    $('.orig_func_annotation').qtip({
+    $('#locus_annotate_<TMPL_VAR NAME="locus_id"> #orig_func_annotation').qtip({
         content: 'Current functional annotation,<br /> as found in Mt3.5v5',
         position: { my: 'left center', at: 'right center' },
     });
-    $('.gb_genomic_acc, .gb_cdna_acc, .gb_protein_acc').qtip({
+    $('#locus_annotate_<TMPL_VAR NAME="locus_id"> #gb_genomic_acc, #locus_annotate_<TMPL_VAR NAME="locus_id"> #gb_cdna_acc, #locus_annotate_<TMPL_VAR NAME="locus_id"> #gb_protein_acc').qtip({
         content: '<b style="color: red;">Required</b><br />Provide any one of the <br />3 GenBank accessions',
-        position: { my: 'top right', at: 'bottom center', target: $('#gb_acc') },
+        position: { my: 'top right', at: 'bottom center', target: $('#locus_annotate_<TMPL_VAR NAME="locus_id"> #gb_acc') },
         show: 'focus', hide: 'blur',
     });
-    $('.comment').qtip({
+    $('#locus_annotate_<TMPL_VAR NAME="locus_id"> #comment').qtip({
         content: '<b style="color: green;">Optional</b><br />User comments for current locus',
         position: { my: 'left center', at: 'right center' },
         show: 'focus', hide: 'blur',
     });
-    $('#reference_pub_tagsinput').qtip({
+    $('#locus_annotate_<TMPL_VAR NAME="locus_id"> #reference_pub_tagsinput').qtip({
         content: '<b style="color: red;">Required</b><br />Please indicate any publications (PMIDs).<br />' +
         'If work is not published yet, please input <br /> "In Progress" or "In Press"<br /><br />' +
         'If there are multiple references,  list them with a ";" separator',
@@ -129,6 +126,9 @@
     });
     markup_pmids(undefined);
 </script>
+
+<hr />
+</TMPL_LOOP>
 
 <div id="annotate_alleles" name="annotate_alleles" class="hide_panel" style="text-align: left;"></div>
 <div id="struct_anno" name="struct_anno" class="hide_panel" style="text-align: left;"></div>

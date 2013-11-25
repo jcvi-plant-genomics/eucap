@@ -2,7 +2,13 @@ package EuCAP::Controller::Structural_annot;
 
 use strict;
 use EuCAP::DBHelper;
-use JCVI::DBHelper;
+use AnnotDB::DBHelper;
+
+use Bio::SeqFeature::Generic;
+use Bio::Graphics;
+use Bio::Graphics::Feature;
+
+use Data::Dumper;
 
 use base 'Exporter';
 our (@ISA, @EXPORT);
@@ -34,7 +40,7 @@ sub structural_annotation {
     my $ca_model_json = $cgi->param('model_json');
     my $body_tmpl = HTML::Template->new(filename => "./tmpl/structural_annotation.tmpl");
 
-    my ($gff_locus_obj, $gene_models) = get_annotation_db_features($gene_locus);
+    my ($gff_locus_obj, $gene_models) = get_annotation_db_features({locus => $gene_locus});
 
     #when hooked into script - look for saved JSON in table if none passed as param
     #if no model JSON passed to script, create new from annotation gene model
@@ -60,7 +66,6 @@ sub structural_annotation {
         $ca_model_ds = $json_handler->decode($ca_model_json);
     }
     my $ca_model_feature = create_ca_model_feature($ca_model_ds);
-    print STDERR Dumper($gff_locus_obj);
     my ($url, $map, $map_name) = create_ca_image_and_map(
         {
             locus_obj        => $gff_locus_obj,
@@ -321,6 +326,7 @@ sub create_ca_image_and_map {
 
 #flip will have to be dynamically controlled by the strand of the ca  model or the primary working model
 
+    my $strand = $arg_ref->{locus_obj}->strand;
     my $panel = Bio::Graphics::Panel->new(
         -length     => $arg_ref->{locus_obj}->length,
         -key_style  => 'between',
@@ -331,8 +337,7 @@ sub create_ca_image_and_map {
         -pad_bottom => 20,
         -start      => $end5,
         -end        => $end3,
-        -flip       => $arg_ref->{locus_obj}->strand == -1 ? 1 : 0,
-
+        -flip       => ($strand) == -1 ? 1 : 0,
     );
 
     $panel->add_track(
@@ -367,8 +372,8 @@ sub create_ca_image_and_map {
         -description => 1,
         -label       => sub {
             my $feature = shift;
-            my $alias   = $feature->attributes('Alias');
-            return $alias;
+            my $note    = $feature->display_name();
+            return $note;
         },
         -font2color => 'black',
         -bgcolor    => sub {
@@ -391,7 +396,7 @@ sub create_ca_image_and_map {
             }
         },
         -fgcolor => 'black',
-        -key     => 'IMGAG Gene Loci'
+        -key     => 'Gene Loci'
     );
 
     $panel->add_track(
@@ -404,7 +409,7 @@ sub create_ca_image_and_map {
             return $note;
         },
         -height       => 10,
-        -key          => 'IMGAG Gene Models',
+        -key          => 'Gene Models',
         -utr_color    => 'white',
         -thin_utr     => 0,
         -fgcolor      => 'slateblue',

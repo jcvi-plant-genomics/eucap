@@ -8,16 +8,36 @@ use base 'Exporter';
 our (@ISA, @EXPORT);
 
 @ISA    = qw(Exporter);
-@EXPORT = qw(signup_user validate_new_user $PA_address $admin_address);
+@EXPORT = qw(signup_page signup_user validate_new_user $PA_address $admin_address);
 
 # Read the eucap.ini configuration file
 my %cfg = ();
 tie %cfg, 'Config::IniFiles', (-file => 'eucap.ini');
 
 # Build the Admin email addresses
-my $email_domain = $cfg{'email'}{'domain'};
-my $admin        = $cfg{'email'}{'admin'};
-my $admin_address = $admin . "\@" . $email_domain;
+my $admin_address = $cfg{'email'}{'admin'};
+my $PA_address = $cfg{'email'}{'pa'};
+
+sub signup_page {
+    my ($cgi) = @_;
+    my $body_tmpl = HTML::Template->new(filename => "./tmpl/signup_page.tmpl");
+
+    print $cgi->header(-type => 'text/html');
+    my $title = "Account Sign Up";
+
+    my $page_vars = {};
+    push @{ $page_vars->{javascripts} }, "/eucap/include/js/jquery.validate.min.js",
+      "/eucap/include/js/jquery.form.js", "/eucap/include/js/signup_page.js";
+    push @{ $page_vars->{breadcrumb} }, ({ 'link' => $ENV{REQUEST_URI}, 'menu_name' => $title });
+
+    $page_vars->{login}       = 1;
+    $page_vars->{title}       = "EuCAP :: $title";
+    $page_vars->{page_header} = "EuCAP Account Sign Up";
+
+    $page_vars->{main_content} = $body_tmpl->output;
+
+    return $page_vars;
+}
 
 sub signup_user {
     my ($cgi) = @_;
@@ -83,11 +103,13 @@ sub validate_new_user {
         login_page(1, 'Account activated successfully');
     }
     else {
-        login_page(1,
-                "Bad validation using username="
-              . $cgi->param('username')
-              . "and validation_key="
-              . $cgi->param('validation_key'));
+        login_page({
+            'cgi' => $cgi,
+            'is_error_msg' => 1,
+            'error+string' =>
+                "Bad validation using username=" . $cgi->param('username') .
+                "and validation_key=" . $cgi->param('validation_key')
+        });
     }
 }
 

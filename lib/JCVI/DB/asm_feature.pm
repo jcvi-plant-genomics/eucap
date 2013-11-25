@@ -1,6 +1,6 @@
-package JCVI::DB::asm_feature;
+package AnnotDB::DB::asm_feature;
 
-use base 'JCVI::DB::CDBI';
+use base 'AnnotDB::DB::CDBI';
 
 __PACKAGE__->set_up_table('asm_feature');
 __PACKAGE__->set_sql(

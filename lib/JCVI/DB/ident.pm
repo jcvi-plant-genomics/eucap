@@ -1,6 +1,6 @@
-package JCVI::DB::ident;
+package AnnotDB::DB::ident;
 
-use base 'JCVI::DB::CDBI';
+use base 'AnnotDB::DB::CDBI';
 
 __PACKAGE__->set_up_table('ident');
 

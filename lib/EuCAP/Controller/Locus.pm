@@ -4,7 +4,7 @@ use strict;
 use EuCAP::DBHelper;
 use EuCAP::Controller::Mutant;
 
-use JCVI::DBHelper;
+use AnnotDB::DBHelper;
 
 use base 'Exporter';
 our (@ISA, @EXPORT);
@@ -390,6 +390,7 @@ sub annotate_locus {
                 has_structural_annot => $anno_ref->{loci}->{$locus_id}->{has_structural_annot},
 
                 locus_id => $locus_id,
+                username => ($arg_ref->{action} eq "annotate_locus") ? $username : "",
             };
 
             if ($arg_ref->{action} eq "annotate_locus") {
@@ -431,8 +432,6 @@ sub annotate_locus {
                 push @$annotate_mutant_loop, $mutant_row;
                 $locus_row->{annotate_mutant_loop} = $annotate_mutant_loop;
             }
-
-            $body_tmpl->param(username => $username) if ($arg_ref->{action} eq "annotate_locus");
 
             push @$annotate_locus_loop, $locus_row;
         }

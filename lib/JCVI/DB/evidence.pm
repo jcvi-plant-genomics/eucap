@@ -1,6 +1,6 @@
-package JCVI::DB::evidence;
+package AnnotDB::DB::evidence;
 
-use base 'JCVI::DB::CDBI';
+use base 'AnnotDB::DB::CDBI';
 
 __PACKAGE__->set_up_table('evidence');
 
