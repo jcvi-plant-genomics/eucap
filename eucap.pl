@@ -95,9 +95,10 @@ my %actions_nologin = (
     "retrieve_pmid_record" => 1,
 );
 
+my $WEBTIER = ($ENV{'WEBTIER'} =~ /dev/) ? "dev" : "prod";
 # Local community annotation DB connection params
 my $CA_DB_NAME = $cfg{'eucap'}{'database'};
-my $CA_SERVER  = 'eucap-' . $ENV{'WEBTIER'};
+my $CA_SERVER  = 'eucap-' . $WEBTIER;
 my ($CA_DB_USERNAME, $CA_DB_PASSWORD, $CA_DB_HOST) =
   ($cfg{$CA_SERVER}{'username'}, $cfg{$CA_SERVER}{'password'}, $cfg{$CA_SERVER}{'hostname'});
 my $CA_DB_DSN = join(':', ('dbi:mysql', $CA_DB_NAME, $CA_DB_HOST));
@@ -362,7 +363,7 @@ sub init {
     }
 
     my $username = $cgi->param('username');
-    my $password = $cgi->param('password');
+    my $password = $cgi->param('passwd');
     my $user     = selectrow({ table => 'users', where => { username => $username } });
     if (!$user) {
         $page_vars = login_page({

@@ -118,7 +118,7 @@
             <form class="navbar-form pull-right" action="/cgi-bin/eucap/eucap.pl" method="post">
               <input type="hidden" id="action" name="action" value="dashboard" />
               <input class="span2" type="text" name="username" id="username" placeholder="Username" />
-              <input class="span2" type="password" name="password" id="password" placeholder="Password" />
+              <input class="span2" type="password" name="passwd" id="passwd" placeholder="Password" />
               <input type="submit" class="btn btn-primary" value="Sign in" />
 	          <a href="/cgi-bin/eucap/eucap.pl?action=signup_page" class="btn btn-info">Sign Up</a>
             </form>
