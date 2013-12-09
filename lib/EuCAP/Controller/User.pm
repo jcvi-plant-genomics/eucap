@@ -2,7 +2,7 @@ package EuCAP::Controller::User;
 
 use strict;
 use EuCAP::DBHelper;
-use Digest::MD5 qw/md5 md5_hex md5_base64/;
+use Digest::MD5 qw/md5_hex/;
 
 use base 'Exporter';
 our (@ISA, @EXPORT);
@@ -13,7 +13,7 @@ our (@ISA, @EXPORT);
 sub login_page {
     my ($arg_ref) = @_;
     my $body_tmpl = HTML::Template->new(filename => "./tmpl/login.tmpl");
-    if ($arg_ref->{is_error_msg}) {
+    if ($arg_ref->{error_string}) {
         $body_tmpl->param(error        => 1);
         $body_tmpl->param(error_string => $arg_ref->{error_string});
     }
@@ -38,7 +38,6 @@ sub logout {
 
     my $page_vars = login_page({
         'cgi' => $cgi,
-        'is_error_msg' => 1,
         'error_string' => 'Logged out - Thank you!'
     });
 

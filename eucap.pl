@@ -31,7 +31,6 @@ use Image::Size;
 use File::Copy;
 use File::Basename;
 use Data::Dumper;
-use Time::Piece;
 use Config::IniFiles;
 
 # Parameter Validation
@@ -69,8 +68,7 @@ use EuCAP::Print_to_screen;
 use EuCAP::Apps::Blast;
 
 # Third-party modules
-use Digest::MD5 qw/md5 md5_hex md5_base64/;
-use MIME::Base64 qw/encode_base64url/;
+use Digest::MD5 qw/md5_hex/;
 
 # Allow max 1MB upload size
 $CGI::POST_MAX = 1024 * 1000;
@@ -146,7 +144,7 @@ if ($action eq "login_page") {
     signup_user($cgi);
     $FLAG = 1;
 } elsif ($action eq 'validate_new_user') {
-    validate_new_user($cgi);
+    $page_vars = validate_new_user($cgi);
 } elsif ($action eq 'dashboard') {
     dashboard($session, $cgi);
 } elsif ($action eq 'edit_profile') {

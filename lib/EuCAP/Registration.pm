@@ -1,8 +1,12 @@
 package EuCAP::Registration;
 
 use strict;
+use Time::Piece;
+use MIME::Base64 qw/encode_base64url/;
+
 use EuCAP::DBHelper;
 use EuCAP::Contact;
+use EuCAP::Controller::User;
 
 use base 'Exporter';
 our (@ISA, @EXPORT);
@@ -16,7 +20,7 @@ tie %cfg, 'Config::IniFiles', (-file => 'eucap.ini');
 
 # Build the Admin email addresses
 my $admin_address = $cfg{'email'}{'admin'};
-my $PA_address = $cfg{'email'}{'pa'};
+my $PA_address    = $cfg{'email'}{'pa'};
 
 sub signup_page {
     my ($cgi) = @_;
@@ -87,6 +91,7 @@ sub signup_user {
 
 sub validate_new_user {
     my ($cgi) = @_;
+    my $page_vars = {};
 
     my $validate_info =
       cgi_to_hashref({ cgi => $cgi, table => 'registration_pending', id => undef });
@@ -96,21 +101,38 @@ sub validate_new_user {
             where => { username => $validate_info->{username} }
         }
     );
-    if (defined $pending_user
-        and $pending_user->validation_key eq $validate_info->{validation_key})
-    {
-        promote_pending_user($pending_user);
-        login_page(1, 'Account activated successfully');
+
+    my $error_string;
+    if (defined $pending_user) {
+        if ($pending_user->validation_key eq $validate_info->{validation_key}) {
+            promote_pending_user($pending_user);
+            $error_string = 'Account activated successfully!';
+        }
+        else {
+            $error_string =
+                'Bad validation with username : <b>'
+              . $validate_info->{username}
+              . '</b> and validation_key : <b>'
+              . $validate_info->{validation_key}
+              . '</b>';
+        }
     }
     else {
-        login_page({
-            'cgi' => $cgi,
-            'is_error_msg' => 1,
-            'error+string' =>
-                "Bad validation using username=" . $cgi->param('username') .
-                "and validation_key=" . $cgi->param('validation_key')
-        });
+        if (
+            defined selectrow(
+                { table => 'users', where => { username => $validate_info->{username} } }))
+        {
+            $error_string = "You're already registered! Please login with your username and password.";
+        }
     }
+    $page_vars = login_page(
+        {
+            'cgi'          => $cgi,
+            'error_string' => $error_string,
+        }
+    );
+
+    return $page_vars;
 }
 
 sub promote_pending_user {
