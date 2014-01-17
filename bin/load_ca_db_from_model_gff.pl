@@ -4,33 +4,35 @@
 # This scripts loads the structural annotation data (in JSON format) derived from
 # parsing the GMAP output and updates the loci table (has_structural_annotation flag)
 
-# Set the perl5lib path variable
-BEGIN {
-    unshift @INC, '../', './lib';
-}
-
 use strict;
 use warnings;
 use Getopt::Long;
-use DBI;
+
+# Set the perl5lib path variable
+BEGIN {
+    unshift @INC, '../', './lib', './lib/5.16.1';
+}
+use EuCAP::DBHelper;
+
+#use DBI;
 use JSON;
 
-#BioPerl modules
-use Bio::DB::SeqFeature::Store;
-use Bio::SeqFeature::Generic;
-
-#Class::DBI (ORM) Classes
-use CA::DBHelper;
-
-#local GFF DB connection params
-my $GFF_DB_ADAPTOR  = 'DBI::mysql';                                         #Bio DB SeqFeature Store
-my $GFF_DB_NAME     = 'medtr_gbrowse2';
-my $GFF_DB_HOST     = 'mysql51-lan-dev';
-my $GFF_DB_DSN      = join(':', ('dbi:mysql', $GFF_DB_NAME, $GFF_DB_HOST));
-my $GFF_DB_USERNAME = 'access';
-my $GFF_DB_PASSWORD = 'access';
-
-#my $gff_dbh = get_database_handle($GFF_DB_ADAPTOR, $GFF_DB_DSN, $GFF_DB_USERNAME, $GFF_DB_PASSWORD) or die;
+##BioPerl modules
+#use Bio::DB::SeqFeature::Store;
+#use Bio::SeqFeature::Generic;
+#
+##Class::DBI (ORM) Classes
+#use CA::DBHelper;
+#
+##local GFF DB connection params
+#my $GFF_DB_ADAPTOR  = 'DBI::mysql';                                         #Bio DB SeqFeature Store
+#my $GFF_DB_NAME     = 'medtr_gbrowse2';
+#my $GFF_DB_HOST     = 'mysql51-lan-dev';
+#my $GFF_DB_DSN      = join(':', ('dbi:mysql', $GFF_DB_NAME, $GFF_DB_HOST));
+#my $GFF_DB_USERNAME = 'access';
+#my $GFF_DB_PASSWORD = 'access';
+#
+##my $gff_dbh = get_database_handle($GFF_DB_ADAPTOR, $GFF_DB_DSN, $GFF_DB_USERNAME, $GFF_DB_PASSWORD) or die;
 
 my ($user_id, $family_id, $model_gff_file) = (0, 0, "");
 GetOptions("model_gff_file=s" => \$model_gff_file);
@@ -49,26 +51,30 @@ while (<$fh>) {
     chomp;
     if (/\s+mRNA\s+\d+/) {
         if ($locus_id and $gff_data ne "") {
-            $loci_obj = CA::loci->retrieve(locus_id => $locus_id, gene_name => $gene_name);
-            $locus_name = $loci_obj->locus_name;
+            $loci_obj = selectrow(
+                { table => 'loci', where => { locus_id => $locus_id, gene_symbol => $gene_name } });
+            $locus_name = $loci_obj->gene_locus;
             $ca_model_json .= "]}";
 
             #( $ca_gene_models ) = get_annotation_db_features($locus_name, $gff_dbh);
             #( $ca_model_ds, $ca_model_json ) = generate_initial_ca_model_ds($ca_gene_models->[0]);
             print "$locus_name\t$gene_name\n";
-            my $new_struct_annot_row = CA::structural_annotation->insert(
+            my $new_struct_annot_row = do(
+                'insert',
+                'structural_annot',
                 {
                     locus_id => $locus_id,
+                    user_id => $user_id,
                     model    => $ca_model_json
                 }
             );
-            my $locus_row = CA::loci->retrieve($locus_id);
-            $locus_row->has_structural_annotation(1);
+            my $locus_row = selectrow({ table => 'loci', primary_key => $locus_id });
+            $locus_row->has_structural_annot(1);
             $locus_row->update;
             $gff_data = "";
         }
-        ($seq_id, $start, $stop, $strand, $gene_name, $locus_id) = $_ =~
-/^(\S+)\s+\S+\s+mRNA\s+(\d+)\s+(\d+)\s+\.\s+(\S+)\s+\.\s+mRNA (\S+); Note ".*"; Alias "commanno_(\d+)"/;
+        ($seq_id, $start, $stop, $strand, $gene_name, $locus_id, $user_id) = $_ =~
+/^(\S+)\s+\S+\s+mRNA\s+(\d+)\s+(\d+)\s+\.\s+(\S+)\s+\.\s+mRNA (\S+); Note ".*"; Alias "commanno_(\d+)"; user_id "(\d+)"/;
         if ($strand eq "-") {
             $temp       = $start;
             $start      = $stop;
@@ -79,7 +85,7 @@ while (<$fh>) {
             $num_strand = 1;
         }
         $ca_model_json =
-"{\"stop\":$stop,\"seq_id\":\"$seq_id\",\"strand\":$num_strand,\"type\":\"processed_transcript\",\"start\":$start,\"subfeatures\":[";
+"{\"stop\":$stop,\"seq_id\":\"$seq_id\",\"strand\":$num_strand,\"type\":\"processed_transcript\",\"start\":$start,\"name\":\"$gene_name\",\"subfeatures\":[";
         $gff_data = "$_\n";
     }
     elsif (/mRNA $gene_name/) {
@@ -99,16 +105,25 @@ while (<$fh>) {
         $gff_data .= "$_\n";
     }
 }
-$loci_obj = CA::loci->retrieve(locus_id => $locus_id, gene_name => $gene_name);
-$locus_name = $loci_obj->locus_name;
+$loci_obj =
+  selectrow({ table => 'loci', where => { locus_id => $locus_id, gene_symbol => $gene_name } });
+$locus_name = $loci_obj->gene_locus;
 $ca_model_json .= "]}";
 
 #( $ca_gene_models ) = get_annotation_db_features($locus_name, $gff_dbh);
 #( $ca_model_ds, $ca_model_json ) = generate_initial_ca_model_ds($ca_gene_models->[0]);
 print "$locus_name\t$gene_name\n";
-
-my $locus_row = CA::loci->retrieve($locus_id);
-$locus_row->has_structural_annotation(1);
+my $new_struct_annot_row = do(
+    'insert',
+    'structural_annot',
+    {
+        locus_id => $locus_id,
+        user_id => $user_id,
+        model    => $ca_model_json
+    }
+);
+my $locus_row = selectrow({ table => 'loci', primary_key => $locus_id });
+$locus_row->has_structural_annot(1);
 $locus_row->update;
 close($fh);
 

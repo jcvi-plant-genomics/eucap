@@ -7,11 +7,18 @@
 
 use strict;
 use warnings;
-use DBI;
 use Getopt::Long;
-use lib '../lib/';
-use CA::CDBI;
-use CA::loci;
+use Data::Dumper;
+# Set the perl5lib path variable
+BEGIN {
+    unshift @INC, '../', './lib', './lib/5.16.1';
+}
+use EuCAP::DBHelper;
+
+#use DBI;
+#use lib '../lib/';
+#use CA::CDBI;
+#use CA::loci;
 
 my $gmap_sum   = q{};
 my $gmap_trunc = q{};
@@ -104,11 +111,11 @@ sub parse_sum_align {
     }
 
     #fetch the locus_id and description
-    my ($locus) =
-      CA::loci->search(user_id => $user_id, family_id => $family_id, gene_name => $gene_name)
+    my ($locus) = selectrow({ table => 'loci', where => { user_id => $user_id, family_id => $family_id, gene_symbol => $gene_name } })
       or die "gene $gene_name not found\n";
+  #print Dumper($locus);
     my $locus_id  = $locus->locus_id;
-    my $gene_desc = $locus->gene_description;
+    my $gene_desc = $locus->func_annotation;
 
     print join(
         "\t",

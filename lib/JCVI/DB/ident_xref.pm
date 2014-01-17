@@ -2,7 +2,9 @@ package AnnotDB::DB::ident_xref;
 
 use base 'AnnotDB::DB::CDBI';
 
-__PACKAGE__->set_up_table('ident_xref');
+__PACKAGE__->table('ident_xref');
+__PACKAGE__->columns(All => qw/id feat_name xref_id ident_val xref_type method mod_date assignby relrank/);
+#__PACKAGE__->set_up_table('ident_xref');
 
 __PACKAGE__->set_sql(
     get_gb_acc => qq{

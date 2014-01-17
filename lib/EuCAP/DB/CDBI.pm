@@ -17,7 +17,8 @@ sub getConfig {
     my %cfg = ();
     tie %cfg, 'Config::IniFiles', (-file => 'eucap.ini');
 
-    my $WEBTIER = ($ENV{'WEBTIER'} eq 'dev') ? 'dev' : 'prod';
+    my $WEBTIER = (!$ENV{'WEBTIER'}) ? 'dev' : (($ENV{'WEBTIER'} eq 'dev') ? 'dev' : 'prod');
+
     #local community annotation DB connection params
     my $CA_DB_NAME = $cfg{'eucap'}{'database'};
     my $CA_SERVER  = 'eucap-' . $WEBTIER;

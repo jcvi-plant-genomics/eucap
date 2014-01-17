@@ -40,7 +40,7 @@ sub structural_annotation {
     my $ca_model_json = $cgi->param('model_json');
     my $body_tmpl = HTML::Template->new(filename => "./tmpl/structural_annotation.tmpl");
 
-    my ($gff_locus_obj, $gene_models) = get_annotation_db_features({locus => $gene_locus});
+    my ($gff_locus_obj, $gene_models) = ($gene_locus ne "") ? get_annotation_db_features({locus => $gene_locus}) : undef;
 
     #when hooked into script - look for saved JSON in table if none passed as param
     #if no model JSON passed to script, create new from annotation gene model
@@ -73,7 +73,7 @@ sub structural_annotation {
             ca_model_feature => $ca_model_feature
         }
     );
-    $map = add_js_event_to_map($map, $gene_models->[0]);
+    $map = add_js_event_to_map($map, $gene_models->[0]) if($gene_models->[0]);
     my $ca_anno_loop = generate_table($ca_model_ds);
 
     $body_tmpl->param(
@@ -293,7 +293,7 @@ sub create_ca_model_feature {
             -start  => $subfeature->{start},
             -stop   => $subfeature->{stop},
             -type   => $subfeature->{type},
-            -strand => 1,    #strand is flipped by *-1, if strand is 0, it doesn't work
+            -strand => $strand,    #strand is flipped by *-1, if strand is 0, it doesn't work
 
         );
         push(@$ca_model_subfeat_objs, $subfeat_obj);
@@ -302,6 +302,7 @@ sub create_ca_model_feature {
         -segments => $ca_model_subfeat_objs,
         -type     => 'mRNA',
         -strand   => $strand,
+        -name     => $ca_model_ds->{name},
         -seq_id   => $seq_id,
 
     );
@@ -312,23 +313,32 @@ sub create_ca_model_feature {
 sub create_ca_image_and_map {
     my ($arg_ref) = @_;
 
-    my ($l_end5, $l_end3) = get_ends_from_feature($arg_ref->{locus_obj});
+    my ($end5,   $end3, $strand, $length);
     my ($c_end5, $c_end3) = get_ends_from_feature($arg_ref->{ca_model_feature});
-    my ($end5,   $end3);
-    if ($arg_ref->{locus_obj}->strand == 1) {
-        $end5 = $c_end5 < $l_end5 ? $c_end5 : $l_end5;
-        $end3 = $c_end3 > $l_end3 ? $c_end3 : $l_end3;
+    if(defined $arg_ref->{locus_obj}) {
+        my ($l_end5, $l_end3) = get_ends_from_feature($arg_ref->{locus_obj});
+        if ($arg_ref->{locus_obj}->strand == 1) {
+            $end5 = $c_end5 < $l_end5 ? $c_end5 : $l_end5;
+            $end3 = $c_end3 > $l_end3 ? $c_end3 : $l_end3;
+        }
+        else {
+            $end3 = $c_end5 > $l_end5 ? $c_end5 : $l_end5;
+            $end5 = $c_end3 < $l_end3 ? $c_end3 : $l_end3;
+        }
+        $strand = $arg_ref->{locus_obj}->strand;
+        $length = $arg_ref->{locus_obj}->length;
     }
     else {
-        $end3 = $c_end5 > $l_end5 ? $c_end5 : $l_end5;
-        $end5 = $c_end3 < $l_end3 ? $c_end3 : $l_end3;
+          ($end5, $end3) =
+            ($arg_ref->{ca_model_feature}->strand == 1) ? ($c_end5, $c_end3) : ($c_end3, $c_end5);
+        $strand = $arg_ref->{ca_model_feature}->strand;
+        $length = $arg_ref->{ca_model_feature}->length;
     }
 
 #flip will have to be dynamically controlled by the strand of the ca  model or the primary working model
 
-    my $strand = $arg_ref->{locus_obj}->strand;
     my $panel = Bio::Graphics::Panel->new(
-        -length     => $arg_ref->{locus_obj}->length,
+        -length     => $length,
         -key_style  => 'between',
         -width      => 600,
         -pad_left   => 20,
@@ -337,7 +347,7 @@ sub create_ca_image_and_map {
         -pad_bottom => 20,
         -start      => $end5,
         -end        => $end3,
-        -flip       => ($strand) == -1 ? 1 : 0,
+        -flip       => ($strand == -1) ? 1 : 0,
     );
 
     $panel->add_track(
@@ -355,7 +365,7 @@ sub create_ca_image_and_map {
         arrow => Bio::SeqFeature::Generic->new(
             -start  => $end5,
             -end    => $end3,
-            -strand => $arg_ref->{locus_obj}->strand,
+            -strand => $strand,
         ),
         -bump            => 0,
         -double          => 1,
@@ -421,7 +431,11 @@ sub create_ca_image_and_map {
         $arg_ref->{ca_model_feature},
         -glyph        => 'gene',
         -connector    => 'solid',
-        -label        => sub { my $f = shift; return $f->notes; },
+        -label     => sub {
+            my $feature = shift;
+            my $note    = $feature->display_name();
+            return $note;
+        },
         -description  => 0,
         -fgcolor      => "#0A910D",
         -bgcolor      => "lightgreen",

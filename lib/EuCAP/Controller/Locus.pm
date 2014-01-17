@@ -26,7 +26,7 @@ sub add_loci {
 
         #next unless ($gene_locus =~ /^Medtr[1-8]g\d+|^\S+_\d+|^contig_\d+_\d+/);
         next
-          unless ($gene_locus =~ /\bMedtr\d{1}g\d+\b/
+          unless ($gene_locus =~ /\bMedtr\d{1,}[gs]\d+\b/
             or $gene_locus =~ /\b\w{2}\d+_\d+\b/
             or $gene_locus =~ /\bcontig_\d+_\d+\b/);
 
@@ -428,7 +428,10 @@ sub annotate_locus {
                 my $annotate_mutant_loop = [];
                 my $mutant_row           = {};
 
-                $mutant_row->{user_id} = $anno_ref->{user_id};
+                $mutant_row = {
+                    user_id => $anno_ref->{user_id},
+                    locus_id => $locus_id
+                };
                 push @$annotate_mutant_loop, $mutant_row;
                 $locus_row->{annotate_mutant_loop} = $annotate_mutant_loop;
             }

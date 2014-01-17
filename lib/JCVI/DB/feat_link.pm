@@ -2,7 +2,9 @@ package AnnotDB::DB::feat_link;
 
 use base 'AnnotDB::DB::CDBI';
 
-__PACKAGE__->set_up_table('feat_link');
+__PACKAGE__->table('feat_link');
+__PACKAGE__->columns(All => qw/id parent_feat child_feat assignby datestamp/);
+#__PACKAGE__->set_up_table('feat_link');
 
 __PACKAGE__->set_sql(
     get_children => qq{

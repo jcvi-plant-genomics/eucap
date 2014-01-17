@@ -92,8 +92,8 @@
             </div>
             <div id="curve">&nbsp;</div>
             <div id="project"><table><tbody><tr>
-              <td><img width="50px" src="/medicago-v35/include/images/mtr_leaf.png"></td>
-              <td style="color: white; ">&nbsp;<em>Medicago truncatula</em> v3.5 Release</td>
+              <td><img width="50px" src="/medicago/include/images/mtr_leaf.png"></td>
+              <td style="color: white; ">&nbsp;<em>Medicago truncatula</em> v4.0 Release</td>
               </tr></tbody></table>
             </div>
           </div> <!-- end headerContainerContainer -->
@@ -184,5 +184,29 @@
   <script src="/eucap/include/bootstrap/js/bootstrap-dropdown.js"></script>
   <script src="/eucap/include/bootstrap/js/bootstrap-tab.js"></script>
   <script src="/eucap/include/bootstrap/js/bootstrap-collapse.js"></script-->
+
+  <script type="text/javascript">
+  var is_production = true;
+  var dev_test = /(-dev)|(-test)/;
+  var hostname = location.hostname;
+
+  if(hostname.search(dev_test) != -1) {
+	  is_production = false;
+  } // end if(hostname.search(dev_test) != -1)
+
+  if(is_production) {
+	var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+	document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+  } // end if(is_production)
+  </script>
+  <script type="text/javascript">
+  if(is_production) {
+	try {
+		var pageTracker = _gat._getTracker("UA-9809410-3");
+		pageTracker._setDomainName(".jcvi.org");
+		pageTracker._trackPageview();
+	} catch(err) {}
+  } // end if(is_production)
+  </script>
 </body>
 </html>

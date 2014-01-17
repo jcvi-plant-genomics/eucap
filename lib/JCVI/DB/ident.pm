@@ -2,7 +2,9 @@ package AnnotDB::DB::ident;
 
 use base 'AnnotDB::DB::CDBI';
 
-__PACKAGE__->set_up_table('ident');
+__PACKAGE__->table('ident');
+__PACKAGE__->columns(All => qw/feat_name alt_locus date nt_com_name assignby pub_comment ec# pub_locus com_name species nt_comment is_pseudogene locus gene_sym auto_comment save_history comment/);
+#__PACKAGE__->set_up_table('ident');
 
 __PACKAGE__->set_sql(
     get_loci => qq{

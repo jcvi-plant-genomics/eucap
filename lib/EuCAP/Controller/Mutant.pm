@@ -401,9 +401,6 @@ sub annotate_mutant {
         }
     }
     else {
-        my $body_tmpl = HTML::Template->new(filename => "./tmpl/annotate_mutant.tmpl")
-          if (not defined $arg_ref->{row});
-
         my $annotate_mutant_loop = [];
         my @mutant_ids = split /,/, $mutant_id;
         foreach $mutant_id (sort { $a <=> $b } @mutant_ids) {
@@ -455,6 +452,8 @@ sub annotate_mutant {
 
             if (not defined $arg_ref->{row}) {
                 $mutant_row->{is_mutant_edit} = 1;
+            } else {
+                $mutant_row->{locus_id} = $arg_ref->{row}->{locus_id};
             }
 
             push @$annotate_mutant_loop, $mutant_row;
@@ -465,9 +464,9 @@ sub annotate_mutant {
             return $arg_ref->{row};
         }
         else {
+            my $body_tmpl = HTML::Template->new(filename => "./tmpl/annotate_mutant.tmpl");
             $body_tmpl->param(
                 annotate_mutant_loop => $annotate_mutant_loop,
-                is_mutant_edit       => 1
             );
 
             # HTML header

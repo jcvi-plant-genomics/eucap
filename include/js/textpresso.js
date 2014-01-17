@@ -1,10 +1,6 @@
 // function to markup the PMIDs in the publications input box
 function markup_pmids(feature) {
-    var feature_name = 'reference_pub_tagsinput';
-    if(feature !== undefined) {
-        feature_name = 'mutant_' + feature_name;
-    }
-    $('#' + feature_name).find('span.tag').find('span').each(function() {
+    $('#annotate_locus').find('div[id$=tagsinput]').find('span.tag').find('span').each(function() {
         var pmid = $(this).html().match(/^PMID:(\d+)/);
         if(pmid) {
             $(this).parent().qtip({
